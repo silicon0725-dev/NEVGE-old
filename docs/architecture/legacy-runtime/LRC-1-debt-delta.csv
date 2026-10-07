@@ -1,0 +1,16 @@
+﻿id,severity,status,summary,policyIds,relatedLsa
+LRC1-F001,P1,CONFIRMED_SOURCE,"OpsPerFrame can be set to 0, causing FrameLoop stepCallback to execute zero Runtime._step calls.",LRC1-POL-002,LSA-051
+LRC1-F002,P1,CONFIRMED_SOURCE,OpsPerFrame custom negative input is normalized to 1 by Runtime but the raw negative value is dispatched to Redux; GUI does not subscribe to OPSPERFRAME_CHANGED.,LRC1-POL-002,LSA-051
+LRC1-F003,P1,CONFIRMED_FORK_DELTA,"02 fork comments out TurboWarp's >250 framerate cap, permitting an unbounded high-frequency scheduling request and setImmediate path.",LRC1-POL-001,LSA-050/LSA-120
+LRC1-F004,P1,CONFIRMED_SOURCE,High Quality Pen changes all Drawable position rounding and Pen size clamping in addition to Pen render resolution.,LRC1-POL-004,LSA-059
+LRC1-F005,P1,CONFIRMED_SOURCE,"miscLimits is an invalid aggregate policy spanning Sound, Pen, Music and Mouse semantics.",LRC1-POL-008,LSA-054/LSA-056
+LRC1-F006,P1,CONFIRMED_SOURCE,Interpolation is partial presentation resampling only; it cannot provide general 60 Hz compatibility for Pen/custom visual domains.,LRC1-POL-003,LSA-052
+LRC1-F007,P2,CONFIRMED_SOURCE,Offscreen drawable culling is a backend optimization but is persisted as project runtimeOptions.,LRC1-POL-005|LRC1-PERSIST-001,LSA-059/LSA-055
+LRC1-F008,P1,CONFIRMED_SOURCE,"Custom Stage Size validation disagrees across UI (1024), URL reducer (4096), and Runtime (no equivalent upper bound).",LRC1-POL-011,LSA-058
+LRC1-F009,P1,CONFIRMED_SOURCE,Warp Timer is not stable user authority: Blocks workspace mount forces warpTimer=true independently of the settings checkbox.,LRC1-POL-009,LSA-057
+LRC1-F010,P1,CONFIRMED_SOURCE,Infinite Clones encodes resource policy as Infinity and can remove a host safety budget.,LRC1-POL-006,LSA-056
+LRC1-F011,P1,CONFIRMED_STRUCTURAL,"Runtime policy authority is fragmented across modal handlers, Green Flag gestures, URL parameters, project comment parsing, workspace mount, collaboration sync and backend setters.",LRC1-POL-001|LRC1-POL-002|LRC1-POL-003|LRC1-POL-004|LRC1-POL-005|LRC1-POL-006|LRC1-POL-007|LRC1-POL-008|LRC1-POL-009|LRC1-POL-010|LRC1-POL-011|LRC1-POL-012|LRC1-PERSIST-001,LSA-053/LSA-054
+LRC1-F012,P1,CONFIRMED_STRUCTURAL,_twconfig_ mixes unrelated domains in one unversioned Scratch comment and has no explicit precedence resolver against session/URL writers.,LRC1-PERSIST-001,LSA-055
+LRC1-F013,P2,CONFIRMED_SOURCE,URL mirroring is incomplete: OpsPerFrame and offscreen drawable culling can persist in _twconfig_ but are not represented in the URL state mapping.,LRC1-POL-002|LRC1-POL-005,LSA-053/LSA-055
+LRC1-F014,P1,CONFIRMED_ABSENCE,No compatibility/conflict analyzer prevents semantically hazardous combinations such as custom simulation rate + interpolation + Pen/3D/custom renderer workloads.,LRC1-POL-001|LRC1-POL-003|LRC1-POL-004,LSA-053/LSA-054
+LRC1-F015,P2,CONFIRMED_SEMANTIC_DEBT,Compiler enable/disable is exposed as creator project configuration even though it is an execution backend/debug choice.,LRC1-POL-010,LSA-057

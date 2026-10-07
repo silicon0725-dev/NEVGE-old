@@ -1,0 +1,2009 @@
+--- a/docs/TASK-0007.2-NODE-TREE-FOUNDATION.md
++++ b/docs/TASK-0007.2-NODE-TREE-FOUNDATION.md
+@@ -0,0 +1,101 @@
++# Task-0007.2 — Node Tree Foundation
++
++## User-visible goal
++
++Project Explorer can create NGVGE nodes at the scene root or below a selected parent. The initial built-in node types are:
++
++- `Node2D`
++- `PhysicsBody2D`
++- `Collider2D`
++- `Marker2D`
++
++Stage and Sprite targets remain normal Scratch targets. NGVGE child nodes are project metadata attached to the target hierarchy.
++
++## Editor workflow
++
++1. Expand `Project → Entities`.
++2. Choose a node type and an optional name.
++3. Use `+ Root Node` to create a top-level NGVGE node.
++4. Select a Stage, Sprite, or compatible NGVGE node.
++5. Use `+ Child Node` to create below the selected parent.
++6. Select the node to edit it in Inspector.
++
++When a child node belongs to a Sprite, selecting it keeps that Sprite as the active Scratch editing target while Inspector displays the child node.
++
++## Data model
++
++Each project node has a stable logical ID:
++
++```json
++{
++  "id": "node:uuid",
++  "typeId": "ngvge.collider2d",
++  "name": "Hitbox",
++  "parentId": "node:parent",
++  "childIds": [],
++  "enabled": true,
++  "properties": {
++    "shape": "rectangle",
++    "width": 48,
++    "height": 48
++  }
++}
++```
++
++Target-backed Stage and Sprite nodes are stored in the same hierarchy, but remain bound to ordinary Scratch VM targets.
++
++## Persistence
++
++The hierarchy is serialized as the hidden project section `ngvge-node-tree` through the existing additive `ngvge.projectSections` persistence layer.
++
++Target node bindings are saved by original-target order so the hierarchy can reconnect even when Scratch VM generates different runtime target IDs after loading.
++
++Normal Scratch target, block, costume, and sound data is unchanged.
++
++## Undo and Redo
++
++The following operations use the shared Task-0005 property history:
++
++- create node;
++- rename node;
++- enable or disable node;
++- edit node properties;
++- reparent node through the database API;
++- delete a node subtree.
++
++## Plugin preparation
++
++Node types are defined by `ngvgeNodeTypeRegistry`. A future editor plugin can register a type without modifying Project Explorer:
++
++```js
++context.nodes.registerType({
++    id: 'plugin.example.wind-zone',
++    label: 'WindZone2D',
++    category: 'Physics',
++    icon: 'W',
++    pluginId: 'plugin.example',
++    defaults: {strength: 1},
++    fields: [
++        {id: 'strength', label: 'Strength', type: 'number'}
++    ]
++});
++```
++
++If a project contains a plugin node while its plugin is unavailable, the unknown node and its raw properties remain preserved.
++
++## Current runtime boundary
++
++`PhysicsBody2D` and `Collider2D` are editable data nodes in this milestone. They do not yet run a physics simulation or draw collision debug shapes. Runtime behavior will be supplied by the later component, physics, and plugin-host milestones.
++
++## Compatibility
++
++- Scratch / TurboWarp / 02Engine: ordinary targets continue to work.
++- SB3: NGVGE node metadata is additive; external editors may ignore or strip it when re-saving.
++- NGVGE: hierarchy and node properties are restored.
++- Plugins: node-type registry is ready for a future Plugin Context adapter.
++
++## Suggested commit
++
++```text
++feat(project-nodes): add hierarchical node tree foundation
++```
+--- a/src/components/gui/gui.jsx
++++ b/src/components/gui/gui.jsx
+@@ -62,6 +62,7 @@
+ import {BLOCKS_TAB_INDEX, COSTUMES_TAB_INDEX, SOUNDS_TAB_INDEX} from '../../reducers/editor-tab';
+ import {
+     setProjectExplorerNodeExpanded,
++    setProjectExplorerSelectedNode,
+     setProjectExplorerVisible,
+     setProjectExplorerWidth
+ } from '../../reducers/project-explorer';
+@@ -314,6 +315,7 @@
+         onSetSelectedExtension,
+         onProjectTelemetryEvent,
+         onSetProjectExplorerNodeExpanded,
++        onSetProjectExplorerSelectedNode,
+         onSetProjectExplorerVisible,
+         onSetProjectExplorerWidth,
+         onSetProjectInspectorSectionExpanded,
+@@ -359,6 +361,7 @@
+         editorBackground,
+         editingTargetId,
+         projectExplorerExpandedNodeIds,
++        projectExplorerSelectedNodeId,
+         projectExplorerVisible,
+         projectExplorerWidth,
+         projectInspectorExpandedSectionIds,
+@@ -1889,6 +1892,7 @@
+                             <ProjectExplorer
+                                 editingTargetId={editingTargetId}
+                                 expandedNodeIds={projectExplorerExpandedNodeIds}
++                                selectedNodeId={projectExplorerSelectedNodeId}
+                                 sprites={sprites}
+                                 stage={stage}
+                                 stageLabel={intl.formatMessage(messages.stageTargetName)}
+@@ -1896,6 +1900,7 @@
+                                 width={projectExplorerWidth}
+                                 onClose={handleCloseProjectExplorer}
+                                 onOpenAssetManager={handleOpenAssetManager}
++                                onSelectNode={onSetProjectExplorerSelectedNode}
+                                 onSelectTarget={handleProjectExplorerTargetSelection}
+                                 onToggleNode={onSetProjectExplorerNodeExpanded}
+                             />
+@@ -1905,9 +1910,11 @@
+                             <ProjectInspector
+                                 editingTargetId={editingTargetId}
+                                 expandedSectionIds={projectInspectorExpandedSectionIds}
++                                selectedNodeId={projectExplorerSelectedNodeId}
+                                 vm={vm}
+                                 width={projectInspectorWidth}
+                                 onClose={handleCloseProjectInspector}
++                                onSelectNode={onSetProjectExplorerSelectedNode}
+                                 onSelectTarget={handleProjectExplorerTargetSelection}
+                                 onToggleSection={onSetProjectInspectorSectionExpanded}
+                             />
+@@ -1964,12 +1971,14 @@
+                                     <ProjectExplorer
+                                         editingTargetId={editingTargetId}
+                                         expandedNodeIds={projectExplorerExpandedNodeIds}
++                                        selectedNodeId={projectExplorerSelectedNodeId}
+                                         showHeader={false}
+                                         sprites={sprites}
+                                         stage={stage}
+                                         stageLabel={intl.formatMessage(messages.stageTargetName)}
+                                         vm={vm}
+                                         onOpenAssetManager={handleOpenAssetManager}
++                                        onSelectNode={onSetProjectExplorerSelectedNode}
+                                         onSelectTarget={handleProjectExplorerTargetSelection}
+                                         onToggleNode={onSetProjectExplorerNodeExpanded}
+                                     />
+@@ -1993,8 +2002,10 @@
+                                     <ProjectInspector
+                                         editingTargetId={editingTargetId}
+                                         expandedSectionIds={projectInspectorExpandedSectionIds}
++                                        selectedNodeId={projectExplorerSelectedNodeId}
+                                         showHeader={false}
+                                         vm={vm}
++                                        onSelectNode={onSetProjectExplorerSelectedNode}
+                                         onSelectTarget={handleProjectExplorerTargetSelection}
+                                         onToggleSection={onSetProjectInspectorSectionExpanded}
+                                     />
+@@ -2148,6 +2159,7 @@
+     }),
+     editingTargetId: PropTypes.string,
+     projectExplorerExpandedNodeIds: PropTypes.arrayOf(PropTypes.string).isRequired,
++    projectExplorerSelectedNodeId: PropTypes.string,
+     projectExplorerVisible: PropTypes.bool.isRequired,
+     projectExplorerWidth: PropTypes.number.isRequired,
+     projectInspectorExpandedSectionIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+@@ -2182,6 +2194,7 @@
+     onLogOut: PropTypes.func,
+     onOpenRegistration: PropTypes.func,
+     onSetProjectExplorerNodeExpanded: PropTypes.func.isRequired,
++    onSetProjectExplorerSelectedNode: PropTypes.func.isRequired,
+     onSetProjectExplorerVisible: PropTypes.func.isRequired,
+     onSetProjectExplorerWidth: PropTypes.func.isRequired,
+     onSetProjectInspectorSectionExpanded: PropTypes.func.isRequired,
+@@ -2260,6 +2273,7 @@
+     customUI: !!state.scratchGui.tw.customUI,
+     editingTargetId: state.scratchGui.targets.editingTarget,
+     projectExplorerExpandedNodeIds: state.scratchGui.projectExplorer.expandedNodeIds,
++    projectExplorerSelectedNodeId: state.scratchGui.projectExplorer.selectedNodeId,
+     projectExplorerVisible: state.scratchGui.projectExplorer.visible,
+     projectExplorerWidth: state.scratchGui.projectExplorer.width,
+     projectInspectorExpandedSectionIds: state.scratchGui.projectInspector.expandedSectionIds,
+@@ -2277,6 +2291,7 @@
+     onSetProjectExplorerNodeExpanded: (nodeId, expanded) => (
+         dispatch(setProjectExplorerNodeExpanded(nodeId, expanded))
+     ),
++    onSetProjectExplorerSelectedNode: nodeId => dispatch(setProjectExplorerSelectedNode(nodeId)),
+     onSetProjectExplorerVisible: visible => dispatch(setProjectExplorerVisible(visible)),
+     onSetProjectExplorerWidth: width => dispatch(setProjectExplorerWidth(width)),
+     onSetProjectInspectorSectionExpanded: (sectionId, expanded) => (
+--- a/src/components/project-explorer/project-explorer.css
++++ b/src/components/project-explorer/project-explorer.css
+@@ -438,3 +438,87 @@
+     background: rgba(77, 151, 255, 0.16);
+     outline: none;
+ }
++
++.node-creation-panel {
++    width: calc(100% - 3.1rem);
++    margin: 0.25rem 0.55rem 0.55rem 2.55rem;
++    padding: 0.55rem;
++    border: 1px solid rgba(77, 151, 255, 0.22);
++    border-radius: 0.5rem;
++    background: rgba(77, 151, 255, 0.045);
++    white-space: normal;
++}
++
++.node-creation-fields {
++    display: grid;
++    grid-template-columns: minmax(0, 1fr);
++    gap: 0.35rem;
++}
++
++.node-creation-fields select,
++.node-creation-fields input {
++    width: 100%;
++    min-width: 0;
++    height: 1.85rem;
++    padding: 0 0.45rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.36rem;
++    background: $ui-white;
++    color: $text-primary;
++    font: inherit;
++    font-size: 0.66rem;
++}
++
++.node-creation-fields select:focus,
++.node-creation-fields input:focus {
++    border-color: $motion-primary;
++    outline: none;
++    box-shadow: 0 0 0 2px rgba(77, 151, 255, 0.12);
++}
++
++.node-creation-actions {
++    display: grid;
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++    gap: 0.35rem;
++    margin-top: 0.4rem;
++}
++
++.node-creation-actions button {
++    min-width: 0;
++    min-height: 1.8rem;
++    padding: 0.2rem 0.35rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.36rem;
++    background: $ui-white;
++    color: $text-primary;
++    font: inherit;
++    font-size: 0.62rem;
++    cursor: pointer;
++}
++
++.node-creation-actions button:hover:not(:disabled),
++.node-creation-actions button:focus-visible:not(:disabled) {
++    border-color: $motion-primary;
++    color: $motion-primary;
++    outline: none;
++}
++
++.node-creation-actions button:disabled {
++    opacity: 0.42;
++    cursor: default;
++}
++
++.node-creation-hint {
++    display: flex;
++    min-width: 0;
++    flex-direction: column;
++    gap: 0.12rem;
++    margin-top: 0.42rem;
++    color: $text-primary-transparent;
++    font-size: 0.58rem;
++    line-height: 1.35;
++}
++
++.node-creation-hint span {
++    color: $motion-primary;
++}
+--- a/src/components/project-explorer/project-explorer.jsx
++++ b/src/components/project-explorer/project-explorer.jsx
+@@ -13,6 +13,10 @@
+     getGlobalAssetDatabase,
+     installGlobalAssetDatabase
+ } from '../../lib/project-assets/global-asset-database';
++import {
++    getNodeDatabase,
++    installNodeDatabase
++} from '../../lib/project-nodes/node-database';
+ 
+ import styles from './project-explorer.css';
+ 
+@@ -135,14 +139,116 @@
+     targetId: null
+ };
+ 
++const NodeCreationPanel = props => {
++    const {
++        childParent,
++        nodeDatabase,
++        onCreated,
++        onToggleNode
++    } = props;
++    const nodeTypes = nodeDatabase ? nodeDatabase.listNodeTypes() : [];
++    const [nodeTypeId, setNodeTypeId] = React.useState(nodeTypes.length ? nodeTypes[0].id : '');
++    const [name, setName] = React.useState('');
++    const [status, setStatus] = React.useState('');
++
++    React.useEffect(() => {
++        if (!nodeTypes.length) {
++            setNodeTypeId('');
++        } else if (!nodeTypes.some(nodeType => nodeType.id === nodeTypeId)) {
++            setNodeTypeId(nodeTypes[0].id);
++        }
++    }, [nodeTypeId, nodeTypes]);
++
++    const create = parentId => {
++        if (!nodeDatabase || !nodeTypeId) return;
++        try {
++            const node = nodeDatabase.createNode(nodeTypeId, parentId, {name});
++            setName('');
++            setStatus(`${node.name} created`);
++            if (parentId) onToggleNode(parentId, true);
++            onCreated(node);
++        } catch (error) {
++            setStatus(error && error.message ? error.message : String(error));
++        }
++    };
++
++    return (
++        <div className={styles.nodeCreationPanel}>
++            <div className={styles.nodeCreationFields}>
++                <select
++                    aria-label="Node type"
++                    value={nodeTypeId}
++                    onChange={event => setNodeTypeId(event.target.value)}
++                >
++                    {nodeTypes.map(nodeType => (
++                        <option key={nodeType.id} value={nodeType.id}>
++                            {nodeType.category} · {nodeType.label}
++                        </option>
++                    ))}
++                </select>
++                <input
++                    aria-label="Node name"
++                    placeholder="Optional name"
++                    value={name}
++                    onChange={event => setName(event.target.value)}
++                    onKeyDown={event => {
++                        if (event.key === 'Enter') create(childParent ? childParent.id : null);
++                    }}
++                />
++            </div>
++            <div className={styles.nodeCreationActions}>
++                <button
++                    disabled={!nodeTypeId}
++                    type="button"
++                    onClick={() => create(null)}
++                >
++                    + Root Node
++                </button>
++                <button
++                    disabled={!nodeTypeId || !childParent}
++                    title={childParent ? `Create under ${childParent.name}` : 'Select a parent node first'}
++                    type="button"
++                    onClick={() => create(childParent.id)}
++                >
++                    + Child Node
++                </button>
++            </div>
++            <div className={styles.nodeCreationHint}>
++                {childParent ? `Child parent: ${childParent.name}` : 'Select a node to create a child.'}
++                {status ? <span>{status}</span> : null}
++            </div>
++        </div>
++    );
++};
++
++NodeCreationPanel.propTypes = {
++    childParent: PropTypes.shape({
++        id: PropTypes.string.isRequired,
++        name: PropTypes.string.isRequired
++    }),
++    nodeDatabase: PropTypes.shape({
++        createNode: PropTypes.func.isRequired,
++        listNodeTypes: PropTypes.func.isRequired
++    }),
++    onCreated: PropTypes.func.isRequired,
++    onToggleNode: PropTypes.func.isRequired
++};
++
++NodeCreationPanel.defaultProps = {
++    childParent: null,
++    nodeDatabase: null
++};
++
+ const ProjectExplorer = props => {
+     const {
+         editingTargetId,
+         expandedNodeIds,
+         onClose,
+         onOpenAssetManager,
++        onSelectNode,
+         onSelectTarget,
+         onToggleNode,
++        selectedNodeId,
+         showHeader,
+         sprites,
+         stage,
+@@ -156,10 +262,17 @@
+     const entityProvider = createEntityProvider({sprites, stage, stageLabel});
+     const entityNodes = entityProvider.getChildren(ENTITIES_ROOT_NODE_ID);
+     const [assetRevision, setAssetRevision] = React.useState(0);
++    const [nodeRevision, setNodeRevision] = React.useState(0);
++    const previousEditingTargetIdRef = React.useRef(editingTargetId);
+ 
+     const assetDatabase = React.useMemo(() => {
+         if (!vm || !vm.runtime) return null;
+         return getGlobalAssetDatabase(vm.runtime) || installGlobalAssetDatabase(vm);
++    }, [vm]);
++
++    const nodeDatabase = React.useMemo(() => {
++        if (!vm || !vm.runtime) return null;
++        return getNodeDatabase(vm.runtime) || installNodeDatabase(vm);
+     }, [vm]);
+ 
+     React.useEffect(() => {
+@@ -168,6 +281,26 @@
+             setAssetRevision(change.revision || assetDatabase.getRevision());
+         });
+     }, [assetDatabase]);
++
++    React.useEffect(() => {
++        if (!nodeDatabase) return () => {};
++        nodeDatabase.syncTargets({silent: true});
++        return nodeDatabase.subscribe(change => {
++            setNodeRevision(change.revision || nodeDatabase.getRevision());
++        });
++    }, [nodeDatabase]);
++
++    React.useEffect(() => {
++        if (!nodeDatabase || !editingTargetId) return;
++        const editingTargetChanged = previousEditingTargetIdRef.current !== editingTargetId;
++        previousEditingTargetIdRef.current = editingTargetId;
++        const selectedNode = selectedNodeId ? nodeDatabase.getNode(selectedNodeId) : null;
++        if (selectedNode && !editingTargetChanged) return;
++        const selectedTargetNode = selectedNode ? nodeDatabase.getNearestTargetNode(selectedNode.id) : null;
++        if (selectedTargetNode && selectedTargetNode.targetId === editingTargetId) return;
++        const targetNode = nodeDatabase.getNodeForTarget(editingTargetId);
++        if (targetNode && targetNode.id !== selectedNodeId) onSelectNode(targetNode.id);
++    }, [editingTargetId, nodeDatabase, nodeRevision, onSelectNode, selectedNodeId]);
+ 
+     const assetCount = React.useMemo(
+         () => assetDatabase ? assetDatabase.listAssets().length : 0,
+@@ -181,6 +314,52 @@
+             sounds: assets.filter(asset => asset.kind === 'sound').length
+         };
+     }, [assetDatabase, assetRevision]);
++
++    const allNodes = React.useMemo(
++        () => nodeDatabase ? nodeDatabase.listNodes() : [],
++        [nodeDatabase, nodeRevision]
++    );
++    const customNodeCount = allNodes.filter(node => !node.targetId).length;
++    const selectedNode = nodeDatabase && selectedNodeId ? nodeDatabase.getNode(selectedNodeId) : null;
++    const selectedNodeType = selectedNode && nodeDatabase ? nodeDatabase.getNodeType(selectedNode.typeId) : null;
++    const fallbackParent = nodeDatabase && editingTargetId ? nodeDatabase.getNodeForTarget(editingTargetId) : null;
++    const selectedParent = selectedNode && nodeDatabase ? nodeDatabase.getParent(selectedNode.id) : null;
++    const selectedParentType = selectedParent && nodeDatabase ? nodeDatabase.getNodeType(selectedParent.typeId) : null;
++    const childParent = selectedNode && (!selectedNodeType || selectedNodeType.allowChildren !== false) ?
++        selectedNode : (
++            selectedParent && (!selectedParentType || selectedParentType.allowChildren !== false) ?
++                selectedParent : fallbackParent
++        );
++
++    const activateNode = node => {
++        if (!nodeDatabase || !node) return;
++        onSelectNode(node.id);
++        const targetNode = node.targetId ? node : nodeDatabase.getNearestTargetNode(node.id);
++        if (targetNode && targetNode.targetId) onSelectTarget(targetNode.targetId);
++    };
++
++    const renderCustomNode = (node, depth) => {
++        const nodeType = nodeDatabase.getNodeType(node.typeId);
++        const children = nodeDatabase.getChildren(node.id);
++        return (
++            <TreeNode
++                depth={depth}
++                expanded={expandedNodeIds.indexOf(node.id) !== -1}
++                icon={nodeType ? nodeType.icon : '�'}
++                key={node.id}
++                label={node.name}
++                nodeId={node.id}
++                secondaryLabel={nodeType ? nodeType.label : 'Missing type'}
++                selected={selectedNodeId === node.id}
++                onActivate={() => activateNode(node)}
++                onToggle={onToggleNode}
++            >
++                {children.length ? children.map(child => renderCustomNode(child, depth + 1)) : null}
++            </TreeNode>
++        );
++    };
++
++    const rootCustomNodes = nodeDatabase ? nodeDatabase.getChildren(null).filter(node => !node.targetId) : [];
+ 
+     return (
+         <aside
+@@ -239,27 +418,53 @@
+                                 />
+                             )}
+                             nodeId={ENTITIES_ROOT_NODE_ID}
+-                            secondaryLabel={entityNodes.length}
++                            secondaryLabel={nodeDatabase ? allNodes.length : entityNodes.length}
+                             onToggle={onToggleNode}
+                         >
+-                            {entityNodes.length ? entityNodes.map(entityNode => (
+-                                <TreeNode
+-                                    depth={2}
+-                                    icon={entityNode.icon}
+-                                    key={entityNode.id}
+-                                    label={entityNode.label}
+-                                    nodeId={entityNode.id}
+-                                    secondaryLabel={entityNode.kind === 'stage' ? 'Stage' : 'Sprite'}
+-                                    selected={entityNode.id === getTargetNodeId(editingTargetId)}
+-                                    targetId={entityNode.targetId}
+-                                    onActivate={() => onSelectTarget(entityNode.targetId)}
+-                                    onToggle={onToggleNode}
++                            {nodeDatabase ? (
++                                <NodeCreationPanel
++                                    childParent={childParent}
++                                    nodeDatabase={nodeDatabase}
++                                    onToggleNode={onToggleNode}
++                                    onCreated={node => {
++                                        onSelectNode(node.id);
++                                        onToggleNode(ENTITIES_ROOT_NODE_ID, true);
++                                    }}
+                                 />
+-                            )) : (
++                            ) : null}
++                            {entityNodes.length ? entityNodes.map(entityNode => {
++                                const targetNode = nodeDatabase ? nodeDatabase.getNodeForTarget(entityNode.targetId) : null;
++                                const nodeId = targetNode ? targetNode.id : entityNode.id;
++                                const children = targetNode && nodeDatabase ? nodeDatabase.getChildren(targetNode.id) : [];
++                                const selected = selectedNodeId ? selectedNodeId === nodeId :
++                                    entityNode.id === getTargetNodeId(editingTargetId);
++                                return (
++                                    <TreeNode
++                                        depth={2}
++                                        expanded={expandedNodeIds.indexOf(nodeId) !== -1}
++                                        icon={entityNode.icon}
++                                        key={entityNode.id}
++                                        label={entityNode.label}
++                                        nodeId={nodeId}
++                                        secondaryLabel={entityNode.kind === 'stage' ? 'Stage' : 'Sprite'}
++                                        selected={selected}
++                                        targetId={entityNode.targetId}
++                                        onActivate={() => {
++                                            if (targetNode) onSelectNode(targetNode.id);
++                                            onSelectTarget(entityNode.targetId);
++                                        }}
++                                        onToggle={onToggleNode}
++                                    >
++                                        {children.length ? children.map(child => renderCustomNode(child, 3)) : null}
++                                    </TreeNode>
++                                );
++                            }) : null}
++                            {rootCustomNodes.map(node => renderCustomNode(node, 2))}
++                            {!entityNodes.length && !rootCustomNodes.length ? (
+                                 <div className={styles.emptyState} role="note">
+-                                    No Stage or Sprite targets are available yet.
++                                    No Stage, Sprite, or NGVGE nodes are available yet.
+                                 </div>
+-                            )}
++                            ) : null}
+                         </TreeNode>
+                         <TreeNode
+                             depth={1}
+@@ -297,7 +502,7 @@
+             </div>
+             <footer className={styles.footer}>
+                 <span className={styles.statusDot} />
+-                {entityNodes.length} entities · {assetCount} global assets · Compatibility mode
++                {entityNodes.length} targets · {customNodeCount} NGVGE nodes · {assetCount} global assets
+             </footer>
+         </aside>
+     );
+@@ -308,8 +513,10 @@
+     expandedNodeIds: PropTypes.arrayOf(PropTypes.string),
+     onClose: PropTypes.func,
+     onOpenAssetManager: PropTypes.func,
++    onSelectNode: PropTypes.func,
+     onSelectTarget: PropTypes.func,
+     onToggleNode: PropTypes.func.isRequired,
++    selectedNodeId: PropTypes.string,
+     showHeader: PropTypes.bool,
+     sprites: PropTypes.objectOf(PropTypes.shape({
+         id: PropTypes.string.isRequired,
+@@ -326,7 +533,9 @@
+         addCostume: PropTypes.func,
+         addSound: PropTypes.func,
+         emitTargetsUpdate: PropTypes.func,
++        on: PropTypes.func,
+         runtime: PropTypes.shape({
++            emitProjectChanged: PropTypes.func,
+             getTargetById: PropTypes.func.isRequired,
+             storage: PropTypes.object,
+             targets: PropTypes.array
+@@ -341,7 +550,9 @@
+     expandedNodeIds: [],
+     onClose: () => {},
+     onOpenAssetManager: () => {},
++    onSelectNode: () => {},
+     onSelectTarget: () => {},
++    selectedNodeId: null,
+     showHeader: true,
+     sprites: {},
+     stage: {},
+--- a/src/components/project-inspector/project-inspector.css
++++ b/src/components/project-inspector/project-inspector.css
+@@ -399,3 +399,34 @@
+     background: #2eaa62;
+     box-shadow: 0 0 0 2px rgba(46, 170, 98, 0.12);
+ }
++
++.node-empty-properties {
++    padding: 0.55rem;
++    border: 1px dashed $ui-black-transparent;
++    border-radius: 0.4rem;
++    color: $text-primary-transparent;
++    font-size: 0.66rem;
++    line-height: 1.4;
++}
++
++.danger-button {
++    width: 100%;
++    min-height: 1.9rem;
++    margin-top: 0.55rem;
++    padding: 0.25rem 0.5rem;
++    border: 1px solid rgba(220, 68, 68, 0.45);
++    border-radius: 0.38rem;
++    background: rgba(220, 68, 68, 0.08);
++    color: #b33a3a;
++    font: inherit;
++    font-size: 0.66rem;
++    font-weight: 700;
++    cursor: pointer;
++}
++
++.danger-button:hover,
++.danger-button:focus-visible {
++    border-color: #d64545;
++    background: rgba(220, 68, 68, 0.14);
++    outline: none;
++}
+--- a/src/components/project-inspector/project-inspector.jsx
++++ b/src/components/project-inspector/project-inspector.jsx
+@@ -4,6 +4,7 @@
+ 
+ import {getInspectorRegistry} from '../../lib/project-inspector/inspector-registry';
+ import {getPropertyHistory} from '../../lib/project-inspector/property-history';
++import {getNodeDatabase, installNodeDatabase} from '../../lib/project-nodes/node-database';
+ 
+ import styles from './project-inspector.css';
+ 
+@@ -211,8 +212,10 @@
+         editingTargetId,
+         expandedSectionIds,
+         onClose,
++        onSelectNode,
+         onSelectTarget,
+         onToggleSection,
++        selectedNodeId,
+         showHeader,
+         vm,
+         width
+@@ -224,6 +227,9 @@
+     const runtime = vm && vm.runtime;
+     const registry = React.useMemo(() => getInspectorRegistry(runtime), [runtime]);
+     const history = React.useMemo(() => getPropertyHistory(runtime), [runtime]);
++    const nodeDatabase = React.useMemo(() => (
++        runtime ? (getNodeDatabase(runtime) || installNodeDatabase(vm)) : null
++    ), [runtime, vm]);
+ 
+     React.useEffect(() => {
+         if (!vm || !registry) return () => {};
+@@ -240,7 +246,17 @@
+         return history.subscribe(refreshHistory);
+     }, [history, refreshHistory]);
+ 
++    React.useEffect(() => {
++        if (!nodeDatabase) return () => {};
++        return nodeDatabase.subscribe(refresh);
++    }, [nodeDatabase, refresh]);
++
+     const target = runtime && editingTargetId ? runtime.getTargetById(editingTargetId) : null;
++    const selectedNode = nodeDatabase && selectedNodeId ? nodeDatabase.getNode(selectedNodeId) : null;
++    const isCustomNode = Boolean(selectedNode && !selectedNode.targetId);
++    const selectedNodeType = isCustomNode ? nodeDatabase.getNodeType(selectedNode.typeId) : null;
++    const selectedNodeParent = isCustomNode ? nodeDatabase.getParent(selectedNode.id) : null;
++    const selectedNodeChildren = isCustomNode ? nodeDatabase.getChildren(selectedNode.id) : [];
+ 
+     const originalSprites = React.useMemo(() => {
+         if (!runtime) return [];
+@@ -381,7 +397,7 @@
+     }, [history]);
+ 
+     const extensionSections = React.useMemo(() => {
+-        if (!registry || !target) return [];
++        if (!registry || !target || isCustomNode) return [];
+         const context = {registry, runtime, vm};
+         return registry.getSections(target, context)
+             .filter(section => !section.hidden)
+@@ -400,7 +416,32 @@
+                     };
+                 }
+             });
+-    }, [registry, revision, runtime, target, vm]);
++    }, [isCustomNode, registry, revision, runtime, target, vm]);
++
++    const renameSelectedNode = React.useCallback(name => {
++        if (!nodeDatabase || !selectedNode) return;
++        nodeDatabase.renameNode(selectedNode.id, name);
++    }, [nodeDatabase, selectedNode]);
++
++    const setSelectedNodeEnabled = React.useCallback(enabled => {
++        if (!nodeDatabase || !selectedNode) return;
++        nodeDatabase.setNodeEnabled(selectedNode.id, enabled);
++    }, [nodeDatabase, selectedNode]);
++
++    const setSelectedNodeProperty = React.useCallback((fieldId, value) => {
++        if (!nodeDatabase || !selectedNode) return;
++        nodeDatabase.setNodeProperty(selectedNode.id, fieldId, value);
++    }, [nodeDatabase, selectedNode]);
++
++    const deleteSelectedNode = React.useCallback(() => {
++        if (!nodeDatabase || !selectedNode) return;
++        const nearestTarget = nodeDatabase.getNearestTargetNode(selectedNode.id);
++        const nextSelection = selectedNodeParent || nearestTarget || null;
++        if (!window.confirm(`Delete ${selectedNode.name} and all of its child nodes?`)) return;
++        nodeDatabase.deleteNode(selectedNode.id);
++        onSelectNode(nextSelection ? nextSelection.id : null);
++        if (nextSelection && nextSelection.targetId) onSelectTarget(nextSelection.targetId);
++    }, [nodeDatabase, onSelectNode, onSelectTarget, selectedNode, selectedNodeParent]);
+ 
+     const selectedLayerIndex = target && !target.isStage ?
+         originalSprites.findIndex(candidate => candidate.id === target.id) : -1;
+@@ -440,7 +481,130 @@
+             ) : null}
+ 
+             <div className={styles.content}>
+-                {!target ? (
++                {isCustomNode ? (
++                    <React.Fragment>
++                        <div className={styles.targetSummary}>
++                            <span className={styles.targetIcon}>
++                                {selectedNodeType ? selectedNodeType.icon : '�'}
++                            </span>
++                            <span className={styles.targetSummaryText}>
++                                <strong>{selectedNode.name}</strong>
++                                <small>{selectedNodeType ? selectedNodeType.label : selectedNode.typeId}</small>
++                            </span>
++                        </div>
++
++                        <div className={styles.historyBar}>
++                            <button
++                                disabled={!historyState.canUndo}
++                                title={historyState.undoLabel ? `Undo ${historyState.undoLabel}` : 'Nothing to undo'}
++                                type="button"
++                                onClick={() => history && history.undo()}
++                            >
++                                ↶ Undo
++                            </button>
++                            <button
++                                disabled={!historyState.canRedo}
++                                title={historyState.redoLabel ? `Redo ${historyState.redoLabel}` : 'Nothing to redo'}
++                                type="button"
++                                onClick={() => history && history.redo()}
++                            >
++                                Redo ↷
++                            </button>
++                            <span>{historyState.undoDepth} changes</span>
++                        </div>
++
++                        <InspectorSection
++                            expanded={isExpanded('node:identity')}
++                            id="node:identity"
++                            label="Node Identity"
++                            onToggle={onToggleSection}
++                        >
++                            <InspectorRow label="Name">
++                                <DraftInput
++                                    value={selectedNode.name}
++                                    onCommit={renameSelectedNode}
++                                />
++                            </InspectorRow>
++                            <InspectorRow label="Enabled">
++                                <input
++                                    checked={Boolean(selectedNode.enabled)}
++                                    className={styles.checkbox}
++                                    type="checkbox"
++                                    onChange={event => setSelectedNodeEnabled(event.target.checked)}
++                                />
++                            </InspectorRow>
++                            <InspectorRow label="Node Type">
++                                <input
++                                    readOnly
++                                    className={classNames(styles.input, styles.inputReadOnly)}
++                                    value={selectedNode.typeId}
++                                />
++                            </InspectorRow>
++                            <InspectorRow label="Node ID">
++                                <input
++                                    readOnly
++                                    className={classNames(styles.input, styles.inputReadOnly)}
++                                    value={selectedNode.id}
++                                />
++                            </InspectorRow>
++                        </InspectorSection>
++
++                        <InspectorSection
++                            expanded={isExpanded('node:properties')}
++                            id="node:properties"
++                            label="Node Properties"
++                            secondaryLabel={selectedNodeType ? selectedNodeType.category : 'Missing type'}
++                            onToggle={onToggleSection}
++                        >
++                            {!selectedNodeType ? (
++                                <div className={styles.extensionError}>
++                                    This node type is not installed. Raw project data is preserved.
++                                </div>
++                            ) : selectedNodeType.fields.length ? selectedNodeType.fields.map(field => (
++                                <InspectorRow key={field.id} label={field.label}>
++                                    <ExtensionField
++                                        field={Object.assign({}, field, {
++                                            value: selectedNode.properties[field.id]
++                                        })}
++                                        onCommit={value => setSelectedNodeProperty(field.id, value)}
++                                    />
++                                </InspectorRow>
++                            )) : (
++                                <div className={styles.nodeEmptyProperties}>This node has no editable properties.</div>
++                            )}
++                        </InspectorSection>
++
++                        <InspectorSection
++                            expanded={isExpanded('node:hierarchy')}
++                            id="node:hierarchy"
++                            label="Hierarchy"
++                            secondaryLabel={`${selectedNodeChildren.length} children`}
++                            onToggle={onToggleSection}
++                        >
++                            <InspectorRow label="Parent">
++                                <input
++                                    readOnly
++                                    className={classNames(styles.input, styles.inputReadOnly)}
++                                    value={selectedNodeParent ? selectedNodeParent.name : 'Scene root'}
++                                />
++                            </InspectorRow>
++                            <InspectorRow label="Children">
++                                <input
++                                    readOnly
++                                    className={classNames(styles.input, styles.inputReadOnly)}
++                                    value={selectedNodeChildren.length}
++                                />
++                            </InspectorRow>
++                            <button
++                                className={styles.dangerButton}
++                                type="button"
++                                onClick={deleteSelectedNode}
++                            >
++                                Delete Node and Children
++                            </button>
++                        </InspectorSection>
++                    </React.Fragment>
++                ) : !target ? (
+                     <div className={styles.emptyState}>
+                         Select a Stage or Sprite in Project Explorer to inspect its properties.
+                     </div>
+@@ -704,8 +868,10 @@
+     editingTargetId: PropTypes.string,
+     expandedSectionIds: PropTypes.arrayOf(PropTypes.string),
+     onClose: PropTypes.func,
++    onSelectNode: PropTypes.func,
+     onSelectTarget: PropTypes.func,
+     onToggleSection: PropTypes.func.isRequired,
++    selectedNodeId: PropTypes.string,
+     showHeader: PropTypes.bool,
+     vm: PropTypes.shape({
+         editingTarget: PropTypes.shape({id: PropTypes.string}),
+@@ -727,7 +893,9 @@
+     editingTargetId: null,
+     expandedSectionIds: [],
+     onClose: () => {},
++    onSelectNode: () => {},
+     onSelectTarget: () => {},
++    selectedNodeId: null,
+     showHeader: true,
+     width: 320
+ };
+--- a/src/lib/project-nodes/index.js
++++ b/src/lib/project-nodes/index.js
+@@ -0,0 +1,2 @@
++export * from './node-database';
++export * from './node-type-registry';
+--- a/src/lib/project-nodes/node-database.js
++++ b/src/lib/project-nodes/node-database.js
+@@ -0,0 +1,496 @@
++import {getInspectorRegistry} from '../project-inspector/inspector-registry';
++import {getPropertyHistory} from '../project-inspector/property-history';
++import {getNodeTypeRegistry} from './node-type-registry';
++
++const DATABASE_PROPERTY = 'ngvgeNodeDatabase';
++const DATABASE_SECTION_ID = 'ngvge-node-tree';
++const DATABASE_VERSION = 1;
++const TARGET_NODE_PREFIX = 'target-node:';
++const LOAD_RESET_PROPERTY = 'ngvgeNodeDatabaseLoadResetVersion';
++
++let fallbackId = 0;
++
++const createId = prefix => {
++    if (
++        typeof globalThis !== 'undefined' &&
++        globalThis.crypto &&
++        typeof globalThis.crypto.randomUUID === 'function'
++    ) {
++        return `${prefix}:${globalThis.crypto.randomUUID()}`;
++    }
++    fallbackId += 1;
++    return `${prefix}:${Date.now().toString(36)}:${fallbackId.toString(36)}`;
++};
++
++const cloneSerializable = value => JSON.parse(JSON.stringify(value));
++
++const getOriginalTargets = runtime => (
++    runtime && Array.isArray(runtime.targets) ?
++        runtime.targets.filter(target => target && target.isOriginal) : []
++);
++
++const getTargetName = target => (
++    target && typeof target.getName === 'function' ? target.getName() : (target && target.sprite ? target.sprite.name : '')
++);
++
++const getTargetNodeId = targetId => `${TARGET_NODE_PREFIX}${targetId}`;
++
++const normalizeName = (name, fallback = 'Node') => {
++    const value = typeof name === 'string' ? name.trim() : '';
++    return value || fallback;
++};
++
++const createTargetNode = target => ({
++    childIds: [],
++    enabled: true,
++    id: getTargetNodeId(target.id),
++    name: getTargetName(target) || (target.isStage ? 'Stage' : 'Sprite'),
++    parentId: null,
++    properties: {},
++    targetId: target.id,
++    typeId: target.isStage ? 'ngvge.stage-target' : 'ngvge.sprite-target'
++});
++
++const createNodeDatabase = vm => {
++    const runtime = vm.runtime;
++    const nodeTypes = getNodeTypeRegistry(runtime);
++    const history = getPropertyHistory(runtime);
++    const nodes = new Map();
++    const listeners = new Set();
++    let revision = 0;
++    let isApplyingHistory = false;
++
++    const emit = change => {
++        revision += 1;
++        listeners.forEach(listener => listener(Object.assign({revision}, change)));
++    };
++
++    const markChanged = change => {
++        if (runtime && typeof runtime.emitProjectChanged === 'function') runtime.emitProjectChanged();
++        emit(change);
++    };
++
++    const ensureUniqueName = (name, parentId, ignoreId = null) => {
++        const base = normalizeName(name);
++        const used = new Set(
++            Array.from(nodes.values())
++                .filter(node => node.parentId === parentId && node.id !== ignoreId)
++                .map(node => node.name)
++        );
++        if (!used.has(base)) return base;
++        let index = 2;
++        while (used.has(`${base} ${index}`)) index += 1;
++        return `${base} ${index}`;
++    };
++
++    const getNode = nodeId => {
++        const node = nodes.get(nodeId);
++        return node ? cloneSerializable(node) : null;
++    };
++
++    const listNodes = () => Array.from(nodes.values()).map(cloneSerializable);
++
++    const getChildren = parentId => {
++        const parent = parentId ? nodes.get(parentId) : null;
++        const childIds = parent ? parent.childIds : Array.from(nodes.values())
++            .filter(node => node.parentId === null)
++            .map(node => node.id);
++        return childIds
++            .map(childId => nodes.get(childId))
++            .filter(Boolean)
++            .map(cloneSerializable);
++    };
++
++    const getParent = nodeId => {
++        const node = nodes.get(nodeId);
++        return node && node.parentId ? getNode(node.parentId) : null;
++    };
++
++    const getNodeForTarget = targetId => {
++        const direct = nodes.get(getTargetNodeId(targetId));
++        if (direct) return cloneSerializable(direct);
++        const node = Array.from(nodes.values()).find(candidate => candidate.targetId === targetId);
++        return node ? cloneSerializable(node) : null;
++    };
++
++    const getNearestTargetNode = nodeId => {
++        let current = nodes.get(nodeId);
++        const visited = new Set();
++        while (current && !visited.has(current.id)) {
++            visited.add(current.id);
++            if (current.targetId) return cloneSerializable(current);
++            current = current.parentId ? nodes.get(current.parentId) : null;
++        }
++        return null;
++    };
++
++    const normalizeHierarchy = () => {
++        nodes.forEach(node => {
++            node.childIds = Array.isArray(node.childIds) ? node.childIds.filter(childId => nodes.has(childId)) : [];
++            if (node.parentId && !nodes.has(node.parentId)) node.parentId = null;
++        });
++        nodes.forEach(node => {
++            if (!node.parentId) return;
++            const parent = nodes.get(node.parentId);
++            if (parent && parent.childIds.indexOf(node.id) === -1) parent.childIds.push(node.id);
++        });
++    };
++
++    const captureSnapshot = () => ({
++        nodes: Array.from(nodes.values()).map(cloneSerializable)
++    });
++
++    const applySnapshot = snapshot => {
++        isApplyingHistory = true;
++        nodes.clear();
++        const records = snapshot && Array.isArray(snapshot.nodes) ? snapshot.nodes : [];
++        records.forEach(record => {
++            if (!record || typeof record.id !== 'string') return;
++            nodes.set(record.id, Object.assign({
++                childIds: [],
++                enabled: true,
++                name: 'Node',
++                parentId: null,
++                properties: {},
++                targetId: null,
++                typeId: 'ngvge.node2d'
++            }, cloneSerializable(record)));
++        });
++        normalizeHierarchy();
++        syncTargets({silent: true});
++        isApplyingHistory = false;
++        markChanged({type: 'history:apply'});
++    };
++
++    const recordMutation = (label, before, after) => {
++        if (isApplyingHistory || !history) return;
++        history.recordValue({
++            after,
++            apply: applySnapshot,
++            before,
++            label,
++            metadata: {type: 'node-tree'}
++        });
++    };
++
++    const mutate = (label, operation) => {
++        const before = captureSnapshot();
++        const result = operation();
++        const after = captureSnapshot();
++        recordMutation(label, before, after);
++        markChanged({label, type: 'mutation'});
++        return result;
++    };
++
++    function syncTargets (options = {}) {
++        const originalTargets = getOriginalTargets(runtime);
++        const targetIds = new Set(originalTargets.map(target => target.id));
++
++        originalTargets.forEach(target => {
++            const expectedId = getTargetNodeId(target.id);
++            let node = nodes.get(expectedId);
++            if (!node) {
++                node = Array.from(nodes.values()).find(candidate => candidate.targetId === target.id) || null;
++            }
++            if (!node) {
++                node = createTargetNode(target);
++                nodes.set(node.id, node);
++            } else {
++                node.targetId = target.id;
++                node.name = getTargetName(target) || node.name;
++                node.typeId = target.isStage ? 'ngvge.stage-target' : 'ngvge.sprite-target';
++                node.enabled = true;
++                node.properties = node.properties || {};
++                node.childIds = Array.isArray(node.childIds) ? node.childIds : [];
++            }
++        });
++
++        Array.from(nodes.values()).forEach(node => {
++            if (!node.targetId || targetIds.has(node.targetId)) return;
++            const parentId = node.parentId;
++            const parent = parentId ? nodes.get(parentId) : null;
++            const children = node.childIds.slice();
++            children.forEach(childId => {
++                const child = nodes.get(childId);
++                if (!child) return;
++                child.parentId = parentId || null;
++                if (parent && parent.childIds.indexOf(childId) === -1) parent.childIds.push(childId);
++            });
++            if (parent) parent.childIds = parent.childIds.filter(childId => childId !== node.id);
++            nodes.delete(node.id);
++        });
++
++        normalizeHierarchy();
++        if (!options.silent) emit({type: 'targets:sync'});
++    }
++
++    const createNode = (typeId, parentId = null, options = {}) => {
++        const nodeType = nodeTypes.getType(typeId);
++        if (!nodeType || nodeType.hidden) throw new Error(`Unknown or unavailable node type: ${typeId}`);
++        if (parentId && !nodes.has(parentId)) throw new Error('Parent node does not exist');
++        if (parentId) {
++            const parentType = nodeTypes.getType(nodes.get(parentId).typeId);
++            if (parentType && parentType.allowChildren === false) {
++                throw new Error(`${parentType.label} cannot contain child nodes`);
++            }
++        }
++
++        return mutate(`Create ${nodeType.label}`, () => {
++            const id = createId('node');
++            const node = {
++                childIds: [],
++                enabled: options.enabled !== false,
++                id,
++                name: ensureUniqueName(options.name || nodeType.label, parentId),
++                parentId,
++                pluginId: nodeType.pluginId || null,
++                properties: Object.assign({}, cloneSerializable(nodeType.defaults || {}), cloneSerializable(options.properties || {})),
++                targetId: null,
++                typeId
++            };
++            nodes.set(id, node);
++            if (parentId) nodes.get(parentId).childIds.push(id);
++            return cloneSerializable(node);
++        });
++    };
++
++    const renameNode = (nodeId, name) => {
++        const node = nodes.get(nodeId);
++        if (!node || node.targetId) return null;
++        const nextName = ensureUniqueName(name, node.parentId, node.id);
++        if (nextName === node.name) return getNode(nodeId);
++        return mutate(`Rename ${node.name}`, () => {
++            node.name = nextName;
++            return cloneSerializable(node);
++        });
++    };
++
++    const setNodeEnabled = (nodeId, enabled) => {
++        const node = nodes.get(nodeId);
++        if (!node || node.targetId) return null;
++        const nextEnabled = Boolean(enabled);
++        if (node.enabled === nextEnabled) return getNode(nodeId);
++        return mutate(`${nextEnabled ? 'Enable' : 'Disable'} ${node.name}`, () => {
++            node.enabled = nextEnabled;
++            return cloneSerializable(node);
++        });
++    };
++
++    const setNodeProperty = (nodeId, propertyId, value) => {
++        const node = nodes.get(nodeId);
++        if (!node || node.targetId || typeof propertyId !== 'string') return null;
++        const before = node.properties[propertyId];
++        if (before === value) return getNode(nodeId);
++        return mutate(`Set ${node.name}.${propertyId}`, () => {
++            node.properties[propertyId] = value;
++            return cloneSerializable(node);
++        });
++    };
++
++    const isDescendant = (nodeId, possibleAncestorId) => {
++        let current = nodes.get(nodeId);
++        const visited = new Set();
++        while (current && current.parentId && !visited.has(current.id)) {
++            visited.add(current.id);
++            if (current.parentId === possibleAncestorId) return true;
++            current = nodes.get(current.parentId);
++        }
++        return false;
++    };
++
++    const reparentNode = (nodeId, parentId = null, index = null) => {
++        const node = nodes.get(nodeId);
++        if (!node || node.targetId) return null;
++        if (parentId === nodeId || isDescendant(parentId, nodeId)) throw new Error('A node cannot be parented below itself');
++        if (parentId && !nodes.has(parentId)) throw new Error('Parent node does not exist');
++        const nextParent = parentId ? nodes.get(parentId) : null;
++        if (nextParent) {
++            const parentType = nodeTypes.getType(nextParent.typeId);
++            if (parentType && parentType.allowChildren === false) throw new Error(`${parentType.label} cannot contain child nodes`);
++        }
++        if (node.parentId === parentId) return getNode(nodeId);
++
++        return mutate(`Reparent ${node.name}`, () => {
++            if (node.parentId) {
++                const previousParent = nodes.get(node.parentId);
++                if (previousParent) previousParent.childIds = previousParent.childIds.filter(childId => childId !== node.id);
++            }
++            node.parentId = parentId;
++            if (nextParent) {
++                const insertIndex = Number.isInteger(index) ? Math.max(0, Math.min(index, nextParent.childIds.length)) : nextParent.childIds.length;
++                nextParent.childIds.splice(insertIndex, 0, node.id);
++            }
++            return cloneSerializable(node);
++        });
++    };
++
++    const collectSubtreeIds = nodeId => {
++        const ids = [];
++        const visit = currentId => {
++            const current = nodes.get(currentId);
++            if (!current || ids.indexOf(currentId) !== -1) return;
++            ids.push(currentId);
++            current.childIds.forEach(visit);
++        };
++        visit(nodeId);
++        return ids;
++    };
++
++    const deleteNode = nodeId => {
++        const node = nodes.get(nodeId);
++        if (!node || node.targetId) return false;
++        return mutate(`Delete ${node.name}`, () => {
++            const subtreeIds = collectSubtreeIds(nodeId);
++            if (node.parentId) {
++                const parent = nodes.get(node.parentId);
++                if (parent) parent.childIds = parent.childIds.filter(childId => childId !== nodeId);
++            }
++            subtreeIds.forEach(id => nodes.delete(id));
++            return true;
++        });
++    };
++
++    const serializeProject = () => {
++        syncTargets({silent: true});
++        const originalTargets = getOriginalTargets(runtime);
++        const targetBindings = originalTargets.map(target => {
++            const node = Array.from(nodes.values()).find(candidate => candidate.targetId === target.id);
++            return node ? node.id : null;
++        });
++        const records = Array.from(nodes.values()).map(node => {
++            const serialized = cloneSerializable(node);
++            delete serialized.targetId;
++            return serialized;
++        });
++        return {
++            nodes: records,
++            targetBindings,
++            version: DATABASE_VERSION
++        };
++    };
++
++    const deserializeProject = data => {
++        nodes.clear();
++        const records = data && Array.isArray(data.nodes) ? data.nodes : [];
++        records.forEach(record => {
++            if (!record || typeof record.id !== 'string') return;
++            nodes.set(record.id, Object.assign({
++                childIds: [],
++                enabled: true,
++                name: 'Node',
++                parentId: null,
++                properties: {},
++                targetId: null,
++                typeId: 'ngvge.node2d'
++            }, cloneSerializable(record), {targetId: null}));
++        });
++
++        const originalTargets = getOriginalTargets(runtime);
++        const bindings = data && Array.isArray(data.targetBindings) ? data.targetBindings : [];
++        originalTargets.forEach((target, index) => {
++            const bindingId = bindings[index];
++            let node = bindingId ? nodes.get(bindingId) : null;
++            if (!node) {
++                node = createTargetNode(target);
++                nodes.set(node.id, node);
++            } else {
++                node.targetId = target.id;
++                node.name = getTargetName(target) || node.name;
++                node.typeId = target.isStage ? 'ngvge.stage-target' : 'ngvge.sprite-target';
++                node.childIds = Array.isArray(node.childIds) ? node.childIds : [];
++            }
++        });
++        normalizeHierarchy();
++        syncTargets({silent: true});
++        emit({type: 'persistence:restore'});
++    };
++
++    const reset = options => {
++        nodes.clear();
++        syncTargets({silent: true});
++        if (!options || !options.silent) emit({type: 'reset'});
++    };
++
++    syncTargets({silent: true});
++
++    return {
++        version: DATABASE_VERSION,
++        createNode,
++        deleteNode,
++        deserializeProject,
++        getChildren,
++        getNearestTargetNode,
++        getNode,
++        getNodeForTarget,
++        getNodeType: nodeTypeId => nodeTypes.getType(nodeTypeId),
++        getParent,
++        getRevision: () => revision,
++        listNodeTypes: options => nodeTypes.listTypes(options),
++        listNodes,
++        reparentNode,
++        renameNode,
++        reset,
++        serializeProject,
++        setNodeEnabled,
++        setNodeProperty,
++        subscribe (listener) {
++            if (typeof listener !== 'function') return () => {};
++            listeners.add(listener);
++            return () => listeners.delete(listener);
++        },
++        syncTargets
++    };
++};
++
++const installNodeDatabase = vm => {
++    if (!vm || !vm.runtime) return null;
++    const runtime = vm.runtime;
++    const current = runtime[DATABASE_PROPERTY];
++    if (current && current.version === DATABASE_VERSION) return current;
++
++    const database = createNodeDatabase(vm);
++    runtime[DATABASE_PROPERTY] = database;
++
++    const inspectorRegistry = getInspectorRegistry(runtime);
++    inspectorRegistry.register({
++        hidden: true,
++        id: DATABASE_SECTION_ID,
++        label: 'Node Tree',
++        order: -900,
++        deserializeProject: data => database.deserializeProject(data),
++        getFields: () => [],
++        serializeProject: () => database.serializeProject(),
++        setValue: () => {}
++    });
++
++    if (vm && typeof vm.on === 'function') {
++        vm.on('targetsUpdate', () => database.syncTargets());
++    }
++
++    if (typeof vm.loadProject === 'function' && vm[LOAD_RESET_PROPERTY] !== DATABASE_VERSION) {
++        const originalLoadProject = vm.loadProject.bind(vm);
++        vm.loadProject = function (...args) {
++            database.reset({silent: true});
++            return originalLoadProject(...args);
++        };
++        vm[LOAD_RESET_PROPERTY] = DATABASE_VERSION;
++    }
++
++    return database;
++};
++
++const getNodeDatabase = runtime => (
++    runtime && runtime[DATABASE_PROPERTY] ? runtime[DATABASE_PROPERTY] : null
++);
++
++export {
++    DATABASE_PROPERTY,
++    DATABASE_SECTION_ID,
++    DATABASE_VERSION,
++    LOAD_RESET_PROPERTY,
++    TARGET_NODE_PREFIX,
++    createNodeDatabase,
++    getNodeDatabase,
++    getTargetNodeId,
++    installNodeDatabase
++};
+--- a/src/lib/project-nodes/node-type-registry.js
++++ b/src/lib/project-nodes/node-type-registry.js
+@@ -0,0 +1,253 @@
++const REGISTRY_PROPERTY = 'ngvgeNodeTypeRegistry';
++const REGISTRY_VERSION = 1;
++
++const cloneValue = value => JSON.parse(JSON.stringify(value));
++
++const validateNodeType = nodeType => {
++    if (!nodeType || typeof nodeType !== 'object') {
++        throw new TypeError('Node type must be an object');
++    }
++    if (typeof nodeType.id !== 'string' || !nodeType.id.length) {
++        throw new TypeError('Node type must have a non-empty string id');
++    }
++    if (typeof nodeType.label !== 'string' || !nodeType.label.length) {
++        throw new TypeError(`Node type "${nodeType.id}" must have a label`);
++    }
++    if (nodeType.defaults && typeof nodeType.defaults !== 'object') {
++        throw new TypeError(`Node type "${nodeType.id}" defaults must be an object`);
++    }
++    if (nodeType.fields && !Array.isArray(nodeType.fields)) {
++        throw new TypeError(`Node type "${nodeType.id}" fields must be an array`);
++    }
++};
++
++const normalizeNodeType = nodeType => Object.assign({
++    allowChildren: true,
++    category: 'Other',
++    defaults: {},
++    fields: [],
++    hidden: false,
++    icon: '◇',
++    order: 0,
++    pluginId: null
++}, nodeType, {
++    defaults: cloneValue(nodeType.defaults || {}),
++    fields: cloneValue(nodeType.fields || [])
++});
++
++const createNodeTypeRegistry = () => {
++    const nodeTypes = new Map();
++    const listeners = new Set();
++
++    const emit = change => {
++        listeners.forEach(listener => listener(change));
++    };
++
++    return {
++        version: REGISTRY_VERSION,
++        register (nodeType) {
++            validateNodeType(nodeType);
++            const normalized = normalizeNodeType(nodeType);
++            nodeTypes.set(normalized.id, normalized);
++            emit({nodeTypeId: normalized.id, type: 'register'});
++            return () => {
++                if (nodeTypes.get(normalized.id) === normalized) {
++                    nodeTypes.delete(normalized.id);
++                    emit({nodeTypeId: normalized.id, type: 'unregister'});
++                }
++            };
++        },
++        unregister (nodeTypeId) {
++            const removed = nodeTypes.delete(nodeTypeId);
++            if (removed) emit({nodeTypeId, type: 'unregister'});
++            return removed;
++        },
++        getType (nodeTypeId) {
++            const nodeType = nodeTypes.get(nodeTypeId);
++            return nodeType ? normalizeNodeType(nodeType) : null;
++        },
++        listTypes (options = {}) {
++            const includeHidden = Boolean(options.includeHidden);
++            return Array.from(nodeTypes.values())
++                .filter(nodeType => includeHidden || !nodeType.hidden)
++                .sort((typeA, typeB) => {
++                    const categoryComparison = typeA.category.localeCompare(typeB.category);
++                    if (categoryComparison !== 0) return categoryComparison;
++                    if (typeA.order !== typeB.order) return typeA.order - typeB.order;
++                    return typeA.label.localeCompare(typeB.label);
++                })
++                .map(normalizeNodeType);
++        },
++        subscribe (listener) {
++            if (typeof listener !== 'function') return () => {};
++            listeners.add(listener);
++            return () => listeners.delete(listener);
++        }
++    };
++};
++
++const registerBuiltinNodeTypes = registry => {
++    const builtins = [
++        {
++            allowChildren: true,
++            category: 'Core',
++            defaults: {
++                rotation: 0,
++                scaleX: 1,
++                scaleY: 1,
++                x: 0,
++                y: 0
++            },
++            fields: [
++                {id: 'x', label: 'X', step: 1, type: 'number'},
++                {id: 'y', label: 'Y', step: 1, type: 'number'},
++                {id: 'rotation', label: 'Rotation', step: 1, type: 'number'},
++                {id: 'scaleX', label: 'Scale X', step: 0.01, type: 'number'},
++                {id: 'scaleY', label: 'Scale Y', step: 0.01, type: 'number'}
++            ],
++            icon: '◇',
++            id: 'ngvge.node2d',
++            label: 'Node2D',
++            order: 10
++        },
++        {
++            allowChildren: true,
++            category: 'Physics',
++            defaults: {
++                bodyType: 'dynamic',
++                fixedRotation: false,
++                gravityScale: 1,
++                linearDamping: 0,
++                mass: 1
++            },
++            fields: [
++                {
++                    id: 'bodyType',
++                    label: 'Body Type',
++                    options: [
++                        {label: 'Static', value: 'static'},
++                        {label: 'Kinematic', value: 'kinematic'},
++                        {label: 'Dynamic', value: 'dynamic'}
++                    ],
++                    type: 'select'
++                },
++                {id: 'mass', label: 'Mass', min: 0.001, step: 0.1, type: 'number'},
++                {id: 'gravityScale', label: 'Gravity Scale', step: 0.1, type: 'number'},
++                {id: 'linearDamping', label: 'Linear Damping', min: 0, step: 0.1, type: 'number'},
++                {id: 'fixedRotation', label: 'Fixed Rotation', type: 'boolean'}
++            ],
++            icon: '◉',
++            id: 'ngvge.physics-body2d',
++            label: 'PhysicsBody2D',
++            order: 20
++        },
++        {
++            allowChildren: false,
++            category: 'Physics',
++            defaults: {
++                collisionLayer: 1,
++                collisionMask: 1,
++                height: 48,
++                isTrigger: false,
++                offsetX: 0,
++                offsetY: 0,
++                radius: 24,
++                shape: 'rectangle',
++                width: 48
++            },
++            fields: [
++                {
++                    id: 'shape',
++                    label: 'Shape',
++                    options: [
++                        {label: 'Rectangle', value: 'rectangle'},
++                        {label: 'Circle', value: 'circle'},
++                        {label: 'Polygon', value: 'polygon'}
++                    ],
++                    type: 'select'
++                },
++                {id: 'offsetX', label: 'Offset X', step: 1, type: 'number'},
++                {id: 'offsetY', label: 'Offset Y', step: 1, type: 'number'},
++                {id: 'width', label: 'Width', min: 0, step: 1, type: 'number'},
++                {id: 'height', label: 'Height', min: 0, step: 1, type: 'number'},
++                {id: 'radius', label: 'Radius', min: 0, step: 1, type: 'number'},
++                {id: 'isTrigger', label: 'Trigger', type: 'boolean'},
++                {id: 'collisionLayer', label: 'Collision Layer', min: 1, step: 1, type: 'number'},
++                {id: 'collisionMask', label: 'Collision Mask', min: 1, step: 1, type: 'number'}
++            ],
++            icon: '⬚',
++            id: 'ngvge.collider2d',
++            label: 'Collider2D',
++            order: 30
++        },
++        {
++            allowChildren: false,
++            category: 'Utility',
++            defaults: {
++                rotation: 0,
++                x: 0,
++                y: 0
++            },
++            fields: [
++                {id: 'x', label: 'X', step: 1, type: 'number'},
++                {id: 'y', label: 'Y', step: 1, type: 'number'},
++                {id: 'rotation', label: 'Rotation', step: 1, type: 'number'}
++            ],
++            icon: '✚',
++            id: 'ngvge.marker2d',
++            label: 'Marker2D',
++            order: 40
++        },
++        {
++            allowChildren: true,
++            category: 'Internal',
++            defaults: {},
++            fields: [],
++            hidden: true,
++            icon: '▣',
++            id: 'ngvge.stage-target',
++            label: 'Stage',
++            order: -100
++        },
++        {
++            allowChildren: true,
++            category: 'Internal',
++            defaults: {},
++            fields: [],
++            hidden: true,
++            icon: '●',
++            id: 'ngvge.sprite-target',
++            label: 'Sprite',
++            order: -90
++        }
++    ];
++
++    builtins.forEach(nodeType => registry.register(nodeType));
++    return registry;
++};
++
++const getNodeTypeRegistry = runtime => {
++    if (!runtime) return null;
++    const current = runtime[REGISTRY_PROPERTY];
++    if (
++        current &&
++        current.version === REGISTRY_VERSION &&
++        typeof current.register === 'function' &&
++        typeof current.listTypes === 'function'
++    ) {
++        return current;
++    }
++
++    const registry = registerBuiltinNodeTypes(createNodeTypeRegistry());
++    runtime[REGISTRY_PROPERTY] = registry;
++    return registry;
++};
++
++export {
++    REGISTRY_PROPERTY,
++    REGISTRY_VERSION,
++    createNodeTypeRegistry,
++    getNodeTypeRegistry,
++    registerBuiltinNodeTypes,
++    validateNodeType
++};
+--- a/src/lib/vm-listener-hoc.jsx
++++ b/src/lib/vm-listener-hoc.jsx
+@@ -26,6 +26,7 @@
+ import {openUnknownPlatformModal} from '../reducers/modals';
+ import implementGuiAPI from './tw-extension-gui-api';
+ import {installGlobalAssetDatabase} from './project-assets/global-asset-database';
++import {installNodeDatabase} from './project-nodes/node-database';
+ import {getPropertyHistory} from './project-inspector/property-history';
+ import {installProjectPersistence} from './project-inspector/project-persistence';
+ 
+@@ -41,6 +42,7 @@
+         constructor (props) {
+             super(props);
+             installGlobalAssetDatabase(this.props.vm);
++            installNodeDatabase(this.props.vm);
+             installProjectPersistence(this.props.vm);
+             getPropertyHistory(this.props.vm.runtime);
+             bindAll(this, [
+--- a/src/reducers/project-explorer.js
++++ b/src/reducers/project-explorer.js
+@@ -1,6 +1,7 @@
+ const SET_PROJECT_EXPLORER_VISIBLE = 'scratch-gui/project-explorer/SET_VISIBLE';
+ const SET_PROJECT_EXPLORER_WIDTH = 'scratch-gui/project-explorer/SET_WIDTH';
+ const SET_PROJECT_EXPLORER_NODE_EXPANDED = 'scratch-gui/project-explorer/SET_NODE_EXPANDED';
++const SET_PROJECT_EXPLORER_SELECTED_NODE = 'scratch-gui/project-explorer/SET_SELECTED_NODE';
+ const RESET_PROJECT_EXPLORER = 'scratch-gui/project-explorer/RESET';
+ 
+ const MIN_WIDTH = 180;
+@@ -10,6 +11,7 @@
+ const initialState = {
+     visible: true,
+     width: DEFAULT_WIDTH,
++    selectedNodeId: null,
+     expandedNodeIds: [
+         'project:root',
+         'provider:entities',
+@@ -33,6 +35,10 @@
+     case SET_PROJECT_EXPLORER_WIDTH:
+         return Object.assign({}, state, {
+             width: normalizeWidth(action.width)
++        });
++    case SET_PROJECT_EXPLORER_SELECTED_NODE:
++        return Object.assign({}, state, {
++            selectedNodeId: typeof action.nodeId === 'string' && action.nodeId.length ? action.nodeId : null
+         });
+     case SET_PROJECT_EXPLORER_NODE_EXPANDED: {
+         if (typeof action.nodeId !== 'string' || action.nodeId.length === 0) {
+@@ -68,6 +74,11 @@
+     width
+ });
+ 
++const setProjectExplorerSelectedNode = nodeId => ({
++    type: SET_PROJECT_EXPLORER_SELECTED_NODE,
++    nodeId
++});
++
+ const setProjectExplorerNodeExpanded = (nodeId, expanded) => ({
+     type: SET_PROJECT_EXPLORER_NODE_EXPANDED,
+     nodeId,
+@@ -87,9 +98,11 @@
+     SET_PROJECT_EXPLORER_VISIBLE,
+     SET_PROJECT_EXPLORER_WIDTH,
+     SET_PROJECT_EXPLORER_NODE_EXPANDED,
++    SET_PROJECT_EXPLORER_SELECTED_NODE,
+     RESET_PROJECT_EXPLORER,
+     setProjectExplorerVisible,
+     setProjectExplorerWidth,
+     setProjectExplorerNodeExpanded,
++    setProjectExplorerSelectedNode,
+     resetProjectExplorer
+ };
+--- a/src/reducers/project-inspector.js
++++ b/src/reducers/project-inspector.js
+@@ -12,6 +12,9 @@
+     width: DEFAULT_WIDTH,
+     expandedSectionIds: [
+         'identity',
++        'node:identity',
++        'node:properties',
++        'node:hierarchy',
+         'transform',
+         'layer',
+         'extension:camera',
+--- a/test/unit/components/project-explorer.test.jsx
++++ b/test/unit/components/project-explorer.test.jsx
+@@ -59,8 +59,8 @@
+         expect(text).toContain('Stage');
+         expect(text).toContain('Player');
+         expect(text).toContain('Enemy');
+-        expect(text).toContain('3 entities');
+-        expect(text).toContain('Compatibility mode');
++        expect(text).toContain('3 targets');
++        expect(text).toContain('0 NGVGE nodes');
+     });
+ 
+     test('marks the current editing target as selected', () => {
+@@ -144,6 +144,6 @@
+         });
+         const text = JSON.stringify(component.toJSON());
+ 
+-        expect(text).toContain('No Stage or Sprite targets are available yet.');
++        expect(text).toContain('No Stage, Sprite, or NGVGE nodes are available yet.');
+     });
+ });
+--- a/test/unit/components/project-inspector.test.jsx
++++ b/test/unit/components/project-inspector.test.jsx
+@@ -3,6 +3,7 @@
+ 
+ import ProjectInspector from '../../../src/components/project-inspector/project-inspector.jsx';
+ import {getInspectorRegistry} from '../../../src/lib/project-inspector/inspector-registry';
++import {installNodeDatabase} from '../../../src/lib/project-nodes/node-database';
+ 
+ const createTarget = (id, name, layerOrder) => ({
+     id,
+@@ -131,6 +132,30 @@
+         expect(vm.emitTargetsUpdate).toHaveBeenCalledWith(false);
+     });
+ 
++
++    test('renders and edits an NGVGE child node', () => {
++        const {player, vm} = createVM();
++        const database = installNodeDatabase(vm);
++        const playerNode = database.getNodeForTarget(player.id);
++        const collider = database.createNode('ngvge.collider2d', playerNode.id, {name: 'Hitbox'});
++        const component = renderInspector(vm, {
++            expandedSectionIds: ['node:identity', 'node:properties', 'node:hierarchy'],
++            selectedNodeId: collider.id
++        });
++        const text = JSON.stringify(component.toJSON());
++
++        expect(text).toContain('Hitbox');
++        expect(text).toContain('Collider2D');
++        expect(text).toContain('Collision Layer');
++
++        const shapeSelect = component.root.findAll(node => (
++            node.type === 'select' && node.props.value === 'rectangle'
++        ))[0];
++        act(() => shapeSelect.props.onChange({target: {value: 'circle'}}));
++
++        expect(database.getNode(collider.id).properties.shape).toBe('circle');
++    });
++
+     test('renders registered extension sections', () => {
+         const {runtime, vm} = createVM();
+         getInspectorRegistry(runtime).register({
+--- a/test/unit/lib/project-nodes-node-database.test.js
++++ b/test/unit/lib/project-nodes-node-database.test.js
+@@ -0,0 +1,116 @@
++import {getPropertyHistory} from '../../../src/lib/project-inspector/property-history';
++import {
++    createNodeDatabase,
++    getTargetNodeId,
++    installNodeDatabase
++} from '../../../src/lib/project-nodes/node-database';
++import {getNodeTypeRegistry} from '../../../src/lib/project-nodes/node-type-registry';
++
++const createTarget = (id, name, isStage = false) => ({
++    id,
++    isOriginal: true,
++    isStage,
++    getName: () => name
++});
++
++const createVM = (targetIds = ['stage', 'player']) => {
++    const listeners = {};
++    const stage = createTarget(targetIds[0], 'Stage', true);
++    const player = createTarget(targetIds[1], 'Player');
++    const runtime = {
++        targets: [stage, player],
++        emitProjectChanged: jest.fn(),
++        getTargetById: id => runtime.targets.find(target => target.id === id) || null,
++        on: jest.fn((event, listener) => {
++            listeners[event] = listener;
++        })
++    };
++    const vm = {
++        runtime,
++        emitTargetsUpdate: jest.fn(),
++        on: jest.fn((event, listener) => {
++            listeners[event] = listener;
++        })
++    };
++    return {listeners, player, runtime, stage, vm};
++};
++
++describe('NGVGE node database', () => {
++    test('creates target-backed nodes and child nodes', () => {
++        const {player, vm} = createVM();
++        const database = installNodeDatabase(vm);
++        const playerNode = database.getNodeForTarget(player.id);
++
++        expect(playerNode.id).toBe(getTargetNodeId(player.id));
++        expect(playerNode.typeId).toBe('ngvge.sprite-target');
++
++        const body = database.createNode('ngvge.physics-body2d', playerNode.id, {
++            name: 'Player Body'
++        });
++        const collider = database.createNode('ngvge.collider2d', body.id, {
++            name: 'Hitbox'
++        });
++
++        expect(database.getChildren(playerNode.id).map(node => node.id)).toEqual([body.id]);
++        expect(database.getChildren(body.id).map(node => node.id)).toEqual([collider.id]);
++        expect(database.getNearestTargetNode(collider.id).targetId).toBe(player.id);
++    });
++
++    test('updates node metadata and supports shared Undo/Redo history', () => {
++        const {player, runtime, vm} = createVM();
++        const database = installNodeDatabase(vm);
++        const history = getPropertyHistory(runtime);
++        const playerNode = database.getNodeForTarget(player.id);
++        const collider = database.createNode('ngvge.collider2d', playerNode.id);
++
++        database.renameNode(collider.id, 'Damage Area');
++        database.setNodeProperty(collider.id, 'radius', 32);
++
++        expect(database.getNode(collider.id).name).toBe('Damage Area');
++        expect(database.getNode(collider.id).properties.radius).toBe(32);
++
++        history.undo();
++        expect(database.getNode(collider.id).properties.radius).toBe(24);
++        history.redo();
++        expect(database.getNode(collider.id).properties.radius).toBe(32);
++    });
++
++    test('serializes hierarchy and rebinds target nodes by target order', () => {
++        const first = createVM(['stage-old', 'player-old']);
++        const database = createNodeDatabase(first.vm);
++        const playerNode = database.getNodeForTarget(first.player.id);
++        const body = database.createNode('ngvge.physics-body2d', playerNode.id);
++        const collider = database.createNode('ngvge.collider2d', body.id);
++        const snapshot = database.serializeProject();
++
++        const second = createVM(['stage-new', 'player-new']);
++        const restored = createNodeDatabase(second.vm);
++        restored.deserializeProject(snapshot);
++
++        const restoredPlayerNode = restored.getNodeForTarget(second.player.id);
++        expect(restoredPlayerNode.id).toBe(playerNode.id);
++        expect(restored.getChildren(restoredPlayerNode.id)[0].id).toBe(body.id);
++        expect(restored.getChildren(body.id)[0].id).toBe(collider.id);
++    });
++
++    test('allows future plugins to register additional node types', () => {
++        const {runtime} = createVM();
++        const registry = getNodeTypeRegistry(runtime);
++
++        registry.register({
++            category: 'Plugin',
++            defaults: {strength: 1},
++            fields: [{id: 'strength', label: 'Strength', type: 'number'}],
++            icon: 'P',
++            id: 'plugin.example-node',
++            label: 'Example Node',
++            pluginId: 'plugin.example'
++        });
++
++        expect(registry.getType('plugin.example-node')).toMatchObject({
++            label: 'Example Node',
++            pluginId: 'plugin.example'
++        });
++        expect(registry.listTypes().some(nodeType => nodeType.id === 'plugin.example-node')).toBe(true);
++    });
++});
+--- a/test/unit/reducers/project-explorer-reducer.test.js
++++ b/test/unit/reducers/project-explorer-reducer.test.js
+@@ -5,6 +5,7 @@
+     projectExplorerInitialState,
+     resetProjectExplorer,
+     setProjectExplorerNodeExpanded,
++    setProjectExplorerSelectedNode,
+     setProjectExplorerVisible,
+     setProjectExplorerWidth
+ } from '../../../src/reducers/project-explorer';
+@@ -23,12 +24,24 @@
+         expect(state).toEqual({
+             visible: true,
+             width: DEFAULT_WIDTH,
++            selectedNodeId: null,
+             expandedNodeIds: [
+                 'project:root',
+                 'provider:entities',
+                 'provider:assets'
+             ]
+         });
++    });
++
++
++    test('selects an NGVGE node', () => {
++        const state = projectExplorerReducer(
++            projectExplorerInitialState,
++            setProjectExplorerSelectedNode('node:collider')
++        );
++
++        expect(state.selectedNodeId).toBe('node:collider');
++        expect(projectExplorerReducer(state, setProjectExplorerSelectedNode(null)).selectedNodeId).toBeNull();
+     });
+ 
+     test('sets and clamps width', () => {
+@@ -74,6 +87,7 @@
+         const state = {
+             visible: false,
+             width: DEFAULT_WIDTH,
++            selectedNodeId: 'node:test',
+             expandedNodeIds: ['provider:entities', 'target:test']
+         };
+         const nextState = projectExplorerReducer(
+@@ -96,6 +110,7 @@
+         const state = {
+             visible: true,
+             width: DEFAULT_WIDTH,
++            selectedNodeId: null,
+             expandedNodeIds: []
+         };
+ 
+@@ -106,6 +121,7 @@
+         const state = {
+             visible: true,
+             width: MAX_WIDTH,
++            selectedNodeId: 'node:test',
+             expandedNodeIds: ['provider:entities']
+         };
+ 

@@ -1,0 +1,375 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    color: var(--ui-primary, #f2f2f2);
+    background: #17191c;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.header p {
+    margin: 3px 0 0;
+    color: rgba(255, 255, 255, 0.52);
+    font-size: 12px;
+}
+
+.backendBadge {
+    padding: 4px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 11px;
+}
+
+.notice {
+    margin: 12px 18px 0;
+    padding: 9px 11px;
+    border-left: 2px solid rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.035);
+    color: rgba(255, 255, 255, 0.63);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 270px minmax(0, 1fr);
+    flex: 1;
+    min-height: 0;
+    padding: 14px 18px 18px;
+    gap: 16px;
+}
+
+.sidebar,
+.main {
+    min-height: 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.018);
+}
+
+.sidebar {
+    padding: 14px;
+}
+
+.sidebar label,
+.field label {
+    display: block;
+    margin-bottom: 6px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.sidebar select,
+.field input {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 5px;
+    padding: 8px 9px;
+    color: inherit;
+    background: #202327;
+}
+
+.meta {
+    margin: 16px 0 0;
+}
+
+.meta div {
+    padding: 8px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.meta dt {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.meta dd {
+    overflow: hidden;
+    margin: 3px 0 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.empty {
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.main {
+    overflow: auto;
+    padding: 16px;
+}
+
+.field {
+    max-width: 520px;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    gap: 8px;
+}
+
+.actions button {
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 5px;
+    padding: 7px 11px;
+    color: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.055);
+    cursor: pointer;
+}
+
+.actions button:disabled {
+    opacity: 0.38;
+    cursor: default;
+}
+
+.review {
+    margin-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 14px;
+}
+
+.review h3 {
+    margin: 0 0 9px;
+    font-size: 13px;
+}
+
+.reviewSummary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.reviewSummary span {
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.055);
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 11px;
+}
+
+.command {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding: 9px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 12px;
+    gap: 12px;
+}
+
+.diagnostics {
+    margin: 10px 0 0;
+    padding-left: 18px;
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 12px;
+}
+
+.error {
+    margin-top: 14px;
+    padding: 9px 10px;
+    border: 1px solid rgba(255, 160, 160, 0.2);
+    border-radius: 5px;
+    color: #ffb6b6;
+    background: rgba(120, 30, 30, 0.16);
+    font-size: 12px;
+}
+
+.workingCopyActions {
+    display: grid;
+    margin-top: 14px;
+    gap: 7px;
+}
+
+.workingCopyActions button {
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 5px;
+    padding: 7px 9px;
+    color: rgba(255, 255, 255, 0.72);
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+}
+
+.workingCopyActions button:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.metadataPanel {
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.editorSection {
+    margin-top: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 7px;
+    background: #111316;
+}
+
+.editorHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 8px 11px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.editorHeader h3 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.editorHeader span {
+    display: block;
+    margin-top: 2px;
+    color: rgba(255, 255, 255, 0.46);
+    font-size: 10px;
+}
+
+.stale {
+    color: #e9ba76;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.paintBackendSurface {
+    position: relative;
+    min-height: 420px;
+    overflow: auto;
+    background: #202226;
+}
+
+.editorPlaceholder {
+    display: grid;
+    min-height: 300px;
+    place-items: center;
+    color: rgba(255, 255, 255, 0.42);
+    font-size: 12px;
+}
+
+.vectorEditor {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    background: #15171a;
+}
+
+.vectorToolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 5px;
+}
+
+.vectorToolbar button {
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 4px;
+    padding: 5px 8px;
+    color: rgba(255, 255, 255, 0.76);
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.vectorToolbar button:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.vectorToolActive {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #fff !important;
+}
+
+.vectorToolbarDivider {
+    width: 1px;
+    height: 22px;
+    margin: 0 3px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.vectorCanvas {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    outline: none;
+    background:
+        linear-gradient(45deg, rgba(255, 255, 255, 0.025) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255, 255, 255, 0.025) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.025) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.025) 75%);
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    background-size: 16px 16px;
+}
+
+.vectorCanvas > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.vectorCanvas[data-ngvge-vector-tool="hand"],
+.vectorCanvas[data-ngvge-vector-tool="hand-temporary"] {
+    cursor: grab;
+}
+
+.vectorCanvas[data-ngvge-vector-tool="zoom"] {
+    cursor: zoom-in;
+}
+
+.rasterEditor,
+.rasterCanvasHost {
+    position: relative;
+    display: flex;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.rasterEditor[data-ngvge-raster-tool="hand"],
+.rasterEditor[data-ngvge-raster-tool="hand-temporary"] {
+    cursor: grab;
+}
+
+.rasterEditor[data-ngvge-raster-tool="zoom"] {
+    cursor: zoom-in;
+}

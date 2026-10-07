@@ -1,0 +1,73 @@
+{
+  "stage": "WS-5",
+  "title": "Node Explorer Workspace Integration",
+  "status": "COMPLETE / VERIFIED",
+  "baseline": {
+    "stage": "WS-4",
+    "localCommit": "829b5ee"
+  },
+  "identities": {
+    "commandHost": "ngvge.workspace-node-command-host@1",
+    "commandClient": "ngvge.workspace-node-command-client@1",
+    "projectCompatibilityAdapter": "ngvge.workspace-project-node-compatibility-adapter@1",
+    "commandSchemaVersion": 1
+  },
+  "primaryTool": "ngvge.tool.node-explorer",
+  "inspectorTool": "ngvge.tool.inspector",
+  "legacySprites": {
+    "toolId": "ngvge.tool.legacy-sprites",
+    "role": "compatibility",
+    "defaultVisible": false
+  },
+  "machineCertification": {
+    "passed": 26,
+    "total": 26,
+    "status": "PASS"
+  },
+  "focusedTests": {
+    "suites": 4,
+    "tests": 42,
+    "status": "PASS"
+  },
+  "fullTests": {
+    "unitNodeSuites": 116,
+    "unitNodeTests": 626,
+    "unitDomSuites": 3,
+    "unitDomTests": 26,
+    "unitTotalSuites": 119,
+    "unitTotalTests": 652,
+    "integrationSuites": 4,
+    "integrationTests": 5,
+    "smokeSuites": 1,
+    "smokeTests": 1
+  },
+  "webpack": {
+    "nodeExplorerEntry": {
+      "exit": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "editorEntry": {
+      "exit": 0,
+      "errors": 0,
+      "warnings": 0
+    }
+  },
+  "cumulativeWorkspaceGate": "PASS",
+  "crossDomainGates": {
+    "LSC-G1": "PASS",
+    "LRC-G1": "PASS",
+    "LPL-G1": "PASS",
+    "LEX-G1": "PASS",
+    "COL-0": "PASS",
+    "0009-E": "PASS",
+    "PermanentRegression": "PASS"
+  },
+  "aggregateCertification": {
+    "status": "CONSTITUENT GATES PASS / WRAPPER TIMEOUT",
+    "claimedExitZero": false,
+    "finalEditorWebpackIndependentlyVerified": true
+  },
+  "architectureFrozen": false,
+  "nextStage": "WS-6 | Extension Manager Workspace Tool"
+}

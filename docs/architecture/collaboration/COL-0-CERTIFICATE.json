@@ -1,0 +1,54 @@
+{
+  "certificateId": "ngvge.col-0.stable-semantic-collaboration-boundary@1",
+  "stage": "COL-0",
+  "title": "Stable Semantic Collaboration Boundary",
+  "status": "COMPLETE / VERIFIED",
+  "date": "2026-08-13",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "stableIdentities": {
+    "host": "ngvge.collaboration-semantic-host@1",
+    "client": "ngvge.collaboration-semantic-client@1",
+    "operationSchema": "ngvge.collaboration-operation/v1",
+    "authorityDomain": "ngvge.collaboration.semantic",
+    "writerAuthority": "authority:ngvge.collaboration-semantic-host"
+  },
+  "invariants": [
+    "Collaboration semantic DTOs contain no Scratch target/runtime/backend identity.",
+    "NodeId is the primary semantic object identity; targetId is compatibility shadow only.",
+    "Remote node rename/destroy/transform mutation uses NGVGE command capabilities.",
+    "Project synchronization consumes the Project Lifecycle Host.",
+    "Extension synchronization consumes the Scratch Extension Host and not raw ExtensionManager authority.",
+    "Transport backends do not define Collaboration semantic identity or mutation authority.",
+    "Remaining block/asset/presence legacy paths are explicit compatibility debt and are not native semantic DTO fields."
+  ],
+  "verification": {
+    "machineDoD": "15/15 PASS",
+    "focusedJest": "4 suites / 12 tests PASS",
+    "lrcG1": "15/15 PASS + 9/9 E2E PASS",
+    "lpl1": "13/13 PASS + 32 tests PASS",
+    "lex1": "14/14 PASS + 9 tests PASS",
+    "arcC0011": "7/7 PASS",
+    "transform0009E": "12/12 PASS",
+    "permanentRegression": "19/19 PASS",
+    "unitNode": "98 suites / 517 tests PASS",
+    "unitDom": "3 suites / 26 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1/1 PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "workspaceThroughWs2": "PASS",
+    "lsc0": "5 tests PASS",
+    "webpackCollaborationEntry": "exit 0 / 0 errors / 0 warnings"
+  },
+  "aggregateCertification": {
+    "status": "OUTER EXECUTION WINDOW TIMEOUT",
+    "claim": "not reported as aggregate PASS",
+    "constituentGates": "PASS on final source tree"
+  },
+  "nextDebtOwners": [
+    "COL-1 native ResourceId / asset synchronization",
+    "COL-1 block semantic command boundary",
+    "COL-1 presence NodeId cleanup",
+    "COL-G1 legacy targetId compatibility retirement gate"
+  ]
+}

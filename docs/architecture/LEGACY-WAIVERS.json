@@ -1,0 +1,79 @@
+{
+  "schema": "ngvge-arc-waiver-registry/v1",
+  "updatedAt": "2026-08-11",
+  "baselinePhase": "ARC-C001.1-B",
+  "parentAuthority": "ARC-0001",
+  "activeWaivers": [],
+  "expiredWaivers": [],
+  "counts": {
+    "active": 0,
+    "expired": 0,
+    "nonWaivableFindings": 0,
+    "resolvedNonWaivableFindings": 1
+  },
+  "forbiddenWaiverZones": [
+    "project-model",
+    "persistent-dto",
+    "public-protocol"
+  ],
+  "requiredFields": [
+    "waiverId",
+    "rule",
+    "scope",
+    "reason",
+    "owner",
+    "createdAt",
+    "expiresAt",
+    "removalTask",
+    "status"
+  ],
+  "nonWaivableFindings": [],
+  "compatibilitySurfacesNotWaivers": [
+    {
+      "scope": "src/lib/scratch-sprite-adapter/**",
+      "classification": "compatibility-adapter",
+      "constraint": "target runtime identity remains runtime-only"
+    },
+    {
+      "scope": "src/lib/first-party-modules/vm-project-io-service.js",
+      "classification": "host-backend-boundary",
+      "constraint": "module/public protocol uses portable string data"
+    },
+    {
+      "scope": "src/lib/scene-system/legacy-scene-snapshot-migrator.js",
+      "classification": "legacy-read-migration",
+      "constraint": "legacy representation terminates at migration boundary"
+    },
+    {
+      "scope": "src/lib/project-explorer/entity-provider.js",
+      "classification": "transient-editor-compatibility-projection",
+      "constraint": "must not become persistent semantic identity"
+    }
+  ],
+  "resolvedNonWaivableFindings": [
+    {
+      "id": "ARC-DEBT-0001",
+      "title": "Target-backed Project Node identity derives from Scratch target.id",
+      "status": "resolved-c001.1-b",
+      "waivable": false,
+      "domains": [
+        "identity",
+        "serialization",
+        "compatibility"
+      ],
+      "scope": [
+        "src/lib/project-nodes/node-database.js"
+      ],
+      "evidence": {
+        "identityConstruction": "getTargetNodeId(target.id)",
+        "persistentSection": "ngvge-node-tree",
+        "bindingMechanism": "targetBindings by original-target order"
+      },
+      "reason": "A Project Model semantic NodeId is initially derived from Scratch execution identity; Project Model/Persistent DTO violations are outside waiver authority.",
+      "requiredBefore": [],
+      "remediation": "Completed: NGVGE-owned canonical NodeId creation plus transactional legacy alias migration across NGVGE project sections.",
+      "resolvedAt": "2026-08-11",
+      "resolvedPhase": "ARC-C001.1-B"
+    }
+  ]
+}

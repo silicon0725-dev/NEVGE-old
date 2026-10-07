@@ -1,0 +1,48 @@
+{
+  "schema": "ngvge-lpl1-project-lifecycle-certificate/v1",
+  "stage": "LPL-1",
+  "status": "COMPLETE / VERIFIED",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "predecessorGate": "LRC-G1 | PASS / CERTIFIED",
+  "identities": {
+    "host": "ngvge.project-lifecycle-host@1",
+    "client": "ngvge.project-lifecycle-client@1",
+    "domain": "ngvge.project.lifecycle",
+    "writerAuthority": "authority:ngvge.project-lifecycle-host"
+  },
+  "machineDoD": {
+    "passed": 13,
+    "total": 13
+  },
+  "focusedTests": {
+    "suites": 6,
+    "tests": 32,
+    "status": "PASS"
+  },
+  "cumulative": {
+    "lrcG1": "PASS",
+    "arcC0011": "7/7 PASS",
+    "transform0009E": "12/12 PASS",
+    "permanentRegression": "19/19 PASS",
+    "unit": "94 suites / 526 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1/1 PASS",
+    "typeScript": "PASS",
+    "eslintCorrectness": "PASS",
+    "workspaceAndContainment": "RE-3 through RE-5; WS-0 through WS-2; LSC-0 PASS"
+  },
+  "webpack": {
+    "entry": "src/playground/editor.jsx",
+    "config": "webpack.config.js[0]",
+    "exitCode": 0,
+    "errors": 0,
+    "warnings": 0,
+    "status": "PASS"
+  },
+  "invariant": "Project load/deserialization and project JSON/asset/archive serialization converge through one NGVGE Host-owned lifecycle facade; lifecycle participants extend it through hooks rather than VM monkey-patch ownership.",
+  "aggregateCertification": {
+    "command": "npm run test:project-lifecycle:lpl1-certification",
+    "exitCode": 0,
+    "status": "PASS"
+  }
+}

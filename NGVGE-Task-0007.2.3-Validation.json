@@ -1,0 +1,150 @@
+{
+  "task": "Task-0007.2.3 — Node Workflow Refinement",
+  "base": "scratch-gui-main-task-0007.2.2-node-creation-ux",
+  "changed_files": [
+    "docs/TASK-0007.2.3-NODE-WORKFLOW-REFINEMENT.md",
+    "src/components/project-explorer/project-explorer.css",
+    "src/components/project-explorer/project-explorer.jsx",
+    "src/lib/default-project/README.md",
+    "src/lib/default-project/index.js",
+    "src/lib/default-project/project-data.js",
+    "src/lib/project-nodes/node-database.js",
+    "src/lib/project-nodes/node-type-registry.js",
+    "test/unit/components/project-explorer.test.jsx",
+    "test/unit/lib/default-project.test.js",
+    "test/unit/lib/project-nodes-node-database.test.js"
+  ],
+  "deleted_files": [
+    "src/lib/default-project/02engine.svg",
+    "src/lib/default-project/override-default-project.sb3"
+  ],
+  "checks": [
+    {
+      "name": "TypeScript parser validation for changed JS/JSX files",
+      "status": "PASS"
+    },
+    {
+      "name": "CSS Module class reference coverage",
+      "status": "PASS"
+    },
+    {
+      "name": "Relative import resolution for changed files",
+      "status": "PASS"
+    },
+    {
+      "name": "Create Node dialog uses document-body portal",
+      "status": "PASS"
+    },
+    {
+      "name": "Dialog and context menu z-index above floating windows",
+      "status": "PASS"
+    },
+    {
+      "name": "Stable parent node ID used for child creation",
+      "status": "PASS"
+    },
+    {
+      "name": "Single Add Node / Add Child Node context action",
+      "status": "PASS"
+    },
+    {
+      "name": "Search spans all registered node families",
+      "status": "PASS"
+    },
+    {
+      "name": "Blank-project root preset visibility condition",
+      "status": "PASS"
+    },
+    {
+      "name": "Blank built-in project contains Stage only",
+      "status": "PASS"
+    },
+    {
+      "name": "Legacy 02Engine starter project assets removed",
+      "status": "PASS"
+    },
+    {
+      "name": "Deep node-subtree duplication API",
+      "status": "PASS"
+    },
+    {
+      "name": "Git diff whitespace validation",
+      "status": "PASS"
+    },
+    {
+      "name": "Git patch applies to clean Task-0007.2.2",
+      "status": "PASS"
+    },
+    {
+      "name": "Patched tree byte comparison",
+      "status": "PASS"
+    },
+    {
+      "name": "Jest unit suite",
+      "status": "NOT_RUN",
+      "detail": "The supplied archive does not include node_modules."
+    },
+    {
+      "name": "ESLint and Webpack production build",
+      "status": "NOT_RUN",
+      "detail": "The project dependency tree and Bun runtime are unavailable in this execution environment."
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/TASK-0007.2.3-NODE-WORKFLOW-REFINEMENT.md",
+      "bytes": 2714,
+      "sha256": "a5200582608b8e1a6e6a8d7d751f7bb5ee004a7edd3b86349063b0c27103d382"
+    },
+    {
+      "path": "src/components/project-explorer/project-explorer.css",
+      "bytes": 19995,
+      "sha256": "f70453fac0d40299f850f95f1339e892897291ebc5662649ba531f0a6479afa2"
+    },
+    {
+      "path": "src/components/project-explorer/project-explorer.jsx",
+      "bytes": 44631,
+      "sha256": "07859cb3990ccb0c3c7ed80c3007db42ab28ca9999e3ee0759c81e7acc4d26fc"
+    },
+    {
+      "path": "src/lib/default-project/README.md",
+      "bytes": 221,
+      "sha256": "6aa9d1b447446ecbe9846c3db19d6a9b9f77838f5b3a6d38983dfb239ab362ce"
+    },
+    {
+      "path": "src/lib/default-project/index.js",
+      "bytes": 892,
+      "sha256": "ea243eb16373b693a7ebf10cdf793c074c94ca5b863e290645d0f2b5f22653f4"
+    },
+    {
+      "path": "src/lib/default-project/project-data.js",
+      "bytes": 1613,
+      "sha256": "a6c15e0de323340036525c947d6c77f0fd23f61adbe6fa01428080c18376ceaa"
+    },
+    {
+      "path": "src/lib/project-nodes/node-database.js",
+      "bytes": 19716,
+      "sha256": "e1158b096e90fa65094df09e60a1c8c365d095bf1e3f3b28947d460a2a8fcb90"
+    },
+    {
+      "path": "src/lib/project-nodes/node-type-registry.js",
+      "bytes": 9857,
+      "sha256": "7e911f0e67e9e568f8e56e662598340d3713c5290f7487c6feaac3406ba69a43"
+    },
+    {
+      "path": "test/unit/components/project-explorer.test.jsx",
+      "bytes": 5674,
+      "sha256": "85809624b8851e5e1b30ced3be2e9ae6497fe7ec9b209d677c2baa16f85a4365"
+    },
+    {
+      "path": "test/unit/lib/default-project.test.js",
+      "bytes": 642,
+      "sha256": "5a15ddba1d27743a0a8447ff8ef1f181fe1e35dd0c70a9839a7d1c33b64bfa7d"
+    },
+    {
+      "path": "test/unit/lib/project-nodes-node-database.test.js",
+      "bytes": 5554,
+      "sha256": "655c2fbb5dced35cc6d0fe0c7385883e8c1d8d0973c37929705652063d2531d8"
+    }
+  ]
+}

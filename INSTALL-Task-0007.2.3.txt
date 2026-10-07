@@ -1,0 +1,8 @@
+Task-0007.2.3 Node Workflow Update
+
+1. Stop the running development server with Ctrl+C.
+2. Extract this ZIP into the scratch-gui-main project root and overwrite existing files.
+3. Optionally run CLEANUP-LEGACY-DEFAULT-PROJECT.bat from the project root.
+4. Start START-EDITOR.bat again.
+
+The cleanup is optional because the new default-project loader no longer references the old demo files.

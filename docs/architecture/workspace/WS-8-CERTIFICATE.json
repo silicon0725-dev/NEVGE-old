@@ -1,0 +1,42 @@
+{
+  "certificateId": "ngvge-ws8-post-mvp-tool-ecosystem-certificate/v1",
+  "stage": "WS-8",
+  "title": "Post-MVP Tool Ecosystem",
+  "status": "COMPLETE / VERIFIED",
+  "baseline": "8d9a944",
+  "stableIdentities": {
+    "ecosystemRegistry": "ngvge.workspace-tool-ecosystem-registry@1",
+    "manifestSchemaVersion": 1,
+    "toolPersistence": "ngvge.workspace-tool-persistence@1",
+    "toolStateSchemaVersion": 1,
+    "referenceToolModel": "ngvge.workspace-todo-tool-model@1",
+    "referenceToolId": "ngvge.tool.todo"
+  },
+  "ecosystem": {
+    "active": [
+      "ngvge.tool.todo"
+    ],
+    "planned": [
+      "ngvge.tool.terminal",
+      "ngvge.tool.paint"
+    ],
+    "ossActivationRequiresApprovedAdr": true,
+    "projectPersistenceOwnedByTools": false,
+    "secretPersistenceOwnedByTools": false
+  },
+  "verification": {
+    "machineGate": "27/27 PASS",
+    "focusedJest": "6 suites / 21 tests PASS",
+    "cumulative": "WS-0 -> WS-8 exit 0 / PASS",
+    "unitNode": "126 suites / 666 tests PASS",
+    "unitDom": "3 suites / 26 tests PASS",
+    "unitTotal": "129 suites / 692 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1/1 PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "todoWebpack": "exit 0 / errors 0 / warnings 0",
+    "editorWebpack": "exit 0 / errors 0 / warnings 0",
+    "aggregateCertification": "CONSTITUENT GATES PASS / AGGREGATE WRAPPER TIMEOUT; aggregate exit 0 not claimed"
+  }
+}

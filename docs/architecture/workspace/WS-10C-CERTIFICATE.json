@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "stage": "WS-10C",
+  "title": "Reviewed Resource Content Replace Transaction",
+  "status": "COMPLETE / VERIFIED",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "workspaceParent": "WS-10B | COMPLETE / VERIFIED",
+  "ws9Foundation": "COMPLETE / CERTIFIED",
+  "identities": {
+    "toolId": "ngvge.tool.paint",
+    "projectCommandHostId": "ngvge.workspace-project-command-host@1",
+    "projectReviewId": "ngvge.workspace-project-transaction-review@1",
+    "reviewPolicyId": "ngvge.workspace-privileged-mutation-review-policy@1",
+    "contentReadCapabilityId": "ngvge.workspace-capability.resource-content-read",
+    "contentCommandKind": "resource.content.replace",
+    "workingCopyModelId": "ngvge.workspace-paint-working-copy-model@1"
+  },
+  "contentReplaceContract": {
+    "schemaVersion": 1,
+    "supportedFormats": ["svg", "png", "jpg"],
+    "portableContentKinds": ["svg-text", "data-uri"],
+    "maxPayloadBytes": 33554432,
+    "canonicalResourceIdRequired": true,
+    "perResourceRuntimeContentRevision": true,
+    "contentRevisionPersistedInGlobalAssetV3": false,
+    "sourceRevisionPrecondition": true,
+    "svgSanitizedAtCommitBoundary": true,
+    "reviewDomain": "resource.content",
+    "reviewEvidenceRequired": true,
+    "rollbackReviewed": true
+  },
+  "rules": {
+    "rawScratchBackendAuthorityExposed": false,
+    "paintDirectVmMutation": false,
+    "resourceDirectMutation": false,
+    "projectContentMutationReviewed": true,
+    "resourceAuthorityOwnsBackendReplacement": true,
+    "reviewContainsRawContent": false,
+    "terminalActivated": false
+  },
+  "verification": {
+    "machine": "23/23 PASS",
+    "focused": "7 suites / 49 tests PASS",
+    "ws10cWebpack": "0 errors / 0 warnings PASS",
+    "fullEditorWebpack": "0 errors / 0 warnings PASS",
+    "fullUnit": "146 suites / 810 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "arcC0011Baseline": "7/7 PASS",
+    "lscG1": "19/19 machine PASS",
+    "lrcG1": "15/15 machine PASS",
+    "lplG1": "17/17 machine PASS",
+    "lexG1": "19/19 machine PASS",
+    "col0": "15/15 machine PASS",
+    "ws9Aggregate": "20/20 PASS",
+    "ws10aCertification": "23/23 PASS",
+    "ws10bCertification": "27/27 PASS"
+  },
+  "next": "WS-10D | Better Paint UX / Persistence / Certification"
+}

@@ -1,0 +1,53 @@
+{
+  "stage": "WS-9C",
+  "title": "Context Source Integration & Lifecycle Binding",
+  "status": "COMPLETE / VERIFIED",
+  "authority": "ARC-0001",
+  "baseline": "WS-9B COMPLETE / VERIFIED",
+  "identities": {
+    "contextService": "ngvge.workspace-context@1",
+    "runtimeBinding": "ngvge.workspace-context-runtime-binding@1",
+    "projectSource": "ngvge.workspace-context-source.project-lifecycle",
+    "sceneSource": "ngvge.workspace-context-source.scene-system",
+    "nodeSelectionSource": "ngvge.workspace-context-source.node-selection",
+    "resourceSelectionSource": "ngvge.workspace-context-source.resource-selection",
+    "windowSource": "ngvge.workspace-context-source.window-manager"
+  },
+  "projectIdentity": {
+    "scheme": "ngvge.project-context.gN",
+    "source": "ProjectLifecycleHost.projectGeneration",
+    "scope": "session",
+    "persistentProjectModelId": false,
+    "backendOrServerIdentity": false
+  },
+  "authorityRules": {
+    "contextIsProjectionOnly": true,
+    "projectLifecycleRemainsAuthority": true,
+    "sceneSystemRemainsAuthority": true,
+    "selectionAuthorityNotMigrated": true,
+    "resourceAuthorityNotMigrated": true,
+    "windowManagerRemainsAuthority": true,
+    "rootProjectLoadQuarantine": true,
+    "agentDirectContextMigration": false,
+    "consumerAdmissionRequired": true
+  },
+  "verification": {
+    "machineChecks": "12/12 PASS",
+    "focusedRuntimeJest": "3 suites / 21 tests PASS",
+    "focusedDomJest": "2 suites / 24 tests PASS",
+    "contextSourceWebpack": "0 errors / 0 warnings",
+    "unit": "132 suites / 713 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "lscG1": "PASS",
+    "lrcG1": "PASS",
+    "lplG1": "PASS",
+    "lexG1": "PASS",
+    "col0": "PASS",
+    "fullEditorWebpack": "INCONCLUSIVE: execution environment 120s timeout; no compile error emitted; not counted as PASS"
+  },
+  "nextRecommendedStage": "WS-9D | Context Consumer Admission & Agent Migration"
+}

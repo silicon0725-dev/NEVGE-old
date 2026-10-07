@@ -1,0 +1,60 @@
+{
+  "certificateId": "ngvge-lex1-extension-addons-containment-certificate/v1",
+  "stage": "LEX-1",
+  "title": "Extension / Addons Containment",
+  "status": "COMPLETE / VERIFIED",
+  "date": "2026-08-13",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "baseline": "LRC-G1 PASS / CERTIFIED + LPL-1 COMPLETE / VERIFIED",
+  "stableIdentities": {
+    "containmentHost": "ngvge.extension-containment-host@1",
+    "containmentClient": "ngvge.extension-containment-client@1",
+    "authorityDomain": "ngvge.extension.containment",
+    "writerAuthority": "authority:ngvge.extension-containment-host",
+    "hosts": [
+      "ngvge.extension-host.ngvge-module@1",
+      "ngvge.extension-host.scratch-extension@1",
+      "ngvge.extension-host.legacy-addon@1"
+    ]
+  },
+  "evidence": {
+    "machineDoD": {"passed": 14, "total": 14},
+    "focusedJest": {"suites": 4, "tests": 8, "status": "PASS"},
+    "lpl1DoD": {"passed": 13, "total": 13},
+    "lpl1Focused": {"suites": 6, "tests": 32, "status": "PASS"},
+    "lrcG1": {"passed": 15, "total": 15, "e2eTests": 9, "status": "PASS"},
+    "arcC0011": {"passed": 7, "total": 7},
+    "transform0009E": {"passed": 12, "total": 12},
+    "permanentRegression": {"passed": 19, "total": 19},
+    "unit": {"suites": 98, "tests": 534, "status": "PASS"},
+    "integration": {"suites": 4, "tests": 5, "status": "PASS"},
+    "smoke": {"suites": 1, "tests": 1, "status": "PASS"},
+    "typeScript": "PASS",
+    "eslintCorrectness": "PASS",
+    "webpackEditorEntry": {
+      "entry": "src/playground/editor.jsx",
+      "webpackConfig": "webpack.config.js[0]",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0,
+      "status": "PASS"
+    }
+  },
+  "trustBoundary": {
+    "customLegacyAddonRawVm": "DENIED",
+    "bundledLegacyAddonRawVm": "EXPLICIT_QUARANTINE_LEASE",
+    "windowAddonAPI": "REMOVED",
+    "windowVmProduction": "FORBIDDEN",
+    "normalGuiPrivateExtensionManagerMutation": "FORBIDDEN"
+  },
+  "deferredOwners": {
+    "collaboration": "COL-0",
+    "legacyAddonAnd02Agent": "LEX-G1 preparation",
+    "developerDebug": "Developer Tools / LEX-G1 preparation"
+  },
+  "governance": {
+    "architectureFrozen": false,
+    "lexG1Certified": false,
+    "nextFunctionalStage": "COL-0"
+  }
+}

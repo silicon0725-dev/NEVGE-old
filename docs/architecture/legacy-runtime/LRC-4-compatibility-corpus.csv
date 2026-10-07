@@ -1,0 +1,18 @@
+CorpusId,Title,PrimaryEvidence
+C01,Pure Scratch sprite motion,scratch.sprite.transform
+C02,Broadcast/event-heavy,broadcast density
+C03,Wait/timer-sensitive,exact-tick-sensitive execution
+C04,Pen-heavy,scratch.pen exact-tick presentation
+C05,Stamp-heavy,scratch.stamp exact-tick presentation
+C06,Clone-heavy,resource risk / clone budget
+C07,Turbo candidate,legacy turbo execution context
+C08,custom FPS legacy,non-default simulation tick risk
+C09,legacy interpolation,transform-only interpolation
+C10,OpsPerFrame legacy project,legacy scheduler quarantine context
+C11,custom stage size,project/scene geometry capability
+C12,fencing-sensitive offstage movement,Scratch compatibility semantics
+C13,sound limits,Scratch compatibility semantics
+C14,pen limits / HQ render,presentation + pen compatibility split
+C15,custom Scratch extension,unknown extension capability
+C16,renderer-heavy,high render/project load heuristic
+C17,3D/custom renderer extension,renderer-private / unknown presenter domain

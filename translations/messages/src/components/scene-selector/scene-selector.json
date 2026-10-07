@@ -1,0 +1,102 @@
+[
+  {
+    "id": "ngvge.sceneSelector.activeScene",
+    "description": "Accessible label for the active scene in the scene selector",
+    "defaultMessage": "Active scene"
+  },
+  {
+    "id": "ngvge.sceneSelector.cancel",
+    "description": "Cancel a scene selector action",
+    "defaultMessage": "Cancel"
+  },
+  {
+    "id": "ngvge.sceneSelector.closeError",
+    "description": "Accessible label for dismissing a scene selector error",
+    "defaultMessage": "Dismiss error"
+  },
+  {
+    "id": "ngvge.sceneSelector.confirmDelete",
+    "description": "Confirm deletion of a scene",
+    "defaultMessage": "Delete scene"
+  },
+  {
+    "id": "ngvge.sceneSelector.createScene",
+    "description": "Create a new scene",
+    "defaultMessage": "New scene"
+  },
+  {
+    "id": "ngvge.sceneSelector.deleteScene",
+    "description": "Delete a scene",
+    "defaultMessage": "Delete"
+  },
+  {
+    "id": "ngvge.sceneSelector.deleteWithFallback",
+    "description": "Delete confirmation when another scene can be used as fallback",
+    "defaultMessage": "Delete “{scene}”? If it is active, “{fallback}” will be loaded first."
+  },
+  {
+    "id": "ngvge.sceneSelector.deleteWithReplacement",
+    "description": "Delete confirmation when deleting the only scene",
+    "defaultMessage": "Delete “{scene}”? A blank replacement scene will be created first."
+  },
+  {
+    "id": "ngvge.sceneSelector.dragScene",
+    "description": "Accessible label for a scene drag handle",
+    "defaultMessage": "Drag to reorder {scene}"
+  },
+  {
+    "id": "ngvge.sceneSelector.duplicateScene",
+    "description": "Duplicate a scene",
+    "defaultMessage": "Duplicate"
+  },
+  {
+    "id": "ngvge.sceneSelector.loading",
+    "description": "Scene selector busy state",
+    "defaultMessage": "Working…"
+  },
+  {
+    "id": "ngvge.sceneSelector.openSelector",
+    "description": "Accessible label for opening the scene selector",
+    "defaultMessage": "Open scene selector"
+  },
+  {
+    "id": "ngvge.sceneSelector.renameScene",
+    "description": "Rename a scene",
+    "defaultMessage": "Rename"
+  },
+  {
+    "id": "ngvge.sceneSelector.saveName",
+    "description": "Save a renamed scene",
+    "defaultMessage": "Save name"
+  },
+  {
+    "id": "ngvge.sceneSelector.sceneLabel",
+    "description": "Small label above the active scene name",
+    "defaultMessage": "Scene"
+  },
+  {
+    "id": "ngvge.sceneSelector.sceneList",
+    "description": "Scene selector panel heading",
+    "defaultMessage": "Scenes"
+  },
+  {
+    "id": "ngvge.sceneSelector.sceneCount",
+    "description": "Number of scenes in the project",
+    "defaultMessage": "{count, plural, one {# scene} other {# scenes}}"
+  },
+  {
+    "id": "ngvge.sceneSelector.setStartupScene",
+    "description": "Set a scene as the startup scene",
+    "defaultMessage": "Set as startup"
+  },
+  {
+    "id": "ngvge.sceneSelector.startupScene",
+    "description": "Label for the project startup scene",
+    "defaultMessage": "Startup scene"
+  },
+  {
+    "id": "ngvge.sceneSelector.switchScene",
+    "description": "Accessible label for switching to a scene",
+    "defaultMessage": "Switch to {scene}"
+  }
+]

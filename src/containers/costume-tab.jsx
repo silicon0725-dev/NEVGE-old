@@ -1,0 +1,505 @@
+import PropTypes from 'prop-types';
+import React from 'react';
+import bindAll from 'lodash.bindall';
+import {defineMessages, intlShape, injectIntl} from 'react-intl';
+import VM from 'scratch-vm';
+
+import AssetPanel from '../components/asset-panel/asset-panel.jsx';
+import PaintEditorWrapper from './paint-editor-wrapper.jsx';
+import NativePaintHost from './native-paint-editor-host.jsx';
+import {connect} from 'react-redux';
+import {handleFileUpload, costumeUpload} from '../lib/file-uploader.js';
+import errorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
+import DragConstants from '../lib/drag-constants';
+import {emptyCostume} from '../lib/empty-assets';
+import sharedMessages from '../lib/shared-messages';
+import downloadBlob from '../lib/download-blob';
+
+import {
+    openCostumeLibrary,
+    openBackdropLibrary
+} from '../reducers/modals';
+
+import {
+    activateTab,
+    SOUNDS_TAB_INDEX
+} from '../reducers/editor-tab';
+
+import {setRestore} from '../reducers/restore-deletion';
+import {showStandardAlert, closeAlertWithId} from '../reducers/alerts';
+
+import addLibraryBackdropIcon from '../components/asset-panel/icon--add-backdrop-lib.svg';
+import addLibraryCostumeIcon from '../components/asset-panel/icon--add-costume-lib.svg';
+import fileUploadIcon from '../components/action-menu/icon--file-upload.svg';
+import paintIcon from '../components/action-menu/icon--paint.svg';
+import surpriseIcon from '../components/action-menu/icon--surprise.svg';
+import searchIcon from '../components/action-menu/icon--search.svg';
+
+import {getCostumeLibrary, getBackdropLibrary} from '../lib/libraries/tw-async-libraries';
+
+let messages = defineMessages({
+    addLibraryBackdropMsg: {
+        defaultMessage: 'Choose a Backdrop',
+        description: 'Button to add a backdrop in the editor tab',
+        id: 'gui.costumeTab.addBackdropFromLibrary'
+    },
+    addLibraryCostumeMsg: {
+        defaultMessage: 'Choose a Costume',
+        description: 'Button to add a costume in the editor tab',
+        id: 'gui.costumeTab.addCostumeFromLibrary'
+    },
+    addBlankCostumeMsg: {
+        defaultMessage: 'Paint',
+        description: 'Button to add a blank costume in the editor tab',
+        id: 'gui.costumeTab.addBlankCostume'
+    },
+    addSurpriseCostumeMsg: {
+        defaultMessage: 'Surprise',
+        description: 'Button to add a surprise costume in the editor tab',
+        id: 'gui.costumeTab.addSurpriseCostume'
+    },
+    addFileBackdropMsg: {
+        defaultMessage: 'Upload Backdrop',
+        description: 'Button to add a backdrop by uploading a file in the editor tab',
+        id: 'gui.costumeTab.addFileBackdrop'
+    },
+    addFileCostumeMsg: {
+        defaultMessage: 'Upload Costume',
+        description: 'Button to add a costume by uploading a file in the editor tab',
+        id: 'gui.costumeTab.addFileCostume'
+    }
+});
+
+messages = {...messages, ...sharedMessages};
+
+class CostumeTab extends React.Component {
+    constructor (props) {
+        super(props);
+        bindAll(this, [
+            'handleSelectCostume',
+            'handleDeleteCostume',
+            'handleDuplicateCostume',
+            'handleExportCostume',
+            'handleNewCostume',
+            'handleNewBlankCostume',
+            'handleSurpriseCostume',
+            'handleSurpriseBackdrop',
+            'handleFileUploadClick',
+            'handleCostumeUpload',
+            'handleDrop',
+            'setFileInput'
+        ]);
+        const {
+            editingTarget,
+            sprites,
+            stage
+        } = props;
+        const target = editingTarget && sprites[editingTarget] ? sprites[editingTarget] : stage;
+        if (target && target.currentCostume) {
+            this.state = {selectedCostumeIndex: target.currentCostume, nativePaintNotice: null};
+        } else {
+            this.state = {selectedCostumeIndex: 0, nativePaintNotice: null};
+        }
+    }
+    componentDidUpdate (prevProps) {
+        const {
+            editingTarget,
+            sprites,
+            stage
+        } = this.props;
+
+        const target = editingTarget && sprites[editingTarget] ? sprites[editingTarget] : stage;
+        if (!target || !target.costumes) {
+            return;
+        }
+
+        if (prevProps.editingTarget === editingTarget) {
+            // If costumes have been added or removed, change costumes to the editing target's
+            // current costume.
+            const oldTarget = prevProps.sprites[editingTarget] ?
+                prevProps.sprites[editingTarget] : prevProps.stage;
+            // @todo: Find and switch to the index of the costume that is new. This is blocked by
+            // https://github.com/LLK/scratch-vm/issues/967
+            // Right now, you can land on the wrong costume if a costume changing script is running.
+            if (oldTarget.costumeCount !== target.costumeCount) {
+                this.setState({selectedCostumeIndex: target.currentCostume});
+            }
+        } else {
+            // If switching editing targets, update the costume index
+            this.setState({selectedCostumeIndex: target.currentCostume});
+        }
+    }
+    isNativePaintWorkingCopyDirty () {
+        if (!this.props.paintSession || typeof this.props.paintSession.getState !== 'function') return false;
+        const state = this.props.paintSession.getState();
+        return Boolean(state && state.workingCopy && state.workingCopy.loaded && state.workingCopy.dirty);
+    }
+    blockNativePaintAction (message) {
+        this.setState({nativePaintNotice: message});
+        return true;
+    }
+    handleSelectCostume (costumeIndex) {
+        if (costumeIndex !== this.state.selectedCostumeIndex && this.isNativePaintWorkingCopyDirty()) {
+            this.blockNativePaintAction('Review, commit, or discard the current Paint working copy before switching costumes.');
+            return;
+        }
+        this.props.vm.editingTarget.setCostume(costumeIndex);
+        this.setState({selectedCostumeIndex: costumeIndex, nativePaintNotice: null});
+    }
+    handleDeleteCostume (costumeIndex) {
+        const index = typeof costumeIndex === 'number' ? costumeIndex : this.state.selectedCostumeIndex;
+        if (index === this.state.selectedCostumeIndex && this.isNativePaintWorkingCopyDirty()) {
+            this.blockNativePaintAction('Resolve the current Paint working copy before deleting this costume.');
+            return;
+        }
+        const restoreCostumeFun = this.props.vm.deleteCostume(index);
+        this.props.dispatchUpdateRestore({
+            restoreFun: restoreCostumeFun,
+            deletedItem: 'Costume'
+        });
+    }
+    handleDuplicateCostume (costumeIndex) {
+        if (costumeIndex === this.state.selectedCostumeIndex && this.isNativePaintWorkingCopyDirty()) {
+            this.blockNativePaintAction('Resolve the current Paint working copy before duplicating this costume.');
+            return;
+        }
+        this.props.vm.duplicateCostume(costumeIndex);
+    }
+    handleExportCostume (costumeIndex) {
+        if (costumeIndex === this.state.selectedCostumeIndex && this.isNativePaintWorkingCopyDirty()) {
+            this.blockNativePaintAction('Commit or discard the current Paint working copy before exporting this costume.');
+            return;
+        }
+        const item = this.props.vm.editingTarget.sprite.costumes[costumeIndex];
+        const blob = new Blob([
+            this.props.vm.getExportedCostume(item)
+        ], {type: item.asset.assetType.contentType});
+        downloadBlob(`${item.name}.${item.asset.dataFormat}`, blob);
+    }
+    handleNewCostume (costume, fromCostumeLibrary, targetId) {
+        const costumes = Array.isArray(costume) ? costume : [costume];
+
+        return Promise.all(costumes.map(c => {
+            if (fromCostumeLibrary) {
+                return this.props.vm.addCostumeFromLibrary(c.md5, c);
+            }
+            // If targetId is falsy, VM should default it to editingTarget.id
+            // However, targetId should be provided to prevent #5876,
+            // if making new costume takes a while
+            return this.props.vm.addCostume(c.md5, c, targetId);
+        }));
+    }
+    async handleNewBlankCostume () {
+        console.log("addcostume");
+        function base64ToUint8Array(base64String) {
+        　　　　const padding = '='.repeat((4 - base64String.length % 4) % 4);
+               const base64 = (base64String + padding)
+                            .replace(/\-/g, '+')
+                            .replace(/_/g, '/');
+         
+               const rawData = window.atob(base64);
+               const outputArray = new Uint8Array(rawData.length);
+         
+               for (let i = 0; i < rawData.length; ++i) {
+                    outputArray[i] = rawData.charCodeAt(i);
+               }
+               return outputArray;
+         }
+
+const vm=this.props.vm;
+const runtime=vm.runtime;
+
+const targetId = vm.runtime.getEditingTarget().id;
+      const assetName = this.props.vm.editingTarget.isStage ?
+             this.props.intl.formatMessage(messages.backdrop, {index: 1}) :
+             this.props.intl.formatMessage(messages.costume, {index: 1});
+
+      //const res =base64ToUint8Array('PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHdpZHRoPSIwIiBoZWlnaHQ9IjAiIHZpZXdCb3g9IjAgMCAwIDAiPgogIDwhLS0gRXhwb3J0ZWQgYnkgU2NyYXRjaCAtIGh0dHA6Ly9zY3JhdGNoLm1pdC5lZHUvIC0tPgo8L3N2Zz4=');
+      //const blob = await res.blob();
+
+      /*if (!(this._typeIsBitmap(blob.type) || blob.type === "image/svg+xml")) {
+         console.error(`Invalid MIME type: ${blob.type}`);
+         return;
+       }*/
+      const assetType =runtime.storage.AssetType.ImageVector;
+
+      // Bitmap data format is not actually enforced, but setting it to something that isn't in scratch-parser's
+      // known format list will throw an error when someone tries to load the project.
+      // (https://github.com/scratchfoundation/scratch-parser/blob/665f05d739a202d565a4af70a201909393d456b2/lib/sb3_definitions.json#L51)
+      const dataType =runtime.storage.DataFormat.SVG
+
+      /*const arrayBuffer = await new Promise((resolve, reject) => {
+         const fr = new FileReader();
+         fr.onload = () => resolve(fr.result);
+         fr.onerror = () =>
+           reject(new Error(`Failed to read as array buffer: ${fr.error}`));
+         fr.readAsArrayBuffer(blob);
+       });*/
+
+      const asset = runtime.storage.createAsset(
+        assetType,
+        dataType,
+        base64ToUint8Array('PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHdpZHRoPSIwIiBoZWlnaHQ9IjAiIHZpZXdCb3g9IjAgMCAwIDAiPgogIDwhLS0gRXhwb3J0ZWQgYnkgU2NyYXRjaCAtIGh0dHA6Ly9zY3JhdGNoLm1pdC5lZHUvIC0tPgo8L3N2Zz4='),
+        null,
+        true
+      );
+      const md5ext = `${asset.assetId}.${asset.dataFormat}`;
+
+      try {
+         
+        await vm.addCostume(
+          md5ext,
+          {
+            asset,
+            md5ext,
+            name: assetName,
+          },
+          targetId
+        );
+      } catch (e) {
+        console.error(e);
+      }
+       
+      /*
+       
+       const name = this.props.vm.editingTarget.isStage ?
+           this.props.intl.formatMessage(messages.backdrop, {index: 1}) :
+           this.props.intl.formatMessage(messages.costume, {index: 1});
+       this.handleNewCostume(emptyCostume(name));*/
+    }
+    async handleSurpriseCostume () {
+        const costumeLibraryContent = await getCostumeLibrary();
+        const item = costumeLibraryContent[Math.floor(Math.random() * costumeLibraryContent.length)];
+        const vmCostume = {
+            name: item.name,
+            md5: item.md5ext,
+            rotationCenterX: item.rotationCenterX,
+            rotationCenterY: item.rotationCenterY,
+            bitmapResolution: item.bitmapResolution,
+            skinId: null
+        };
+        this.handleNewCostume(vmCostume, true /* fromCostumeLibrary */);
+    }
+    async handleSurpriseBackdrop () {
+        const backdropLibraryContent = await getBackdropLibrary();
+        const item = backdropLibraryContent[Math.floor(Math.random() * backdropLibraryContent.length)];
+        const vmCostume = {
+            name: item.name,
+            md5: item.md5ext,
+            rotationCenterX: item.rotationCenterX,
+            rotationCenterY: item.rotationCenterY,
+            bitmapResolution: item.bitmapResolution,
+            skinId: null
+        };
+        this.handleNewCostume(vmCostume);
+    }
+    handleCostumeUpload (e) {
+        const vm = this.props.vm;
+        const targetId = this.props.vm.editingTarget.id;
+        this.props.onShowImporting();
+        handleFileUpload(e.target, (buffer, fileType, fileName, fileIndex, fileCount) => {
+            costumeUpload(buffer, fileType, vm, vmCostumes => {
+                vmCostumes.forEach((costume, i) => {
+                    costume.name = `${fileName}${i ? i + 1 : ''}`;
+                });
+                this.handleNewCostume(vmCostumes, false, targetId).then(() => {
+                    if (fileIndex === fileCount - 1) {
+                        this.props.onCloseImporting();
+                    }
+                });
+            }, this.props.onCloseImporting);
+        }, this.props.onCloseImporting);
+    }
+    handleFileUploadClick () {
+        this.fileInput.click();
+    }
+    handleDrop (dropInfo) {
+        if (dropInfo.dragType === DragConstants.COSTUME) {
+            const sprite = this.props.vm.editingTarget.sprite;
+            const activeCostume = sprite.costumes[this.state.selectedCostumeIndex];
+            this.props.vm.reorderCostume(this.props.vm.editingTarget.id,
+                dropInfo.index, dropInfo.newIndex);
+            this.setState({selectedCostumeIndex: sprite.costumes.indexOf(activeCostume)});
+        } else if (dropInfo.dragType === DragConstants.BACKPACK_COSTUME) {
+            this.props.vm.addCostume(dropInfo.payload.body, {
+                name: dropInfo.payload.name
+            });
+        } else if (dropInfo.dragType === DragConstants.BACKPACK_SOUND) {
+            this.props.onActivateSoundsTab();
+            this.props.vm.addSound({
+                md5: dropInfo.payload.body,
+                name: dropInfo.payload.name
+            });
+        }
+    }
+    setFileInput (input) {
+        this.fileInput = input;
+    }
+    formatCostumeDetails (size, optResolution) {
+        // If no resolution is given, assume that the costume is an SVG
+        const resolution = optResolution ? optResolution : 1;
+        // Convert size to stage units by dividing by resolution
+        // Round up width and height for scratch-flash compatibility
+        // https://github.com/LLK/scratch-flash/blob/9fbac92ef3d09ceca0c0782f8a08deaa79e4df69/src/ui/media/MediaInfo.as#L224-L237
+        return `${Math.ceil(size[0] / resolution)} x ${Math.ceil(size[1] / resolution)}`;
+    }
+    render () {
+        const {
+            dispatchUpdateRestore, // eslint-disable-line no-unused-vars
+            intl,
+            isRtl,
+            onNewLibraryBackdropClick,
+            onNewLibraryCostumeClick,
+            vm
+        } = this.props;
+
+        if (!vm.editingTarget) {
+            return null;
+        }
+
+        const isStage = vm.editingTarget.isStage;
+        const target = vm.editingTarget.sprite;
+
+        const addLibraryMessage = isStage ? messages.addLibraryBackdropMsg : messages.addLibraryCostumeMsg;
+        const addFileMessage = isStage ? messages.addFileBackdropMsg : messages.addFileCostumeMsg;
+        const addSurpriseFunc = isStage ? this.handleSurpriseBackdrop : this.handleSurpriseCostume;
+        const addLibraryFunc = isStage ? onNewLibraryBackdropClick : onNewLibraryCostumeClick;
+        const addLibraryIcon = isStage ? addLibraryBackdropIcon : addLibraryCostumeIcon;
+
+        const costumeData = target.costumes ? target.costumes.map(costume => ({
+            name: costume.name,
+            asset: costume.asset,
+            details: costume.size ? this.formatCostumeDetails(costume.size, costume.bitmapResolution) : null,
+            dragPayload: costume
+        })) : [];
+        return (
+            <AssetPanel
+                buttons={[
+                    {
+                        title: intl.formatMessage(addLibraryMessage),
+                        img: addLibraryIcon,
+                        onClick: addLibraryFunc
+                    },
+                    {
+                        title: intl.formatMessage(addFileMessage),
+                        img: fileUploadIcon,
+                        onClick: this.handleFileUploadClick,
+                        fileAccept: '.svg, .png, .bmp, .jpg, .jpeg, .jfif, .webp, .gif',
+                        fileChange: this.handleCostumeUpload,
+                        fileInput: this.setFileInput,
+                        fileMultiple: true
+                    },
+                    {
+                        title: intl.formatMessage(messages.addSurpriseCostumeMsg),
+                        img: surpriseIcon,
+                        onClick: addSurpriseFunc
+                    },
+                    {
+                        title: intl.formatMessage(messages.addBlankCostumeMsg),
+                        img: paintIcon,
+                        onClick: this.handleNewBlankCostume
+                    },
+                    {
+                        title: intl.formatMessage(addLibraryMessage),
+                        img: searchIcon,
+                        onClick: addLibraryFunc
+                    }
+                ]}
+                dragType={DragConstants.COSTUME}
+                isRtl={isRtl}
+                items={costumeData}
+                selectedItemIndex={this.state.selectedCostumeIndex}
+                onDeleteClick={target && target.costumes && target.costumes.length > 1 ?
+                    this.handleDeleteCostume : null}
+                onDrop={this.handleDrop}
+                onDuplicateClick={this.handleDuplicateCostume}
+                onExportClick={this.handleExportCostume}
+                onItemClick={this.handleSelectCostume}
+            >
+                {target.costumes ? (
+                    this.props.paintSession && this.props.assetDatabase ? (
+                        <NativePaintHost
+                            assetDatabase={this.props.assetDatabase}
+                            hostNotice={this.state.nativePaintNotice}
+                            paintSession={this.props.paintSession}
+                            selectedCostumeIndex={this.state.selectedCostumeIndex}
+                            target={vm.editingTarget}
+                            onResourceSelectionChange={this.props.onPaintResourceSelectionContextChange}
+                        />
+                    ) : (
+                        <PaintEditorWrapper
+                            selectedCostumeIndex={this.state.selectedCostumeIndex}
+                        />
+                    )
+                ) : null}
+            </AssetPanel>
+        );
+    }
+}
+
+CostumeTab.propTypes = {
+    assetDatabase: PropTypes.shape({
+        ensureCostumeResource: PropTypes.func,
+        getCostumeResourceId: PropTypes.func
+    }),
+    dispatchUpdateRestore: PropTypes.func,
+    editingTarget: PropTypes.string,
+    intl: intlShape,
+    isRtl: PropTypes.bool,
+    onActivateSoundsTab: PropTypes.func.isRequired,
+    onCloseImporting: PropTypes.func.isRequired,
+    onNewLibraryBackdropClick: PropTypes.func.isRequired,
+    onNewLibraryCostumeClick: PropTypes.func.isRequired,
+    onPaintResourceSelectionContextChange: PropTypes.func,
+    onShowImporting: PropTypes.func.isRequired,
+    paintSession: PropTypes.shape({
+        getState: PropTypes.func.isRequired
+    }),
+    sprites: PropTypes.shape({
+        id: PropTypes.shape({
+            costumes: PropTypes.arrayOf(PropTypes.shape({
+                url: PropTypes.string,
+                name: PropTypes.string.isRequired,
+                skinId: PropTypes.number
+            }))
+        })
+    }),
+    stage: PropTypes.shape({
+        sounds: PropTypes.arrayOf(PropTypes.shape({
+            name: PropTypes.string.isRequired
+        }))
+    }),
+    vm: PropTypes.instanceOf(VM)
+};
+
+const mapStateToProps = state => ({
+    editingTarget: state.scratchGui.targets.editingTarget,
+    isRtl: state.locales.isRtl,
+    sprites: state.scratchGui.targets.sprites,
+    stage: state.scratchGui.targets.stage,
+    dragging: state.scratchGui.assetDrag.dragging
+});
+
+const mapDispatchToProps = dispatch => ({
+    onActivateSoundsTab: () => dispatch(activateTab(SOUNDS_TAB_INDEX)),
+    onNewLibraryBackdropClick: e => {
+        e.preventDefault();
+        dispatch(openBackdropLibrary());
+    },
+    onNewLibraryCostumeClick: e => {
+        e.preventDefault();
+        dispatch(openCostumeLibrary());
+    },
+    dispatchUpdateRestore: restoreState => {
+        dispatch(setRestore(restoreState));
+    },
+    onCloseImporting: () => dispatch(closeAlertWithId('importingAsset')),
+    onShowImporting: () => dispatch(showStandardAlert('importingAsset'))
+});
+
+export default errorBoundaryHOC('Costume Tab')(
+    injectIntl(connect(
+        mapStateToProps,
+        mapDispatchToProps
+    )(CostumeTab))
+);

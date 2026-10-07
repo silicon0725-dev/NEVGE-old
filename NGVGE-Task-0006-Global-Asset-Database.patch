@@ -1,0 +1,1574 @@
+diff --git a/docs/TASK-0006-GLOBAL-ASSET-DATABASE.md b/docs/TASK-0006-GLOBAL-ASSET-DATABASE.md
+new file mode 100644
+index 0000000..3ac36a3
+--- /dev/null
++++ b/docs/TASK-0006-GLOBAL-ASSET-DATABASE.md
+@@ -0,0 +1,82 @@
++# Task-0006 — Global Asset Database
++
++## Goal
++
++Move NGVGE from target-private costume management toward a project-level asset model while retaining normal SB3 compatibility.
++
++Scratch still receives ordinary costume entries on each Stage or Sprite. NGVGE adds a logical project-wide record above those entries so multiple targets can reference the same image asset and respond to one global replacement operation.
++
++## Project Explorer workflow
++
++The Project Explorer now contains:
++
++```text
++Project
++├── Entities
++└── Assets
++```
++
++Under **Assets**:
++
++- **Capture current costume** creates or reuses a global asset and links the current costume.
++- **Use on selected** adds the selected global asset to the current Stage or Sprite.
++- **Replace globally** uses the current costume as the new source and updates every linked costume.
++- **Unlink current** keeps the current costume but converts it back to an independent local copy.
++- **Delete unused** deletes a global record only after all costume references have been unlinked.
++- The reference list shows each target and costume currently linked to the selected asset.
++
++## Storage model
++
++Physical SB3 image files keep Scratch's content-addressed file names:
++
++```text
++<assetId>.<dataFormat>
++```
++
++NGVGE does not rename those physical files. It stores a stable logical asset ID and metadata in the additive `ngvge` project data:
++
++```json
++{
++  "ngvge": {
++    "projectSections": {
++      "ngvge-global-assets": {
++        "version": 1,
++        "assets": [
++          {
++            "id": "asset:<uuid>",
++            "name": "Player Idle",
++            "kind": "costume",
++            "assetId": "<content hash>",
++            "dataFormat": "svg",
++            "md5ext": "<content hash>.svg",
++            "bitmapResolution": 1,
++            "rotationCenterX": 24,
++            "rotationCenterY": 24
++          }
++        ]
++      }
++    }
++  }
++}
++```
++
++Each target stores costume-index bindings in its own additive `ngvge` section. Ordinary Scratch costume arrays remain intact, so a non-NGVGE editor can still open and run the SB3.
++
++## Orphan assets
++
++A project-level asset may exist with zero target references. Task-0006 wraps `vm.serializeAssets()` so the binary is still included in the SB3 archive. During load, the persistence layer passes the original JSZip archive to the global asset database, allowing unreferenced binaries to be restored from `<assetId>.<dataFormat>`.
++
++## Compatibility boundary
++
++- Normal SB3 save/load: supported.
++- Stage backdrops and Sprite costumes: supported as global image assets.
++- Sounds: not included in Task-0006.
++- Folder hierarchy, drag-and-drop reordering, import directly from disk, and automatic asset dependency analysis: deferred.
++- Asset database operations are not yet commands in Task-0005's property history. Native costume additions remain normal Scratch project changes, but global capture/rename/link/replace actions do not currently support Undo/Redo.
++- 02Engine compiled-project export remains outside the supported persistence path.
++
++## Suggested commit
++
++```text
++feat(project-assets): add global costume asset database
++```
+diff --git a/src/components/gui/gui.jsx b/src/components/gui/gui.jsx
+index 43a4ad9..7567b6c 100644
+--- a/src/components/gui/gui.jsx
++++ b/src/components/gui/gui.jsx
+@@ -1852,6 +1852,7 @@ const GUIComponent = props => {
+                                 sprites={sprites}
+                                 stage={stage}
+                                 stageLabel={intl.formatMessage(messages.stageTargetName)}
++                                vm={vm}
+                                 width={projectExplorerWidth}
+                                 onClose={handleCloseProjectExplorer}
+                                 onSelectTarget={handleProjectExplorerTargetSelection}
+@@ -1905,6 +1906,7 @@ const GUIComponent = props => {
+                                         sprites={sprites}
+                                         stage={stage}
+                                         stageLabel={intl.formatMessage(messages.stageTargetName)}
++                                        vm={vm}
+                                         onSelectTarget={handleProjectExplorerTargetSelection}
+                                         onToggleNode={onSetProjectExplorerNodeExpanded}
+                                     />
+diff --git a/src/components/project-explorer/index.js b/src/components/project-explorer/index.js
+index 3bf48b8..97162ee 100644
+--- a/src/components/project-explorer/index.js
++++ b/src/components/project-explorer/index.js
+@@ -1 +1,7 @@
+ export {default} from './project-explorer.jsx';
++export {
++    ASSETS_ROOT_NODE_ID,
++    ASSET_NODE_PREFIX,
++    ENTITIES_ROOT_NODE_ID,
++    PROJECT_ROOT_NODE_ID
++} from './project-explorer.jsx';
+diff --git a/src/components/project-explorer/project-explorer.css b/src/components/project-explorer/project-explorer.css
+index 13665ad..003ded5 100644
+--- a/src/components/project-explorer/project-explorer.css
++++ b/src/components/project-explorer/project-explorer.css
+@@ -217,3 +217,164 @@
+     background: #2eaa62;
+     box-shadow: 0 0 0 2px rgba(46, 170, 98, 0.12);
+ }
++
++.asset-workspace {
++    width: min(19rem, calc(100vw - 3rem));
++    margin: 0.35rem 0.55rem 0.75rem 2.15rem;
++    padding: 0.55rem;
++    border: 1px solid rgba(77, 151, 255, 0.2);
++    border-radius: 0.55rem;
++    background: rgba(77, 151, 255, 0.035);
++    white-space: normal;
++}
++
++.asset-workspace button,
++.asset-workspace input {
++    min-height: 1.9rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.38rem;
++    font: inherit;
++}
++
++.asset-workspace button {
++    padding: 0.25rem 0.45rem;
++    background: $ui-white;
++    color: $text-primary;
++    cursor: pointer;
++}
++
++.asset-workspace button:hover:not(:disabled),
++.asset-workspace button:focus-visible:not(:disabled) {
++    border-color: $motion-primary;
++    outline: none;
++}
++
++.asset-workspace button:disabled {
++    opacity: 0.45;
++    cursor: default;
++}
++
++.asset-primary-button {
++    width: 100%;
++    border-color: rgba(77, 151, 255, 0.45) !important;
++    color: $motion-primary !important;
++    font-weight: 700 !important;
++}
++
++.asset-details {
++    display: flex;
++    align-items: center;
++    gap: 0.55rem;
++    margin-top: 0.55rem;
++    padding: 0.45rem;
++    border-radius: 0.45rem;
++    background: $ui-white;
++}
++
++.asset-preview,
++.asset-preview-fallback {
++    flex: 0 0 auto;
++    width: 2.8rem;
++    height: 2.8rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.4rem;
++    background: repeating-conic-gradient(#f1f1f1 0 25%, #fff 0 50%) 50% / 0.65rem 0.65rem;
++    object-fit: contain;
++}
++
++.asset-preview-fallback {
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    color: $text-primary-transparent;
++    font-size: 0.55rem;
++    font-weight: 700;
++}
++
++.asset-metadata {
++    display: flex;
++    flex: 1 1 auto;
++    min-width: 0;
++    flex-direction: column;
++    gap: 0.12rem;
++    color: $text-primary-transparent;
++    font-size: 0.62rem;
++}
++
++.asset-metadata strong {
++    overflow: hidden;
++    color: $text-primary;
++    font-size: 0.72rem;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.asset-hash {
++    overflow: hidden;
++    font-family: monospace;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.asset-rename {
++    display: grid;
++    grid-template-columns: minmax(0, 1fr) auto;
++    gap: 0.35rem;
++    margin-top: 0.45rem;
++}
++
++.asset-rename input {
++    min-width: 0;
++    padding: 0 0.45rem;
++    background: $ui-white;
++    color: $text-primary;
++}
++
++.asset-action-grid {
++    display: grid;
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++    gap: 0.35rem;
++    margin-top: 0.45rem;
++}
++
++.asset-action-grid button {
++    font-size: 0.64rem;
++}
++
++.asset-references {
++    display: flex;
++    flex-direction: column;
++    gap: 0.25rem;
++    margin-top: 0.55rem;
++    color: $text-primary-transparent;
++    font-size: 0.62rem;
++}
++
++.asset-references strong {
++    color: $text-primary;
++    font-size: 0.66rem;
++}
++
++.asset-references button {
++    min-height: 1.55rem;
++    overflow: hidden;
++    padding: 0.15rem 0.35rem;
++    text-align: left;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.asset-current-status,
++.asset-status {
++    margin-top: 0.5rem;
++    color: $text-primary-transparent;
++    font-size: 0.61rem;
++    line-height: 1.35;
++}
++
++.asset-status {
++    padding: 0.35rem 0.4rem;
++    border-radius: 0.35rem;
++    background: rgba(77, 151, 255, 0.08);
++    color: $text-primary;
++}
+diff --git a/src/components/project-explorer/project-explorer.jsx b/src/components/project-explorer/project-explorer.jsx
+index f0e127d..9f368b4 100644
+--- a/src/components/project-explorer/project-explorer.jsx
++++ b/src/components/project-explorer/project-explorer.jsx
+@@ -1,3 +1,4 @@
++/* eslint-disable react/jsx-no-literals */
+ import classNames from 'classnames';
+ import PropTypes from 'prop-types';
+ import React from 'react';
+@@ -8,10 +9,16 @@ import {
+     createEntityProvider,
+     getTargetNodeId
+ } from '../../lib/project-explorer/entity-provider';
++import {
++    getGlobalAssetDatabase,
++    installGlobalAssetDatabase
++} from '../../lib/project-assets/global-asset-database';
+ 
+ import styles from './project-explorer.css';
+ 
+ const PROJECT_ROOT_NODE_ID = 'project:root';
++const ASSETS_ROOT_NODE_ID = 'provider:assets';
++const ASSET_NODE_PREFIX = 'global-asset:';
+ 
+ const DisclosureIcon = ({expanded}) => (
+     <svg
+@@ -52,15 +59,12 @@ const TreeNode = props => {
+             nodeRef.current &&
+             typeof nodeRef.current.scrollIntoView === 'function'
+         ) {
+-            nodeRef.current.scrollIntoView({
+-                block: 'nearest'
+-            });
++            nodeRef.current.scrollIntoView({block: 'nearest'});
+         }
+     }, [selected]);
+ 
+     const handleKeyDown = event => {
+         if (!onActivate) return;
+-
+         if (event.key === 'Enter' || event.key === ' ') {
+             event.preventDefault();
+             onActivate();
+@@ -102,7 +106,7 @@ const TreeNode = props => {
+                 )}
+                 <span aria-hidden="true" className={styles.nodeIcon}>{icon}</span>
+                 <span className={styles.nodeLabel}>{label}</span>
+-                {secondaryLabel ? (
++                {secondaryLabel !== null && typeof secondaryLabel !== 'undefined' ? (
+                     <span className={styles.nodeSecondaryLabel}>{secondaryLabel}</span>
+                 ) : null}
+             </div>
+@@ -146,16 +150,109 @@ const ProjectExplorer = props => {
+         sprites,
+         stage,
+         stageLabel,
++        vm,
+         width
+     } = props;
+     const rootExpanded = expandedNodeIds.indexOf(PROJECT_ROOT_NODE_ID) !== -1;
+     const entitiesExpanded = expandedNodeIds.indexOf(ENTITIES_ROOT_NODE_ID) !== -1;
+-    const entityProvider = createEntityProvider({
+-        sprites,
+-        stage,
+-        stageLabel
+-    });
++    const assetsExpanded = expandedNodeIds.indexOf(ASSETS_ROOT_NODE_ID) !== -1;
++    const entityProvider = createEntityProvider({sprites, stage, stageLabel});
+     const entityNodes = entityProvider.getChildren(ENTITIES_ROOT_NODE_ID);
++    const [assetRevision, setAssetRevision] = React.useState(0);
++    const [selectedAssetId, setSelectedAssetId] = React.useState(null);
++    const [assetNameDraft, setAssetNameDraft] = React.useState('');
++    const [actionStatus, setActionStatus] = React.useState('');
++
++    const assetDatabase = React.useMemo(() => {
++        if (!vm || !vm.runtime) return null;
++        return getGlobalAssetDatabase(vm.runtime) || installGlobalAssetDatabase(vm);
++    }, [vm]);
++
++    React.useEffect(() => {
++        if (!assetDatabase) return () => {};
++        return assetDatabase.subscribe(change => {
++            setAssetRevision(change.revision || assetDatabase.getRevision());
++        });
++    }, [assetDatabase]);
++
++    const assetNodes = assetDatabase ? assetDatabase.listAssets() : [];
++    const selectedAsset = assetNodes.find(asset => asset.id === selectedAssetId) || null;
++    const currentTarget = vm && vm.runtime && editingTargetId ?
++        vm.runtime.getTargetById(editingTargetId) : null;
++    const currentCostumes = currentTarget && typeof currentTarget.getCostumes === 'function' ?
++        currentTarget.getCostumes() : [];
++    const currentCostume = currentTarget && currentCostumes.length ?
++        currentCostumes[currentTarget.currentCostume || 0] : null;
++    const currentBindingId = assetDatabase && currentTarget ?
++        assetDatabase.getCurrentBinding(currentTarget) : null;
++    const selectedReferences = assetDatabase && selectedAsset ?
++        assetDatabase.getReferences(selectedAsset.id) : [];
++    const selectedPreviewURL = assetDatabase && selectedAsset ?
++        assetDatabase.getPreviewURL(selectedAsset.id) : null;
++
++    const selectedAssetName = selectedAsset ? selectedAsset.name : '';
++
++    React.useEffect(() => {
++        setAssetNameDraft(selectedAssetName);
++    }, [selectedAssetId, selectedAssetName]);
++
++    React.useEffect(() => {
++        if (selectedAssetId && !selectedAsset) setSelectedAssetId(null);
++    }, [assetRevision, selectedAsset, selectedAssetId]);
++
++    const runAssetAction = React.useCallback(async (action, successMessage) => {
++        setActionStatus('Working…');
++        try {
++            await action();
++            setActionStatus(successMessage);
++        } catch (error) {
++            setActionStatus(error && error.message ? error.message : String(error));
++        }
++    }, []);
++
++    const handleCaptureCurrent = () => runAssetAction(() => {
++        if (!assetDatabase || !currentTarget) throw new Error('Select a Stage or Sprite first.');
++        const id = assetDatabase.captureCurrentCostume(currentTarget);
++        setSelectedAssetId(id);
++    }, 'Current costume added to the global asset database.');
++
++    const handleUseSelected = () => runAssetAction(async () => {
++        if (!assetDatabase || !selectedAsset) throw new Error('Select a global asset first.');
++        if (!currentTarget) throw new Error('Select a Stage or Sprite first.');
++        await assetDatabase.addAssetToTarget(selectedAsset.id, currentTarget.id);
++    }, 'Global asset attached to the selected target.');
++
++    const handleReplaceSelected = () => runAssetAction(() => {
++        if (!assetDatabase || !selectedAsset) throw new Error('Select a global asset first.');
++        if (!currentTarget || !currentCostume) throw new Error('Select a source costume first.');
++        assetDatabase.replaceAssetFromCurrent(selectedAsset.id, currentTarget);
++    }, 'Global asset replaced; all linked costumes were updated.');
++
++    const handleUnlinkCurrent = () => runAssetAction(() => {
++        if (!assetDatabase || !currentTarget || !currentCostume) {
++            throw new Error('Select a linked costume first.');
++        }
++        if (!assetDatabase.unlinkCostume(currentTarget, currentTarget.currentCostume || 0)) {
++            throw new Error('The current costume is not linked to a global asset.');
++        }
++    }, 'Current costume is now a local independent copy.');
++
++    const handleRenameSelected = event => {
++        event.preventDefault();
++        if (!assetDatabase || !selectedAsset) return;
++        try {
++            assetDatabase.renameAsset(selectedAsset.id, assetNameDraft);
++            setActionStatus('Global asset renamed.');
++        } catch (error) {
++            setActionStatus(error && error.message ? error.message : String(error));
++        }
++    };
++
++    const handleDeleteSelected = () => runAssetAction(() => {
++        if (!assetDatabase || !selectedAsset) throw new Error('Select a global asset first.');
++        assetDatabase.removeAsset(selectedAsset.id);
++        setSelectedAssetId(null);
++    }, 'Unused global asset deleted.');
+ 
+     return (
+         <aside
+@@ -224,19 +321,7 @@ const ProjectExplorer = props => {
+                                     key={entityNode.id}
+                                     label={entityNode.label}
+                                     nodeId={entityNode.id}
+-                                    secondaryLabel={entityNode.kind === 'stage' ? (
+-                                        <FormattedMessage
+-                                            defaultMessage="Stage"
+-                                            description="Stage entity type in the project explorer"
+-                                            id="gui.projectExplorer.entityTypeStage"
+-                                        />
+-                                    ) : (
+-                                        <FormattedMessage
+-                                            defaultMessage="Sprite"
+-                                            description="Sprite entity type in the project explorer"
+-                                            id="gui.projectExplorer.entityTypeSprite"
+-                                        />
+-                                    )}
++                                    secondaryLabel={entityNode.kind === 'stage' ? 'Stage' : 'Sprite'}
+                                     selected={entityNode.id === getTargetNodeId(editingTargetId)}
+                                     targetId={entityNode.targetId}
+                                     onActivate={() => onSelectTarget(entityNode.targetId)}
+@@ -244,25 +329,131 @@ const ProjectExplorer = props => {
+                                 />
+                             )) : (
+                                 <div className={styles.emptyState} role="note">
+-                                    <FormattedMessage
+-                                        defaultMessage="No Stage or Sprite targets are available yet."
+-                                        description="Empty state for the Entity Provider"
+-                                        id="gui.projectExplorer.entitiesEmpty"
+-                                    />
++                                    No Stage or Sprite targets are available yet.
++                                </div>
++                            )}
++                        </TreeNode>
++                        <TreeNode
++                            depth={1}
++                            expanded={assetsExpanded}
++                            icon="▧"
++                            label="Assets"
++                            nodeId={ASSETS_ROOT_NODE_ID}
++                            secondaryLabel={assetNodes.length}
++                            onToggle={onToggleNode}
++                        >
++                            {assetNodes.length ? assetNodes.map(asset => (
++                                <TreeNode
++                                    depth={2}
++                                    icon="▣"
++                                    key={asset.id}
++                                    label={asset.name}
++                                    nodeId={`${ASSET_NODE_PREFIX}${asset.id}`}
++                                    secondaryLabel={`${asset.referenceCount} refs`}
++                                    selected={asset.id === selectedAssetId}
++                                    onActivate={() => setSelectedAssetId(asset.id)}
++                                    onToggle={onToggleNode}
++                                />
++                            )) : (
++                                <div className={styles.emptyState} role="note">
++                                    Capture a current costume to create the first project-wide asset.
+                                 </div>
+                             )}
++                            <div className={styles.assetWorkspace} role="group" aria-label="Global asset actions">
++                                <button
++                                    className={styles.assetPrimaryButton}
++                                    disabled={!currentCostume}
++                                    type="button"
++                                    onClick={handleCaptureCurrent}
++                                >
++                                    + Capture current costume
++                                </button>
++                                {selectedAsset ? (
++                                    <React.Fragment>
++                                        <div className={styles.assetDetails}>
++                                            {selectedPreviewURL ? (
++                                                <img
++                                                    alt=""
++                                                    className={styles.assetPreview}
++                                                    src={selectedPreviewURL}
++                                                />
++                                            ) : (
++                                                <div className={styles.assetPreviewFallback}>IMAGE</div>
++                                            )}
++                                            <div className={styles.assetMetadata}>
++                                                <strong>{selectedAsset.name}</strong>
++                                                <span>{selectedAsset.dataFormat.toUpperCase()} · {selectedAsset.referenceCount} refs</span>
++                                                <span className={styles.assetHash}>{selectedAsset.md5ext}</span>
++                                            </div>
++                                        </div>
++                                        <form className={styles.assetRename} onSubmit={handleRenameSelected}>
++                                            <input
++                                                aria-label="Global asset name"
++                                                value={assetNameDraft}
++                                                onChange={event => setAssetNameDraft(event.target.value)}
++                                            />
++                                            <button type="submit">Rename</button>
++                                        </form>
++                                        <div className={styles.assetActionGrid}>
++                                            <button
++                                                disabled={!currentTarget}
++                                                type="button"
++                                                onClick={handleUseSelected}
++                                            >
++                                                Use on selected
++                                            </button>
++                                            <button
++                                                disabled={!currentCostume}
++                                                type="button"
++                                                onClick={handleReplaceSelected}
++                                            >
++                                                Replace globally
++                                            </button>
++                                            <button
++                                                disabled={!currentBindingId}
++                                                type="button"
++                                                onClick={handleUnlinkCurrent}
++                                            >
++                                                Unlink current
++                                            </button>
++                                            <button
++                                                disabled={selectedReferences.length > 0}
++                                                type="button"
++                                                onClick={handleDeleteSelected}
++                                            >
++                                                Delete unused
++                                            </button>
++                                        </div>
++                                        <div className={styles.assetReferences}>
++                                            <strong>References</strong>
++                                            {selectedReferences.length ? selectedReferences.map(reference => (
++                                                <button
++                                                    key={`${reference.targetId}:${reference.costumeIndex}`}
++                                                    type="button"
++                                                    onClick={() => onSelectTarget(reference.targetId)}
++                                                >
++                                                    {reference.targetName} / {reference.costumeName}
++                                                </button>
++                                            )) : <span>Not used by any target.</span>}
++                                        </div>
++                                    </React.Fragment>
++                                ) : null}
++                                <div className={styles.assetCurrentStatus}>
++                                    Current: {currentTarget ? (
++                                        `${typeof currentTarget.getName === 'function' ? currentTarget.getName() : 'Target'} / ` +
++                                        `${currentCostume ? currentCostume.name : 'No costume'}`
++                                    ) : 'No target selected'}
++                                    {currentBindingId ? ' · Linked' : ''}
++                                </div>
++                                {actionStatus ? <div className={styles.assetStatus}>{actionStatus}</div> : null}
++                            </div>
+                         </TreeNode>
+                     </TreeNode>
+                 </div>
+             </div>
+             <footer className={styles.footer}>
+                 <span className={styles.statusDot} />
+-                <FormattedMessage
+-                    defaultMessage="{count, plural, one {# entity} other {# entities}} · Compatibility mode"
+-                    description="Project explorer compatibility mode status and entity count"
+-                    id="gui.projectExplorer.compatibilityMode"
+-                    values={{count: entityNodes.length}}
+-                />
++                {entityNodes.length} entities · {assetNodes.length} global assets · Compatibility mode
+             </footer>
+         </aside>
+     );
+@@ -286,6 +477,15 @@ ProjectExplorer.propTypes = {
+         name: PropTypes.string
+     }),
+     stageLabel: PropTypes.string,
++    vm: PropTypes.shape({
++        addCostume: PropTypes.func,
++        emitTargetsUpdate: PropTypes.func,
++        runtime: PropTypes.shape({
++            getTargetById: PropTypes.func.isRequired,
++            targets: PropTypes.array
++        }).isRequired,
++        serializeAssets: PropTypes.func
++    }),
+     width: PropTypes.number
+ };
+ 
+@@ -298,10 +498,13 @@ ProjectExplorer.defaultProps = {
+     sprites: {},
+     stage: {},
+     stageLabel: 'Stage',
++    vm: null,
+     width: 280
+ };
+ 
+ export {
++    ASSETS_ROOT_NODE_ID,
++    ASSET_NODE_PREFIX,
+     PROJECT_ROOT_NODE_ID,
+     ENTITIES_ROOT_NODE_ID
+ };
+diff --git a/src/components/project-inspector/project-inspector.jsx b/src/components/project-inspector/project-inspector.jsx
+index 2c1de70..496d6ce 100644
+--- a/src/components/project-inspector/project-inspector.jsx
++++ b/src/components/project-inspector/project-inspector.jsx
+@@ -383,21 +383,23 @@ const ProjectInspector = props => {
+     const extensionSections = React.useMemo(() => {
+         if (!registry || !target) return [];
+         const context = {registry, runtime, vm};
+-        return registry.getSections(target, context).map(section => {
+-            try {
+-                return {
+-                    section,
+-                    fields: section.getFields(target, context) || [],
+-                    error: null
+-                };
+-            } catch (error) {
+-                return {
+-                    section,
+-                    fields: [],
+-                    error: error && error.message ? error.message : String(error)
+-                };
+-            }
+-        });
++        return registry.getSections(target, context)
++            .filter(section => !section.hidden)
++            .map(section => {
++                try {
++                    return {
++                        section,
++                        fields: section.getFields(target, context) || [],
++                        error: null
++                    };
++                } catch (error) {
++                    return {
++                        section,
++                        fields: [],
++                        error: error && error.message ? error.message : String(error)
++                    };
++                }
++            });
+     }, [registry, revision, runtime, target, vm]);
+ 
+     const selectedLayerIndex = target && !target.isStage ?
+diff --git a/src/lib/project-assets/global-asset-database.js b/src/lib/project-assets/global-asset-database.js
+new file mode 100644
+index 0000000..5f719a8
+--- /dev/null
++++ b/src/lib/project-assets/global-asset-database.js
+@@ -0,0 +1,519 @@
++import {getInspectorRegistry} from '../project-inspector/inspector-registry';
++
++const DATABASE_PROPERTY = 'ngvgeGlobalAssetDatabase';
++const DATABASE_SECTION_ID = 'ngvge-global-assets';
++const DATABASE_VERSION = 1;
++const COSTUME_BINDING_PROPERTY = '__ngvgeGlobalAssetId';
++
++let fallbackId = 0;
++
++const createId = () => {
++    if (
++        typeof globalThis !== 'undefined' &&
++        globalThis.crypto &&
++        typeof globalThis.crypto.randomUUID === 'function'
++    ) {
++        return `asset:${globalThis.crypto.randomUUID()}`;
++    }
++    fallbackId += 1;
++    return `asset:${Date.now().toString(36)}:${fallbackId.toString(36)}`;
++};
++
++
++const getOriginalTargets = runtime => (
++    runtime && Array.isArray(runtime.targets) ?
++        runtime.targets.filter(target => target && target.isOriginal) : []
++);
++
++const getCostumes = target => (
++    target && typeof target.getCostumes === 'function' ?
++        target.getCostumes() :
++        (target && target.sprite && Array.isArray(target.sprite.costumes) ? target.sprite.costumes : [])
++);
++
++const getCurrentCostume = target => {
++    const costumes = getCostumes(target);
++    const index = target && Number.isInteger(target.currentCostume) ? target.currentCostume : 0;
++    return costumes[index] || null;
++};
++
++const getMd5ext = costume => {
++    if (!costume) return '';
++    return costume.md5 || costume.md5ext || (
++        costume.assetId && costume.dataFormat ? `${costume.assetId}.${costume.dataFormat}` : ''
++    );
++};
++
++const getCostumeAsset = costume => {
++    if (!costume) return null;
++    if (costume.asset) return costume.asset;
++    if (costume.broken && costume.broken.asset) return costume.broken.asset;
++    return null;
++};
++
++const sanitizeName = name => {
++    const value = typeof name === 'string' ? name.trim() : '';
++    return value || 'Global Costume';
++};
++
++const makeUniqueName = (name, assets, ignoreId = null) => {
++    const base = sanitizeName(name);
++    const used = new Set(
++        Array.from(assets.values())
++            .filter(asset => asset.id !== ignoreId)
++            .map(asset => asset.name)
++    );
++    if (!used.has(base)) return base;
++    let index = 2;
++    while (used.has(`${base} ${index}`)) index += 1;
++    return `${base} ${index}`;
++};
++
++const createRecordFromCostume = (costume, name, id = createId()) => {
++    const asset = getCostumeAsset(costume);
++    const dataFormat = String(costume.dataFormat || (asset && asset.dataFormat) || '').toLowerCase();
++    const assetId = costume.assetId || (asset && asset.assetId) || '';
++    const md5ext = getMd5ext(costume) || (assetId && dataFormat ? `${assetId}.${dataFormat}` : '');
++    if (!assetId || !dataFormat || !md5ext) {
++        throw new Error('The current costume has no loaded Scratch asset.');
++    }
++    return {
++        asset,
++        assetId,
++        bitmapResolution: Number.isFinite(costume.bitmapResolution) ? costume.bitmapResolution : 1,
++        dataFormat,
++        id,
++        kind: 'costume',
++        md5ext,
++        name: sanitizeName(name || costume.name),
++        rotationCenterX: Number.isFinite(costume.rotationCenterX) ? costume.rotationCenterX : 0,
++        rotationCenterY: Number.isFinite(costume.rotationCenterY) ? costume.rotationCenterY : 0,
++        skinId: Number.isFinite(costume.skinId) ? costume.skinId : null
++    };
++};
++
++const serializeRecord = record => ({
++    assetId: record.assetId,
++    bitmapResolution: record.bitmapResolution,
++    dataFormat: record.dataFormat,
++    id: record.id,
++    kind: record.kind,
++    md5ext: record.md5ext,
++    name: record.name,
++    rotationCenterX: record.rotationCenterX,
++    rotationCenterY: record.rotationCenterY
++});
++
++const createRuntimeCostume = (record, name) => {
++    const costume = {
++        asset: record.asset || undefined,
++        assetId: record.assetId,
++        bitmapResolution: record.bitmapResolution,
++        dataFormat: record.dataFormat,
++        md5: record.md5ext,
++        name: sanitizeName(name || record.name),
++        rotationCenterX: record.rotationCenterX,
++        rotationCenterY: record.rotationCenterY
++    };
++    if (Number.isFinite(record.skinId)) costume.skinId = record.skinId;
++    return costume;
++};
++
++const createGlobalAssetDatabase = vm => {
++    const runtime = vm.runtime;
++    const assets = new Map();
++    const listeners = new Set();
++    let revision = 0;
++
++    const emit = change => {
++        revision += 1;
++        listeners.forEach(listener => listener(Object.assign({revision}, change)));
++    };
++
++    const findRuntimeAsset = record => {
++        const targets = getOriginalTargets(runtime);
++        for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
++            const costumes = getCostumes(targets[targetIndex]);
++            for (let costumeIndex = 0; costumeIndex < costumes.length; costumeIndex++) {
++                const costume = costumes[costumeIndex];
++                if (
++                    costume &&
++                    costume.assetId === record.assetId &&
++                    String(costume.dataFormat).toLowerCase() === record.dataFormat
++                ) {
++                    const asset = getCostumeAsset(costume);
++                    if (asset) {
++                        record.asset = asset;
++                        if (Number.isFinite(costume.skinId)) record.skinId = costume.skinId;
++                        return asset;
++                    }
++                }
++            }
++        }
++        return null;
++    };
++
++    const hydrateRecord = async (record, archive) => {
++        if (record.asset || findRuntimeAsset(record)) return record.asset;
++        if (!archive || typeof archive.file !== 'function' || !runtime.storage) return null;
++
++        let file = archive.file(record.md5ext);
++        if (!file) {
++            const pattern = new RegExp(`^([^/]*/)?${record.md5ext.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
++            const matches = archive.file(pattern);
++            file = matches && matches[0];
++        }
++        if (!file || typeof file.async !== 'function') return null;
++
++        const data = await file.async('uint8array');
++        const storage = runtime.storage;
++        const assetType = record.dataFormat === 'svg' ?
++            storage.AssetType.ImageVector : storage.AssetType.ImageBitmap;
++        record.asset = storage.createAsset(
++            assetType,
++            record.dataFormat,
++            data,
++            record.assetId,
++            false
++        );
++        return record.asset;
++    };
++
++    const markChanged = change => {
++        if (runtime && typeof runtime.emitProjectChanged === 'function') runtime.emitProjectChanged();
++        if (typeof vm.emitTargetsUpdate === 'function') vm.emitTargetsUpdate(false);
++        emit(change);
++    };
++
++    const getReferences = globalAssetId => {
++        const references = [];
++        getOriginalTargets(runtime).forEach(target => {
++            getCostumes(target).forEach((costume, costumeIndex) => {
++                if (costume && costume[COSTUME_BINDING_PROPERTY] === globalAssetId) {
++                    references.push({
++                        costumeIndex,
++                        costumeName: costume.name,
++                        targetId: target.id,
++                        targetName: typeof target.getName === 'function' ? target.getName() : target.sprite && target.sprite.name
++                    });
++                }
++            });
++        });
++        return references;
++    };
++
++    const bindCostume = (target, costumeIndex, globalAssetId, silent = false) => {
++        const record = assets.get(globalAssetId);
++        const costume = getCostumes(target)[costumeIndex];
++        if (!record || !costume) return false;
++        costume[COSTUME_BINDING_PROPERTY] = globalAssetId;
++        if (!silent) markChanged({assetId: globalAssetId, type: 'binding'});
++        return true;
++    };
++
++    const captureCostume = (target, costumeIndex) => {
++        const costume = getCostumes(target)[costumeIndex];
++        if (!costume) throw new Error('Select a target with a costume first.');
++
++        const exactRecord = Array.from(assets.values()).find(record => (
++            record.assetId === costume.assetId &&
++            record.dataFormat === String(costume.dataFormat).toLowerCase() &&
++            record.bitmapResolution === (Number.isFinite(costume.bitmapResolution) ? costume.bitmapResolution : 1) &&
++            record.rotationCenterX === (Number.isFinite(costume.rotationCenterX) ? costume.rotationCenterX : 0) &&
++            record.rotationCenterY === (Number.isFinite(costume.rotationCenterY) ? costume.rotationCenterY : 0)
++        ));
++
++        const record = exactRecord || createRecordFromCostume(costume, costume.name);
++        if (!exactRecord) {
++            record.name = makeUniqueName(record.name, assets);
++            assets.set(record.id, record);
++        } else if (!record.asset) {
++            record.asset = getCostumeAsset(costume);
++            record.skinId = Number.isFinite(costume.skinId) ? costume.skinId : record.skinId;
++        }
++        costume[COSTUME_BINDING_PROPERTY] = record.id;
++        markChanged({assetId: record.id, type: exactRecord ? 'binding' : 'create'});
++        return record.id;
++    };
++
++    const captureCurrentCostume = target => captureCostume(
++        target,
++        target && Number.isInteger(target.currentCostume) ? target.currentCostume : 0
++    );
++
++    const addAssetToTarget = async (globalAssetId, targetId) => {
++        const record = assets.get(globalAssetId);
++        const target = runtime.getTargetById(targetId);
++        if (!record) throw new Error('Global asset not found.');
++        if (!target || !target.isOriginal) throw new Error('Select a Stage or Sprite target first.');
++        await hydrateRecord(record, null);
++        if (!record.asset) throw new Error('The global asset data is not loaded.');
++
++        const beforeLength = getCostumes(target).length;
++        if (typeof vm.addCostume !== 'function') throw new Error('The VM does not support adding costumes.');
++        await vm.addCostume(record.md5ext, createRuntimeCostume(record, record.name), targetId);
++        const costumes = getCostumes(target);
++        const costumeIndex = Math.max(beforeLength, costumes.length - 1);
++        if (costumes[costumeIndex]) costumes[costumeIndex][COSTUME_BINDING_PROPERTY] = record.id;
++        markChanged({assetId: record.id, targetId, type: 'attach'});
++        return costumeIndex;
++    };
++
++    const unlinkCostume = (target, costumeIndex) => {
++        const costume = getCostumes(target)[costumeIndex];
++        if (!costume || !costume[COSTUME_BINDING_PROPERTY]) return false;
++        const globalAssetId = costume[COSTUME_BINDING_PROPERTY];
++        delete costume[COSTUME_BINDING_PROPERTY];
++        markChanged({assetId: globalAssetId, targetId: target.id, type: 'unlink'});
++        return true;
++    };
++
++    const replaceAssetFromCostume = (globalAssetId, target, costumeIndex) => {
++        const previousRecord = assets.get(globalAssetId);
++        const sourceCostume = getCostumes(target)[costumeIndex];
++        if (!previousRecord) throw new Error('Global asset not found.');
++        if (!sourceCostume) throw new Error('Select a source costume first.');
++
++        const replacement = createRecordFromCostume(sourceCostume, previousRecord.name, globalAssetId);
++        replacement.name = previousRecord.name;
++        assets.set(globalAssetId, replacement);
++
++        getOriginalTargets(runtime).forEach(referenceTarget => {
++            const costumes = getCostumes(referenceTarget);
++            costumes.forEach((costume, index) => {
++                if (costume && costume[COSTUME_BINDING_PROPERTY] === globalAssetId) {
++                    const localName = costume.name;
++                    Object.assign(costume, createRuntimeCostume(replacement, localName));
++                    costume[COSTUME_BINDING_PROPERTY] = globalAssetId;
++                    if (typeof referenceTarget.setCostume === 'function' && referenceTarget.currentCostume === index) {
++                        referenceTarget.setCostume(index);
++                    }
++                }
++            });
++        });
++
++        sourceCostume[COSTUME_BINDING_PROPERTY] = globalAssetId;
++        if (typeof target.setCostume === 'function') target.setCostume(costumeIndex);
++        markChanged({assetId: globalAssetId, type: 'replace'});
++        return true;
++    };
++
++    const replaceAssetFromCurrent = (globalAssetId, target) => replaceAssetFromCostume(
++        globalAssetId,
++        target,
++        target && Number.isInteger(target.currentCostume) ? target.currentCostume : 0
++    );
++
++    const renameAsset = (globalAssetId, name) => {
++        const record = assets.get(globalAssetId);
++        if (!record) return false;
++        const nextName = makeUniqueName(name, assets, globalAssetId);
++        if (nextName === record.name) return false;
++        record.name = nextName;
++        markChanged({assetId: globalAssetId, type: 'rename'});
++        return true;
++    };
++
++    const removeAsset = globalAssetId => {
++        if (!assets.has(globalAssetId)) return false;
++        const references = getReferences(globalAssetId);
++        if (references.length) {
++            throw new Error(`Unlink the asset from ${references.length} costume(s) before deleting it.`);
++        }
++        assets.delete(globalAssetId);
++        markChanged({assetId: globalAssetId, type: 'delete'});
++        return true;
++    };
++
++    const reset = ({silent = false} = {}) => {
++        assets.clear();
++        if (!silent) emit({type: 'reset'});
++    };
++
++    const deserializeProject = (data, context) => {
++        assets.clear();
++        const records = data && Array.isArray(data.assets) ? data.assets : [];
++        records.forEach(serialized => {
++            if (!serialized || typeof serialized.id !== 'string') return;
++            assets.set(serialized.id, Object.assign({}, serialized, {
++                asset: null,
++                skinId: null
++            }));
++        });
++        emit({type: 'restore-metadata'});
++        const archive = context && context.archive;
++        return Promise.all(Array.from(assets.values()).map(record => hydrateRecord(record, archive)))
++            .then(() => {
++                emit({type: 'hydrate'});
++                return true;
++            })
++            .catch(() => {
++                emit({type: 'hydrate-error'});
++                return false;
++            });
++    };
++
++    const deserializeTarget = (target, data) => {
++        const bindings = data && Array.isArray(data.costumeBindings) ? data.costumeBindings : [];
++        const costumes = getCostumes(target);
++        costumes.forEach((costume, index) => {
++            const globalAssetId = bindings[index];
++            if (typeof globalAssetId === 'string' && assets.has(globalAssetId)) {
++                costume[COSTUME_BINDING_PROPERTY] = globalAssetId;
++            } else if (costume) {
++                delete costume[COSTUME_BINDING_PROPERTY];
++            }
++        });
++        emit({targetId: target.id, type: 'restore-bindings'});
++    };
++
++    const service = {
++        version: DATABASE_VERSION,
++        addAssetToTarget,
++        bindCostume,
++        captureCostume,
++        captureCurrentCostume,
++        deserializeProject,
++        deserializeTarget,
++        getAsset (id) {
++            return assets.get(id) || null;
++        },
++        getCurrentBinding (target) {
++            const costume = getCurrentCostume(target);
++            return costume ? costume[COSTUME_BINDING_PROPERTY] || null : null;
++        },
++        getPreviewURL (globalAssetId) {
++            const record = assets.get(globalAssetId);
++            if (!record) return null;
++            const asset = record.asset || findRuntimeAsset(record);
++            if (!asset || typeof asset.encodeDataURI !== 'function') return null;
++            try {
++                return asset.encodeDataURI();
++            } catch {
++                return null;
++            }
++        },
++        getReferences,
++        getRevision: () => revision,
++        hydrateRecord,
++        listAssets () {
++            return Array.from(assets.values()).map(record => Object.assign(
++                serializeRecord(record),
++                {referenceCount: getReferences(record.id).length}
++            ));
++        },
++        removeAsset,
++        renameAsset,
++        replaceAssetFromCostume,
++        replaceAssetFromCurrent,
++        reset,
++        serializeProject () {
++            if (!assets.size) return null;
++            return {
++                assets: Array.from(assets.values()).map(serializeRecord),
++                version: DATABASE_VERSION
++            };
++        },
++        serializeTarget (target) {
++            const costumeBindings = getCostumes(target).map(costume => (
++                costume && costume[COSTUME_BINDING_PROPERTY] ? costume[COSTUME_BINDING_PROPERTY] : null
++            ));
++            if (!costumeBindings.some(Boolean)) return null;
++            return {costumeBindings, version: DATABASE_VERSION};
++        },
++        subscribe (listener) {
++            if (typeof listener !== 'function') return () => {};
++            listeners.add(listener);
++            return () => listeners.delete(listener);
++        },
++        unlinkCostume
++    };
++
++    return service;
++};
++
++const installGlobalAssetDatabase = vm => {
++    if (!vm || !vm.runtime) return null;
++    const runtime = vm.runtime;
++    const current = runtime[DATABASE_PROPERTY];
++    if (current && current.version === DATABASE_VERSION) return current;
++
++    const database = createGlobalAssetDatabase(vm);
++    runtime[DATABASE_PROPERTY] = database;
++
++    const registry = getInspectorRegistry(runtime);
++    registry.register({
++        hidden: true,
++        id: DATABASE_SECTION_ID,
++        label: 'Global Asset Database',
++        order: -1000,
++        appliesTo: target => Boolean(target && target.isOriginal),
++        deserializeProject: (data, context) => database.deserializeProject(data, context),
++        deserializeTarget: (target, data) => database.deserializeTarget(target, data),
++        getFields: () => [],
++        serializeProject: () => database.serializeProject(),
++        serializeTarget: target => database.serializeTarget(target),
++        setValue: () => {}
++    });
++
++    if (typeof vm.serializeAssets === 'function') {
++        const originalSerializeAssets = vm.serializeAssets.bind(vm);
++        vm.serializeAssets = function (targetId) {
++            const descriptors = originalSerializeAssets(targetId);
++            const byFileName = new Map(descriptors.map(descriptor => [descriptor.fileName, descriptor]));
++            let records = database.listAssets();
++            if (targetId) {
++                const target = runtime.getTargetById(targetId);
++                const referencedIds = new Set(
++                    getCostumes(target).map(costume => costume && costume[COSTUME_BINDING_PROPERTY]).filter(Boolean)
++                );
++                records = records.filter(record => referencedIds.has(record.id));
++            }
++            records.forEach(serializedRecord => {
++                const record = database.getAsset(serializedRecord.id);
++                if (!record) return;
++                let asset = record.asset;
++                if (!asset) {
++                    const targets = getOriginalTargets(runtime);
++                    for (let targetIndex = 0; targetIndex < targets.length && !asset; targetIndex++) {
++                        const costumes = getCostumes(targets[targetIndex]);
++                        for (let costumeIndex = 0; costumeIndex < costumes.length && !asset; costumeIndex++) {
++                            const candidate = getCostumeAsset(costumes[costumeIndex]);
++                            if (candidate && candidate.assetId === record.assetId) asset = candidate;
++                        }
++                    }
++                }
++                if (!asset || !asset.data) return;
++                byFileName.set(record.md5ext, {
++                    fileContent: asset.data,
++                    fileName: record.md5ext
++                });
++            });
++            return Array.from(byFileName.values());
++        };
++    }
++
++    if (typeof vm.loadProject === 'function') {
++        const originalLoadProject = vm.loadProject.bind(vm);
++        vm.loadProject = function (...args) {
++            database.reset({silent: true});
++            return originalLoadProject(...args);
++        };
++    }
++
++    return database;
++};
++
++const getGlobalAssetDatabase = runtime => (
++    runtime && runtime[DATABASE_PROPERTY] ? runtime[DATABASE_PROPERTY] : null
++);
++
++export {
++    COSTUME_BINDING_PROPERTY,
++    DATABASE_PROPERTY,
++    DATABASE_SECTION_ID,
++    DATABASE_VERSION,
++    createGlobalAssetDatabase,
++    getGlobalAssetDatabase,
++    installGlobalAssetDatabase
++};
+diff --git a/src/lib/project-assets/index.js b/src/lib/project-assets/index.js
+new file mode 100644
+index 0000000..b1bd8f0
+--- /dev/null
++++ b/src/lib/project-assets/index.js
+@@ -0,0 +1 @@
++export * from './global-asset-database';
+diff --git a/src/lib/project-inspector/project-persistence.js b/src/lib/project-inspector/project-persistence.js
+index 2f4bb3b..fedf08f 100644
+--- a/src/lib/project-inspector/project-persistence.js
++++ b/src/lib/project-inspector/project-persistence.js
+@@ -16,7 +16,8 @@ const getOriginalTargets = runtime => (
+         runtime.targets.filter(target => target && target.isOriginal) : []
+ );
+ 
+-const getSectionContext = (vm, registry, phase) => ({
++const getSectionContext = (vm, registry, phase, archive = null) => ({
++    archive,
+     phase,
+     registry,
+     runtime: vm.runtime,
+@@ -149,7 +150,12 @@ const createProjectPersistence = (vm, registry = getInspectorRegistry(vm.runtime
+ 
+     const applyPending = () => {
+         if (!pendingSnapshot) return false;
+-        const context = getSectionContext(vm, registry, 'deserialize');
++        const context = getSectionContext(
++            vm,
++            registry,
++            'deserialize',
++            pendingSnapshot.archive || null
++        );
+         const availableSections = new Map(registry.listSections().map(section => [section.id, section]));
+         let appliedAny = false;
+ 
+@@ -200,12 +206,13 @@ const createProjectPersistence = (vm, registry = getInspectorRegistry(vm.runtime
+         return appliedAny;
+     };
+ 
+-    const queueSnapshot = (snapshot, applyImmediately = true) => {
++    const queueSnapshot = (snapshot, applyImmediately = true, archive = null) => {
+         if (!snapshot) {
+             pendingSnapshot = null;
+             return;
+         }
+         pendingSnapshot = Object.assign(snapshot, {
++            archive,
+             appliedProjectSections: new Set(),
+             appliedTargetSections: new Set()
+         });
+@@ -229,7 +236,7 @@ const createProjectPersistence = (vm, registry = getInspectorRegistry(vm.runtime
+     vm.deserializeProject = function (projectJSON, zip) {
+         const snapshot = extractProjectData(projectJSON);
+         return Promise.resolve(originalDeserializeProject(projectJSON, zip)).then(result => {
+-            queueSnapshot(snapshot, !isLoadingProject);
++            queueSnapshot(snapshot, !isLoadingProject, zip || null);
+             return result;
+         });
+     };
+diff --git a/src/lib/vm-listener-hoc.jsx b/src/lib/vm-listener-hoc.jsx
+index 36cf8df..a3ab055 100644
+--- a/src/lib/vm-listener-hoc.jsx
++++ b/src/lib/vm-listener-hoc.jsx
+@@ -25,6 +25,7 @@ import {
+ import {setCustomStageSize} from '../reducers/custom-stage-size';
+ import {openUnknownPlatformModal} from '../reducers/modals';
+ import implementGuiAPI from './tw-extension-gui-api';
++import {installGlobalAssetDatabase} from './project-assets/global-asset-database';
+ import {getPropertyHistory} from './project-inspector/property-history';
+ import {installProjectPersistence} from './project-inspector/project-persistence';
+ 
+@@ -39,6 +40,7 @@ const vmListenerHOC = function (WrappedComponent) {
+     class VMListener extends React.Component {
+         constructor (props) {
+             super(props);
++            installGlobalAssetDatabase(this.props.vm);
+             installProjectPersistence(this.props.vm);
+             getPropertyHistory(this.props.vm.runtime);
+             bindAll(this, [
+diff --git a/src/reducers/project-explorer.js b/src/reducers/project-explorer.js
+index 31c5f52..823ee07 100644
+--- a/src/reducers/project-explorer.js
++++ b/src/reducers/project-explorer.js
+@@ -12,7 +12,8 @@ const initialState = {
+     width: DEFAULT_WIDTH,
+     expandedNodeIds: [
+         'project:root',
+-        'provider:entities'
++        'provider:entities',
++        'provider:assets'
+     ]
+ };
+ 
+diff --git a/test/unit/components/project-explorer.test.jsx b/test/unit/components/project-explorer.test.jsx
+index 4717147..b6008e8 100644
+--- a/test/unit/components/project-explorer.test.jsx
++++ b/test/unit/components/project-explorer.test.jsx
+@@ -3,6 +3,7 @@ import renderer from 'react-test-renderer';
+ import {IntlProvider} from 'react-intl';
+ 
+ import ProjectExplorer, {
++    ASSETS_ROOT_NODE_ID,
+     ENTITIES_ROOT_NODE_ID,
+     PROJECT_ROOT_NODE_ID
+ } from '../../../src/components/project-explorer/project-explorer.jsx';
+@@ -37,7 +38,7 @@ const getRenderedText = node => node.children.map(child => {
+ const renderExplorer = props => renderer.create(
+     <IntlProvider locale="en">
+         <ProjectExplorer
+-            expandedNodeIds={[PROJECT_ROOT_NODE_ID, ENTITIES_ROOT_NODE_ID]}
++            expandedNodeIds={[PROJECT_ROOT_NODE_ID, ENTITIES_ROOT_NODE_ID, ASSETS_ROOT_NODE_ID]}
+             onToggleNode={() => {}}
+             {...defaultTargets}
+             {...props}
+@@ -53,6 +54,8 @@ describe('ProjectExplorer', () => {
+         expect(text).toContain('Project Explorer');
+         expect(text).toContain('Project');
+         expect(text).toContain('Entities');
++        expect(text).toContain('Assets');
++        expect(text).toContain('Capture a current costume');
+         expect(text).toContain('Stage');
+         expect(text).toContain('Player');
+         expect(text).toContain('Enemy');
+diff --git a/test/unit/lib/project-assets-global-database.test.js b/test/unit/lib/project-assets-global-database.test.js
+new file mode 100644
+index 0000000..e337b74
+--- /dev/null
++++ b/test/unit/lib/project-assets-global-database.test.js
+@@ -0,0 +1,167 @@
++import {
++    COSTUME_BINDING_PROPERTY,
++    createGlobalAssetDatabase,
++    installGlobalAssetDatabase
++} from '../../../src/lib/project-assets/global-asset-database';
++
++const createAsset = (assetId, dataFormat = 'svg') => ({
++    assetId,
++    data: new Uint8Array([1, 2, 3]),
++    dataFormat,
++    encodeDataURI: () => `data:image/${dataFormat};base64,AAAA`
++});
++
++const createCostume = (name, assetId, dataFormat = 'svg') => {
++    const asset = createAsset(assetId, dataFormat);
++    return {
++        asset,
++        assetId,
++        bitmapResolution: 1,
++        dataFormat,
++        md5: `${assetId}.${dataFormat}`,
++        name,
++        rotationCenterX: 10,
++        rotationCenterY: 20,
++        skinId: 5
++    };
++};
++
++const createTarget = (id, name, costumes) => ({
++    id,
++    currentCostume: 0,
++    isOriginal: true,
++    isStage: false,
++    sprite: {costumes},
++    getCostumes () {
++        return this.sprite.costumes;
++    },
++    getName: () => name,
++    setCostume: jest.fn(function (index) {
++        this.currentCostume = index;
++    })
++});
++
++const createFixture = () => {
++    const player = createTarget('player', 'Player', [createCostume('Idle', 'hash-a')]);
++    const enemy = createTarget('enemy', 'Enemy', [createCostume('Enemy', 'hash-b')]);
++    const runtime = {
++        emitProjectChanged: jest.fn(),
++        getTargetById: id => runtime.targets.find(target => target.id === id) || null,
++        storage: {
++            AssetType: {
++                ImageBitmap: 'ImageBitmap',
++                ImageVector: 'ImageVector'
++            },
++            createAsset: jest.fn((assetType, dataFormat, data, assetId) => ({
++                assetId,
++                assetType,
++                data,
++                dataFormat,
++                encodeDataURI: () => 'data:image/svg+xml;base64,AAAA'
++            }))
++        },
++        targets: [player, enemy]
++    };
++    const vm = {
++        addCostume: jest.fn(async (md5ext, costume, targetId) => {
++            const target = runtime.getTargetById(targetId);
++            target.sprite.costumes.push(costume);
++            target.currentCostume = target.sprite.costumes.length - 1;
++        }),
++        emitTargetsUpdate: jest.fn(),
++        loadProject: jest.fn(() => Promise.resolve()),
++        runtime,
++        serializeAssets: jest.fn(() => [])
++    };
++    return {enemy, player, runtime, vm};
++};
++
++describe('Global Asset Database', () => {
++    test('captures a costume and persists project and target references', () => {
++        const {player, vm} = createFixture();
++        const database = createGlobalAssetDatabase(vm);
++        const globalAssetId = database.captureCurrentCostume(player);
++
++        expect(database.listAssets()).toHaveLength(1);
++        expect(player.getCostumes()[0][COSTUME_BINDING_PROPERTY]).toBe(globalAssetId);
++        expect(database.serializeProject().assets[0].assetId).toBe('hash-a');
++        expect(database.serializeTarget(player).costumeBindings).toEqual([globalAssetId]);
++    });
++
++    test('attaches one global costume to multiple targets without duplicating the binary asset', async () => {
++        const {enemy, player, vm} = createFixture();
++        const database = createGlobalAssetDatabase(vm);
++        const globalAssetId = database.captureCurrentCostume(player);
++
++        await database.addAssetToTarget(globalAssetId, enemy.id);
++
++        const added = enemy.getCostumes()[1];
++        expect(added.assetId).toBe('hash-a');
++        expect(added[COSTUME_BINDING_PROPERTY]).toBe(globalAssetId);
++        expect(database.getReferences(globalAssetId)).toHaveLength(2);
++    });
++
++    test('replaces all linked costumes from a single source costume', async () => {
++        const {enemy, player, vm} = createFixture();
++        const database = createGlobalAssetDatabase(vm);
++        const globalAssetId = database.captureCurrentCostume(player);
++        await database.addAssetToTarget(globalAssetId, enemy.id);
++
++        player.sprite.costumes.push(createCostume('Replacement', 'hash-c'));
++        player.currentCostume = 1;
++        database.replaceAssetFromCurrent(globalAssetId, player);
++
++        const references = database.getReferences(globalAssetId);
++        expect(references).toHaveLength(3);
++        references.forEach(reference => {
++            const target = vm.runtime.getTargetById(reference.targetId);
++            expect(target.getCostumes()[reference.costumeIndex].assetId).toBe('hash-c');
++        });
++    });
++
++    test('keeps an unused global binary in SB3 asset serialization', () => {
++        const {player, vm} = createFixture();
++        const database = installGlobalAssetDatabase(vm);
++        const globalAssetId = database.captureCurrentCostume(player);
++        database.unlinkCostume(player, 0);
++
++        const descriptors = vm.serializeAssets();
++        expect(database.getReferences(globalAssetId)).toHaveLength(0);
++        expect(descriptors).toEqual(expect.arrayContaining([
++            expect.objectContaining({fileName: 'hash-a.svg'})
++        ]));
++    });
++
++    test('hydrates an orphan global asset from the SB3 archive', async () => {
++        const {runtime, vm} = createFixture();
++        const database = createGlobalAssetDatabase(vm);
++        const archive = {
++            file: jest.fn(name => name === 'orphan.svg' ? {
++                async: jest.fn(() => Promise.resolve(new Uint8Array([9, 8, 7])))
++            } : null)
++        };
++
++        await database.deserializeProject({
++            assets: [{
++                assetId: 'orphan',
++                bitmapResolution: 1,
++                dataFormat: 'svg',
++                id: 'asset:orphan',
++                kind: 'costume',
++                md5ext: 'orphan.svg',
++                name: 'Orphan',
++                rotationCenterX: 0,
++                rotationCenterY: 0
++            }],
++            version: 1
++        }, {archive});
++
++        expect(runtime.storage.createAsset).toHaveBeenCalledWith(
++            'ImageVector',
++            'svg',
++            expect.any(Uint8Array),
++            'orphan',
++            false
++        );
++    });
++});
+diff --git a/test/unit/lib/project-inspector-persistence.test.js b/test/unit/lib/project-inspector-persistence.test.js
+index e272722..572b546 100644
+--- a/test/unit/lib/project-inspector-persistence.test.js
++++ b/test/unit/lib/project-inspector-persistence.test.js
+@@ -85,4 +85,28 @@ describe('project inspector persistence', () => {
+ 
+         expect(target.value).toBe(150);
+     });
++
++    test('passes the original SB3 archive to project deserializers', async () => {
++        const {registry, vm} = createFixture();
++        const archive = {file: jest.fn()};
++        const deserializeProject = jest.fn();
++        registry.register({
++            id: 'archive-aware',
++            label: 'Archive aware',
++            getFields: () => [],
++            setValue: () => {},
++            serializeProject: () => ({enabled: true}),
++            deserializeProject
++        });
++        createProjectPersistence(vm, registry);
++        const serialized = JSON.parse(vm.toJSON());
++
++        await vm.deserializeProject(serialized, archive);
++
++        expect(deserializeProject).toHaveBeenCalledWith(
++            {enabled: true},
++            expect.objectContaining({archive})
++        );
++    });
++
+ });
+diff --git a/test/unit/reducers/project-explorer-reducer.test.js b/test/unit/reducers/project-explorer-reducer.test.js
+index be30301..1538bf9 100644
+--- a/test/unit/reducers/project-explorer-reducer.test.js
++++ b/test/unit/reducers/project-explorer-reducer.test.js
+@@ -25,7 +25,8 @@ describe('project explorer reducer', () => {
+             width: DEFAULT_WIDTH,
+             expandedNodeIds: [
+                 'project:root',
+-                'provider:entities'
++                'provider:entities',
++                'provider:assets'
+             ]
+         });
+     });
+@@ -62,7 +63,11 @@ describe('project explorer reducer', () => {
+             setProjectExplorerNodeExpanded('provider:entities', true)
+         );
+ 
+-        expect(secondState.expandedNodeIds).toEqual(['provider:entities']);
++        expect(secondState.expandedNodeIds).toEqual([
++            'project:root',
++            'provider:entities',
++            'provider:assets'
++        ]);
+     });
+ 
+     test('collapses a node without mutating the previous state', () => {

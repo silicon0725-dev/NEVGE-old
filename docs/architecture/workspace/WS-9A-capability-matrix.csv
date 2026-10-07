@@ -1,0 +1,6 @@
+capability_id,scope,allowed_access,privilege,compatible_ecosystem_authority,ws9a_provider_binding
+ngvge.workspace-capability.workspace-state,workspace,query|mutate,standard,workspace-only|project-read|project-command|resource-command,none-admission-only
+ngvge.workspace-capability.project-read,project,query,standard,project-read|project-command,none-admission-only
+ngvge.workspace-capability.project-command,project,propose|mutate,sensitive,project-command,none-admission-only
+ngvge.workspace-capability.resource-read,resource,query,standard,resource-command,none-admission-only
+ngvge.workspace-capability.resource-command,resource,propose|mutate,sensitive,resource-command,none-admission-only

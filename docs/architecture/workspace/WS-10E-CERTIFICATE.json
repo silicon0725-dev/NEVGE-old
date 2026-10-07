@@ -1,0 +1,48 @@
+{
+  "certificateId": "ngvge-ws10e-paint-backend-contract-oss-intake-certificate/v1",
+  "stage": "WS-10E",
+  "name": "Paint Backend Contract & OSS Intake",
+  "status": "COMPLETE / VERIFIED",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "workspaceParent": "WS-10D | COMPLETE / ARCHITECTURE FROZEN",
+  "contracts": {
+    "paintBackend": "ngvge.paint-backend-contract@1",
+    "paintBackendRegistry": "ngvge.paint-backend-registry@1",
+    "paintBackendTransfer": "ngvge.paint-backend-transfer@1"
+  },
+  "candidateDecisions": {
+    "svgEdit": "APPROVED_FOR_POC",
+    "miniPaint": "CONDITIONAL_POC_CONTROLLED_FORK",
+    "piskel": "CONDITIONAL_POC_CONTROLLED_FORK",
+    "scratchPaint": "COMPATIBILITY_ONLY"
+  },
+  "authority": {
+    "backendSemanticIdentity": false,
+    "backendProject": false,
+    "backendResource": false,
+    "backendTransaction": false,
+    "backendPersistence": false,
+    "backendTimeline": false
+  },
+  "productionBehaviorSwitch": false,
+  "newOssDependencyAdded": false,
+  "researchDate": "2026-08-14",
+  "researchSources": [
+    "https://github.com/SVG-Edit/svgedit",
+    "https://github.com/viliusle/miniPaint",
+    "https://github.com/piskelapp/piskel"
+  ],
+  "verification": {
+    "machine": "33/33 PASS",
+    "focused": "6 suites / 50 tests PASS",
+    "fullUnit": "152 suites / 860 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typeScript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "ws10dFocused": "26/26 machine + 3 suites / 25 tests PASS",
+    "ws10dCertification": "23/23 PASS"
+  },
+  "next": "WS-10F | Vector Backend Integration"
+}

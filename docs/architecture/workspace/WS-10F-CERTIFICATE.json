@@ -1,0 +1,51 @@
+{
+  "certificateId": "ngvge-ws10f-vector-backend-integration-certificate/v1",
+  "stage": "WS-10F",
+  "name": "Vector Backend Integration",
+  "status": "IMPLEMENTED / CONDITIONAL VERIFIED",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "workspaceParent": "WS-10E | COMPLETE / VERIFIED",
+  "backend": {
+    "candidateId": "ngvge.paint-backend.svg-edit",
+    "adapterId": "ngvge.paint-backend-adapter.svg-edit@1",
+    "transferAdapterId": "ngvge.paint-backend-transfer-adapter.svg-edit@1",
+    "controlsId": "ngvge.vector-paint-backend-controls@1",
+    "package": "@svgedit/svgcanvas",
+    "version": "7.4.2",
+    "license": "MIT"
+  },
+  "authority": {
+    "backendSemanticIdentity": false,
+    "backendProject": false,
+    "backendResource": false,
+    "backendTransaction": false,
+    "backendPersistence": false,
+    "backendTimeline": false
+  },
+  "production": {
+    "svgBranchIntegrated": true,
+    "rasterCompatibilityRetained": true,
+    "fullSvgEditAppShell": false,
+    "directVmMutation": false,
+    "directRendererMutation": false
+  },
+  "verification": {
+    "focused": "6 suites / 45 tests PASS",
+    "typeScript": "PASS",
+    "eslintCorrectness": "PASS",
+    "packageResolution": "package.json + bun.lock exact pin PASS",
+    "publishedPackageByteGate": "PENDING / HARNESS NETWORK LIMITATION",
+    "realPackageProductionWebpack": "PENDING",
+    "fullEditorWebpackWithRealPackage": "PENDING",
+    "machine": "34/34 PASS",
+    "fullUnit": "153 suites / 869 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "permanentRegression": "19/19 PASS",
+    "ws10eFocused": "33/33 machine + 6 suites / 50 tests PASS",
+    "ws10eCertification": "24/24 PASS",
+    "adapterGraphWebpack": "0 errors / 0 warnings PASS against verification resolution (not real package-byte evidence)"
+  },
+  "promotionRequirement": "Install real @svgedit/svgcanvas@7.4.2 bytes and pass ws10f-package + production/full Editor Webpack gates",
+  "next": "WS-10F verification completion before WS-10G production integration"
+}

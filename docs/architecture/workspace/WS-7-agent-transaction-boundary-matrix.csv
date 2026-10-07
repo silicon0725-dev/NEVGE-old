@@ -1,0 +1,13 @@
+Surface,Identity/Input,Read Source,Mutation Path,Review Required,Rollback Strategy,Persistence,Forbidden
+Current Context,NodeId,WorkspaceNodeCommandHost.getNodeSnapshot,None,N/A,N/A,Runtime projection,"raw VM; renderer; Scratch target/runtime identity; credentials"
+ChangeSet Proposal,ngvge.changeset.*,Portable proposal,None,Yes before mutation,N/A,Runtime/session only,"backend identity; direct authority handles"
+CreateNode,NodeId/typeId/parentId,Workspace Node authority,"Approved ChangeSet -> AgentTransactionHost -> reviewed Node client -> CreateNode",Yes,Destroy created NodeId,Runtime transaction history,"direct VM/node-model mutation"
+DuplicateNode,source NodeId,Workspace Node authority,"Approved ChangeSet -> AgentTransactionHost -> reviewed Node client -> DuplicateNode",Yes,Destroy duplicated NodeId,Runtime transaction history,"direct VM/node-model mutation"
+PatchNode,NodeId + reversible patch,Pre-operation Node snapshot,"Approved ChangeSet -> AgentTransactionHost -> reviewed Node client -> PatchNode",Yes,Trusted inverse patch,Runtime transaction history,"new Project property without exact delete compensation; unsupported fields"
+ReparentNode,NodeId + parentId,Pre-operation Node snapshot,"Approved ChangeSet -> AgentTransactionHost -> reviewed Node client -> ReparentNode",Yes,Restore previous parentId,Runtime transaction history,"unrepresentable previous Runtime parent"
+DestroyNode,NodeId,None,Denied in ChangeSet v1,Always,N/A,None,"destructive proposal without exact reconstruction contract"
+Reject,ChangeSetId,WorkspaceAgentModel,None,Review action,N/A,Runtime/session only,None
+Undo,transactionId,AgentTransactionHost compensation record,"AgentTransactionHost.rollback -> reviewed Node client",Previously reviewed transaction,Reverse compensation order,Runtime/session only,"AI-authored compensation"
+Legacy 02Agent,Legacy compatibility identity,LSC-contained legacy sources,None/read-only,N/A,N/A,Legacy sanitized metadata only,"new Agent importing/reusing legacy mutation authority"
+Agent Window,WindowId=agent,WindowManager,"WindowManager only",N/A,N/A,WS-4 window persistence,"own document.body portal; compatibility window-state writer"
+Provider Adapter,Portable proposal input,Provider-specific future boundary,"proposeChangeSet only; no command client",Yes through normal review,N/A,No provider persistence defined by WS-7,"review bypass; raw authority handles; credential ownership"

@@ -1,0 +1,26 @@
+WS-9E incremental files (baseline: WS-9D COMPLETE / VERIFIED)
+
+ADDED
+src/lib/editor-shell/workspace-capability-provider.js
+src/lib/editor-shell/workspace-capability-providers.js
+test/unit/lib/editor-shell/workspace-capability-provider.test.js
+scripts/validate-ws9e-capability-provider-binding.js
+scripts/validate-ws9e-webpack-provider-entry.js
+docs/architecture/workspace/WS-9E-CAPABILITY-PROVIDER-BINDING-DIAGNOSTICS.md
+docs/architecture/workspace/WS-9E-VERIFICATION.md
+docs/architecture/workspace/WS-9E-CERTIFICATE.json
+docs/architecture/workspace/WS-9E-CHANGE-MANIFEST.md
+docs/architecture/workspace/WS-9E-provider-coverage-matrix.csv
+WS-9E-APPLY-README.txt
+WS-9E-FILE-MANIFEST.txt
+
+MODIFIED
+package.json
+scripts/validate-ws9d-context-consumer-agent-migration.js
+src/components/gui/gui.jsx
+src/lib/editor-shell/tool-capability.js
+src/lib/editor-shell/workspace-context-consumer.js
+test/unit/lib/editor-shell/agent-workspace-runtime.test.js
+test/unit/lib/editor-shell/workspace-context-consumer.test.js
+
+No Terminal/Paint activation, no Project/Resource Provider fabrication, and no raw backend authority object is included.

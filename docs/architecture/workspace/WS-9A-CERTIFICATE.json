@@ -1,0 +1,27 @@
+{
+  "stage": "WS-9A",
+  "title": "Capability Schema & Admission Foundation",
+  "status": "COMPLETE / VERIFIED",
+  "authority": "ARC-0001",
+  "baseline": "WS-8 COMPLETE / VERIFIED",
+  "identities": {
+    "capabilityHost": "ngvge.workspace-tool-capability-host@1",
+    "descriptorSchemaVersion": 1,
+    "grantSchemaVersion": 1
+  },
+  "evidence": {
+    "machineGate": "12/12 PASS",
+    "focusedJest": "2 suites / 11 tests PASS",
+    "unitNode": "127 suites / 672 tests PASS",
+    "unitDom": "3 suites / 26 tests PASS",
+    "unitTotal": "130 suites / 698 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "capabilityWebpack": "PASS / 0 errors / 0 warnings",
+    "editorWebpack": "current rerun timed out after entering Babel/webpack; WS-8 frozen PASS baseline preserved because WS-9A has no production Editor import switch"
+  },
+  "productionBehaviorSwitch": false,
+  "nextRecommendedStage": "WS-9B | Workspace Context Service"
+}

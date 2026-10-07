@@ -1,0 +1,541 @@
+diff -ruN /mnt/data/base_0007_2_4/scratch-gui-main/docs/TASK-0007.3.1-EXTENSION-HUB-ARCHITECTURE.md /mnt/data/work_0007_3_1/scratch-gui-main/docs/TASK-0007.3.1-EXTENSION-HUB-ARCHITECTURE.md
+--- /mnt/data/base_0007_2_4/scratch-gui-main/docs/TASK-0007.3.1-EXTENSION-HUB-ARCHITECTURE.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_0007_3_1/scratch-gui-main/docs/TASK-0007.3.1-EXTENSION-HUB-ARCHITECTURE.md	2026-08-03 04:24:20.134039874 +0000
+@@ -0,0 +1,27 @@
++# Task-0007.3.1 — Extension Hub Architecture
++
++## Goal
++
++Introduce a stable data layer for the future NGVGE Extension Hub without removing or rewriting the existing online extension galleries.
++
++## Added architecture
++
++- `ExtensionSourceRegistry`: registers local, compatibility, and remote marketplace providers.
++- `ExtensionRegistry`: indexes normalized extension manifests.
++- Manifest v2 adapter for current Scratch/TurboWarp-style gallery items.
++- Built-in provider definitions for NGVGE, Scratch, 02Engine, TurboWarp, PenguinMod, Mist, SharkPool, AstraEditor, CCW, and Other.
++- Source grouping metadata: local, online, compatibility, and system.
++
++## Compatibility
++
++The existing gallery fetch and import flow remains active. The new layer wraps current gallery entries instead of replacing them. Existing URLs and source-specific processors remain in `extension-library.jsx`.
++
++## First-party migration
++
++`NGVGE Camera V2` and `NGVGE XY Stretch` now use the `ngvge` source tag, so they can be separated from compatibility extensions in the next UI milestone.
++
++## Non-goals
++
++- No new Extension Hub visual design yet.
++- No installer, updater, account, marketplace server, or permission dialog yet.
++- No removal of legacy providers.
+diff -ruN /mnt/data/base_0007_2_4/scratch-gui-main/src/containers/extension-library.jsx /mnt/data/work_0007_3_1/scratch-gui-main/src/containers/extension-library.jsx
+--- /mnt/data/base_0007_2_4/scratch-gui-main/src/containers/extension-library.jsx	2026-08-03 02:27:08.000000000 +0000
++++ /mnt/data/work_0007_3_1/scratch-gui-main/src/containers/extension-library.jsx	2026-08-03 04:22:28.694036587 +0000
+@@ -13,6 +13,13 @@
+ import libraryStyles from '../components/library/library.css';
+ import {APP_NAME} from '../lib/brand.js';
+ import log from '../lib/log';
++import {
++    SOURCE_KEYS,
++    SOURCE_NAV_ORDER,
++    attachManifestToGalleryItem,
++    extensionRegistry,
++    inferLegacySourceId
++} from '../lib/extension-hub';
+ 
+ const messages = defineMessages({
+     extensionTitle: {
+@@ -40,6 +47,11 @@
+         description: 'Label for the all-sources filter in the extension library',
+         id: 'tw.extensionLibrary.source.all'
+     },
++    sourceNGVGE: {
++        defaultMessage: 'NGVGE Official',
++        description: 'Label for the NGVGE source filter in the extension library',
++        id: 'tw.extensionLibrary.source.ngvge'
++    },
+     sourceScratch: {
+         defaultMessage: 'Official Scratch',
+         description: 'Label for the Scratch source filter in the extension library',
+@@ -182,34 +194,6 @@
+     }
+ });
+ 
+-const SOURCE_KEYS = {
+-    ALL: 'all',
+-    SCRATCH: 'scratch',
+-    ENGINE: '02engine',
+-    TW: 'tw',
+-    ASTRA: 'astra',
+-    PM: 'pm',
+-    MIST: 'mist',
+-    SHARKPOOL: 'sharkpool',
+-    CCW: 'ccw',
+-    OTHER: 'other',
+-    CUSTOM: 'custom',
+-    SPECIAL: 'special'
+-};
+-
+-const SOURCE_NAV_ORDER = [
+-    SOURCE_KEYS.ALL,
+-    SOURCE_KEYS.SCRATCH,
+-    SOURCE_KEYS.ENGINE,
+-    SOURCE_KEYS.TW,
+-    SOURCE_KEYS.PM,
+-    SOURCE_KEYS.MIST,
+-    SOURCE_KEYS.SHARKPOOL,
+-    SOURCE_KEYS.ASTRA,
+-    SOURCE_KEYS.CCW,
+-    SOURCE_KEYS.OTHER
+-];
+-
+ const FAVORITES_STORAGE_KEY = 'tw:library-favorites:extensionLibrary';
+ const CCW_EXTENSION_API_BASE = 'https://ccwbfs-proxy.netlify.app/extensions';
+ 
+@@ -765,6 +749,7 @@
+     getSourceLabel (sourceKey) {
+         const sourceMessages = {
+             [SOURCE_KEYS.ALL]: messages.allSources,
++            [SOURCE_KEYS.NGVGE]: messages.sourceNGVGE,
+             [SOURCE_KEYS.SCRATCH]: messages.sourceScratch,
+             [SOURCE_KEYS.ENGINE]: messages.source02Engine,
+             [SOURCE_KEYS.TW]: messages.sourceTurboWarp,
+@@ -828,30 +813,9 @@
+             .filter(item => item && item !== '---')
+             .map((item, originalIndex) => {
+                 const extensionId = item.extensionId || '';
+-                let source = SOURCE_KEYS.OTHER;
+-                if (extensionId === 'custom_extension') {
+-                    source = SOURCE_KEYS.CUSTOM;
+-                } else if (extensionId.startsWith('ccw_')) {
+-                    source = SOURCE_KEYS.CCW;
+-                } else if (extensionId === 'procedures_enable_return') {
+-                    source = SOURCE_KEYS.SPECIAL;
+-                } else if (item.tags && item.tags.includes('scratch')) {
+-                    source = SOURCE_KEYS.SCRATCH;
+-                } else if (item.tags && item.tags.includes('ztengine')) {
+-                    source = SOURCE_KEYS.ENGINE;
+-                } else if (item.tags && item.tags.includes('astra')) {
+-                    source = SOURCE_KEYS.ASTRA;
+-                } else if (item.tags && item.tags.includes('pm')) {
+-                    source = SOURCE_KEYS.PM;
+-                } else if (item.tags && item.tags.includes('mist')) {
+-                    source = SOURCE_KEYS.MIST;
+-                } else if (item.tags && item.tags.includes('sp')) {
+-                    source = SOURCE_KEYS.SHARKPOOL;
+-                } else if (item.tags && item.tags.includes('tw')) {
+-                    source = SOURCE_KEYS.TW;
+-                } else if (item.tags && item.tags.includes('ccw')) {
+-                    source = SOURCE_KEYS.CCW;
+-                }
++                const source = inferLegacySourceId(item);
++                const itemWithManifest = attachManifestToGalleryItem(item, {sourceId: source});
++                extensionRegistry.register(itemWithManifest.ngvgeManifest, itemWithManifest);
+ 
+                 const isCustomLoad = extensionId === 'custom_extension';
+                 const isCCWLoad = source === SOURCE_KEYS.CCW;
+@@ -903,7 +867,7 @@
+                 textParts.push(sourceLabel);
+ 
+                 return {
+-                    ...item,
++                    ...itemWithManifest,
+                     favoriteKey: item.extensionURL || item.extensionId,
+                     isBatchSelectable: isBatchSelectableItem(item),
+                     isCompatible: !item.incompatibleWithScratch,
+@@ -1171,6 +1135,7 @@
+         }
+         if (sourceKey === SOURCE_KEYS.OTHER) {
+             return ![
++                SOURCE_KEYS.NGVGE,
+                 SOURCE_KEYS.SCRATCH,
+                 SOURCE_KEYS.ENGINE,
+                 SOURCE_KEYS.TW,
+@@ -1215,6 +1180,7 @@
+     getSourceCounts (items) {
+         const counts = {
+             [SOURCE_KEYS.ALL]: items.length,
++            [SOURCE_KEYS.NGVGE]: 0,
+             [SOURCE_KEYS.SCRATCH]: 0,
+             [SOURCE_KEYS.ENGINE]: 0,
+             [SOURCE_KEYS.TW]: 0,
+@@ -1315,6 +1281,7 @@
+             });
+         }
+         const sourceToneMap = {
++            [SOURCE_KEYS.NGVGE]: 'Engine',
+             [SOURCE_KEYS.SCRATCH]: 'Scratch',
+             [SOURCE_KEYS.ENGINE]: 'Engine',
+             [SOURCE_KEYS.TW]: 'Tw',
+diff -ruN /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/built-in-sources.js /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/built-in-sources.js
+--- /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/built-in-sources.js	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/built-in-sources.js	2026-08-03 04:23:12.166037869 +0000
+@@ -0,0 +1,31 @@
++const {EXTENSION_SOURCE_GROUPS, SOURCE_KEYS} = require('./constants');
++
++const createPassthroughSource = definition => ({
++    ...definition,
++    async fetchExtensions ({items = []} = {}) {
++        return Array.isArray(items) ? items : [];
++    }
++});
++
++const BUILT_IN_SOURCE_DEFINITIONS = Object.freeze([
++    createPassthroughSource({id: SOURCE_KEYS.NGVGE, name: 'NGVGE', group: EXTENSION_SOURCE_GROUPS.LOCAL, priority: 100}),
++    createPassthroughSource({id: SOURCE_KEYS.SCRATCH, name: 'Official Scratch', group: EXTENSION_SOURCE_GROUPS.COMPATIBILITY, priority: 90}),
++    createPassthroughSource({id: SOURCE_KEYS.ENGINE, name: '02Engine Legacy', group: EXTENSION_SOURCE_GROUPS.COMPATIBILITY, priority: 80, metadataURL: 'https://extensions.02engine.02studio.xyz/extensions.json'}),
++    createPassthroughSource({id: SOURCE_KEYS.TW, name: 'TurboWarp', group: EXTENSION_SOURCE_GROUPS.ONLINE, priority: 70, metadataURL: 'https://extensions.turbowarp.org/generated-metadata/extensions-v0.json'}),
++    createPassthroughSource({id: SOURCE_KEYS.PM, name: 'PenguinMod', group: EXTENSION_SOURCE_GROUPS.ONLINE, priority: 60, metadataURL: '/penguinmod/extensions.js'}),
++    createPassthroughSource({id: SOURCE_KEYS.MIST, name: 'Mist', group: EXTENSION_SOURCE_GROUPS.ONLINE, priority: 50, metadataURL: 'https://mistiumextensions.02studio.xyz/generated-metadata/extensions-v0.json'}),
++    createPassthroughSource({id: SOURCE_KEYS.SHARKPOOL, name: 'SharkPool', group: EXTENSION_SOURCE_GROUPS.ONLINE, priority: 40, metadataURL: 'https://sharkpoolextensions.02studio.xyz/Gallery%20Files/Extension-Keys.json'}),
++    createPassthroughSource({id: SOURCE_KEYS.ASTRA, name: 'AstraEditor', group: EXTENSION_SOURCE_GROUPS.ONLINE, priority: 30, metadataURL: 'https://editors.astras.top/extensions/generated-metadata/extensions-v0.json'}),
++    createPassthroughSource({id: SOURCE_KEYS.CCW, name: 'CCW', group: EXTENSION_SOURCE_GROUPS.ONLINE, priority: 20, metadataURL: 'https://ccwbfs-proxy.netlify.app/extensions'}),
++    createPassthroughSource({id: SOURCE_KEYS.OTHER, name: 'Other', group: EXTENSION_SOURCE_GROUPS.COMPATIBILITY, priority: 0})
++]);
++
++const registerBuiltInSources = registry => {
++    for (const source of BUILT_IN_SOURCE_DEFINITIONS) registry.register(source);
++    return registry;
++};
++
++module.exports = {
++    BUILT_IN_SOURCE_DEFINITIONS,
++    registerBuiltInSources
++};
+diff -ruN /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/constants.js /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/constants.js
+--- /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/constants.js	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/constants.js	2026-08-03 04:21:46.470035341 +0000
+@@ -0,0 +1,54 @@
++const EXTENSION_MANIFEST_VERSION = 2;
++
++const EXTENSION_KINDS = Object.freeze({
++    NATIVE: 'ngvge-native',
++    LEGACY: 'legacy-extension',
++    BUILT_IN: 'built-in',
++    ACTION: 'editor-action'
++});
++
++const EXTENSION_SOURCE_GROUPS = Object.freeze({
++    LOCAL: 'local',
++    ONLINE: 'online',
++    COMPATIBILITY: 'compatibility',
++    SYSTEM: 'system'
++});
++
++const SOURCE_KEYS = Object.freeze({
++    ALL: 'all',
++    NGVGE: 'ngvge',
++    SCRATCH: 'scratch',
++    ENGINE: '02engine',
++    TW: 'tw',
++    ASTRA: 'astra',
++    PM: 'pm',
++    MIST: 'mist',
++    SHARKPOOL: 'sharkpool',
++    CCW: 'ccw',
++    OTHER: 'other',
++    CUSTOM: 'custom',
++    SPECIAL: 'special'
++});
++
++// Keep the current visual order until Task-0007.3.2 replaces the UI.
++const SOURCE_NAV_ORDER = Object.freeze([
++    SOURCE_KEYS.ALL,
++    SOURCE_KEYS.NGVGE,
++    SOURCE_KEYS.SCRATCH,
++    SOURCE_KEYS.ENGINE,
++    SOURCE_KEYS.TW,
++    SOURCE_KEYS.PM,
++    SOURCE_KEYS.MIST,
++    SOURCE_KEYS.SHARKPOOL,
++    SOURCE_KEYS.ASTRA,
++    SOURCE_KEYS.CCW,
++    SOURCE_KEYS.OTHER
++]);
++
++module.exports = {
++    EXTENSION_KINDS,
++    EXTENSION_MANIFEST_VERSION,
++    EXTENSION_SOURCE_GROUPS,
++    SOURCE_KEYS,
++    SOURCE_NAV_ORDER
++};
+diff -ruN /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/extension-registry.js /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/extension-registry.js
+--- /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/extension-registry.js	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/extension-registry.js	2026-08-03 04:21:46.474035341 +0000
+@@ -0,0 +1,40 @@
++class ExtensionRegistry {
++    constructor () {
++        this._entries = new Map();
++    }
++
++    register (manifest, galleryItem = null) {
++        if (!manifest || typeof manifest.id !== 'string' || !manifest.id) {
++            throw new TypeError('Extension manifest must have a non-empty string id.');
++        }
++        const entry = Object.freeze({manifest, galleryItem});
++        this._entries.set(manifest.id, entry);
++        return entry;
++    }
++
++    registerMany (items) {
++        return items.map(item => this.register(item.manifest, item.galleryItem || null));
++    }
++
++    get (extensionId) {
++        return this._entries.get(extensionId) || null;
++    }
++
++    list () {
++        return Array.from(this._entries.values());
++    }
++
++    listBySource (sourceId) {
++        return this.list().filter(entry => entry.manifest.source.id === sourceId);
++    }
++
++    unregister (extensionId) {
++        return this._entries.delete(extensionId);
++    }
++
++    clear () {
++        this._entries.clear();
++    }
++}
++
++module.exports = ExtensionRegistry;
+diff -ruN /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/index.js /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/index.js
+--- /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/index.js	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/index.js	2026-08-03 04:21:46.474035341 +0000
+@@ -0,0 +1,17 @@
++const ExtensionRegistry = require('./extension-registry');
++const ExtensionSourceRegistry = require('./source-registry');
++const constants = require('./constants');
++const manifest = require('./manifest');
++const {registerBuiltInSources} = require('./built-in-sources');
++
++const sourceRegistry = registerBuiltInSources(new ExtensionSourceRegistry());
++const extensionRegistry = new ExtensionRegistry();
++
++module.exports = {
++    ExtensionRegistry,
++    ExtensionSourceRegistry,
++    extensionRegistry,
++    sourceRegistry,
++    ...constants,
++    ...manifest
++};
+diff -ruN /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/manifest.js /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/manifest.js
+--- /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/manifest.js	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/manifest.js	2026-08-03 04:21:46.470035341 +0000
+@@ -0,0 +1,78 @@
++const {
++    EXTENSION_KINDS,
++    EXTENSION_MANIFEST_VERSION,
++    SOURCE_KEYS
++} = require('./constants');
++
++const TAG_SOURCE_MAP = Object.freeze({
++    scratch: SOURCE_KEYS.SCRATCH,
++    ztengine: SOURCE_KEYS.ENGINE,
++    ngvge: SOURCE_KEYS.NGVGE,
++    tw: SOURCE_KEYS.TW,
++    astra: SOURCE_KEYS.ASTRA,
++    pm: SOURCE_KEYS.PM,
++    mist: SOURCE_KEYS.MIST,
++    sp: SOURCE_KEYS.SHARKPOOL,
++    ccw: SOURCE_KEYS.CCW
++});
++
++const inferLegacySourceId = item => {
++    const extensionId = item && item.extensionId ? String(item.extensionId) : '';
++    if (extensionId === 'custom_extension') return SOURCE_KEYS.CUSTOM;
++    if (extensionId.startsWith('ccw_')) return SOURCE_KEYS.CCW;
++    if (extensionId === 'procedures_enable_return') return SOURCE_KEYS.SPECIAL;
++    const tags = Array.isArray(item && item.tags) ? item.tags : [];
++    for (const tag of tags) {
++        if (TAG_SOURCE_MAP[tag]) return TAG_SOURCE_MAP[tag];
++    }
++    return SOURCE_KEYS.OTHER;
++};
++
++const inferKind = (item, sourceId) => {
++    if (sourceId === SOURCE_KEYS.SPECIAL) return EXTENSION_KINDS.ACTION;
++    if (sourceId === SOURCE_KEYS.CUSTOM) return EXTENSION_KINDS.LEGACY;
++    if (sourceId === SOURCE_KEYS.NGVGE) return EXTENSION_KINDS.NATIVE;
++    if (item && item.extensionId && !item.extensionURL && !item.href && sourceId === SOURCE_KEYS.SCRATCH) {
++        return EXTENSION_KINDS.BUILT_IN;
++    }
++    return EXTENSION_KINDS.LEGACY;
++};
++
++const createManifestFromLegacyItem = (item, overrides = {}) => {
++    const sourceId = overrides.sourceId || inferLegacySourceId(item);
++    const extensionId = item && item.extensionId ? String(item.extensionId) : '';
++    return Object.freeze({
++        manifestVersion: EXTENSION_MANIFEST_VERSION,
++        id: overrides.id || extensionId || `legacy:${sourceId}:unknown`,
++        version: overrides.version || '0.0.0-legacy',
++        kind: overrides.kind || inferKind(item, sourceId),
++        source: Object.freeze({
++            id: sourceId,
++            mode: item && item.extensionURL ? 'remote' : 'local',
++            url: item && item.extensionURL ? item.extensionURL : null
++        }),
++        compatibility: Object.freeze({
++            scratch: !(item && item.incompatibleWithScratch),
++            ngvge: true,
++            adapter: sourceId === SOURCE_KEYS.NGVGE ? null : 'scratch-extension-v1'
++        }),
++        permissions: Object.freeze([]),
++        dependencies: Object.freeze([]),
++        metadata: Object.freeze({
++            featured: Boolean(item && item.featured),
++            tags: Object.freeze(Array.isArray(item && item.tags) ? [...item.tags] : [])
++        }),
++        legacy: true
++    });
++};
++
++const attachManifestToGalleryItem = (item, overrides = {}) => ({
++    ...item,
++    ngvgeManifest: item && item.ngvgeManifest ? item.ngvgeManifest : createManifestFromLegacyItem(item, overrides)
++});
++
++module.exports = {
++    attachManifestToGalleryItem,
++    createManifestFromLegacyItem,
++    inferLegacySourceId
++};
+diff -ruN /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/source-registry.js /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/source-registry.js
+--- /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/extension-hub/source-registry.js	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/extension-hub/source-registry.js	2026-08-03 04:21:46.470035341 +0000
+@@ -0,0 +1,58 @@
++class ExtensionSourceRegistry {
++    constructor () {
++        this._sources = new Map();
++    }
++
++    register (source) {
++        if (!source || typeof source.id !== 'string' || !source.id) {
++            throw new TypeError('Extension source must have a non-empty string id.');
++        }
++        if (typeof source.fetchExtensions !== 'function') {
++            throw new TypeError(`Extension source "${source.id}" must provide fetchExtensions().`);
++        }
++        const normalized = Object.freeze({
++            enabled: true,
++            group: 'online',
++            priority: 0,
++            ...source
++        });
++        this._sources.set(normalized.id, normalized);
++        return normalized;
++    }
++
++    unregister (sourceId) {
++        return this._sources.delete(sourceId);
++    }
++
++    get (sourceId) {
++        return this._sources.get(sourceId) || null;
++    }
++
++    has (sourceId) {
++        return this._sources.has(sourceId);
++    }
++
++    list ({enabledOnly = false} = {}) {
++        return Array.from(this._sources.values())
++            .filter(source => !enabledOnly || source.enabled)
++            .sort((a, b) => b.priority - a.priority || a.id.localeCompare(b.id));
++    }
++
++    async fetch (sourceId, context = {}) {
++        const source = this.get(sourceId);
++        if (!source) {
++            throw new Error(`Unknown extension source: ${sourceId}`);
++        }
++        if (!source.enabled) {
++            return [];
++        }
++        const result = await source.fetchExtensions(context);
++        return Array.isArray(result) ? result : [];
++    }
++
++    clear () {
++        this._sources.clear();
++    }
++}
++
++module.exports = ExtensionSourceRegistry;
+diff -ruN /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/libraries/extensions/index.jsx /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/libraries/extensions/index.jsx
+--- /mnt/data/base_0007_2_4/scratch-gui-main/src/lib/libraries/extensions/index.jsx	2026-08-03 02:27:10.000000000 +0000
++++ /mnt/data/work_0007_3_1/scratch-gui-main/src/lib/libraries/extensions/index.jsx	2026-08-03 04:22:28.694036587 +0000
+@@ -391,7 +391,7 @@
+         extensionURL: `${process.env.ROOT}static/extensions/NGVGE-Camera-V2.js`,
+         iconURL: ngvgeCameraIconURL,
+         description: 'Camera controls with an Inspector bridge for binding, position, zoom, and direction.',
+-        tags: ['tw'],
++        tags: ['ngvge'],
+         featured: true,
+         incompatibleWithScratch: true
+     },
+@@ -401,7 +401,7 @@
+         extensionURL: `${process.env.ROOT}static/extensions/NGVGE-Stretch.js`,
+         iconURL: ngvgeStretchIconURL,
+         description: 'Independent horizontal and vertical sprite stretch with Inspector controls.',
+-        tags: ['tw'],
++        tags: ['ngvge'],
+         featured: true,
+         incompatibleWithScratch: true
+     },
+diff -ruN /mnt/data/base_0007_2_4/scratch-gui-main/test/unit/lib/extension-hub.test.js /mnt/data/work_0007_3_1/scratch-gui-main/test/unit/lib/extension-hub.test.js
+--- /mnt/data/base_0007_2_4/scratch-gui-main/test/unit/lib/extension-hub.test.js	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_0007_3_1/scratch-gui-main/test/unit/lib/extension-hub.test.js	2026-08-03 04:21:46.474035341 +0000
+@@ -0,0 +1,44 @@
++const {
++    ExtensionRegistry,
++    ExtensionSourceRegistry,
++    SOURCE_KEYS,
++    attachManifestToGalleryItem,
++    createManifestFromLegacyItem,
++    inferLegacySourceId,
++    sourceRegistry
++} = require('../../../src/lib/extension-hub');
++
++describe('Extension Hub foundation', () => {
++    test('keeps built-in online source entries', () => {
++        expect(sourceRegistry.has(SOURCE_KEYS.TW)).toBe(true);
++        expect(sourceRegistry.has(SOURCE_KEYS.PM)).toBe(true);
++        expect(sourceRegistry.has(SOURCE_KEYS.ASTRA)).toBe(true);
++        expect(sourceRegistry.has(SOURCE_KEYS.CCW)).toBe(true);
++    });
++
++    test('infers legacy source tags', () => {
++        expect(inferLegacySourceId({extensionId: 'example', tags: ['tw']})).toBe(SOURCE_KEYS.TW);
++        expect(inferLegacySourceId({extensionId: 'example', tags: ['ngvge']})).toBe(SOURCE_KEYS.NGVGE);
++    });
++
++    test('creates manifest v2 without changing gallery data', () => {
++        const item = {extensionId: 'camera', extensionURL: 'https://example.com/camera.js', tags: ['tw']};
++        const normalized = attachManifestToGalleryItem(item);
++        expect(normalized.extensionURL).toBe(item.extensionURL);
++        expect(normalized.ngvgeManifest.manifestVersion).toBe(2);
++        expect(normalized.ngvgeManifest.source.id).toBe(SOURCE_KEYS.TW);
++    });
++
++    test('source registry accepts future network providers', async () => {
++        const registry = new ExtensionSourceRegistry();
++        registry.register({id: 'test', fetchExtensions: async () => [{id: 'one'}]});
++        await expect(registry.fetch('test')).resolves.toEqual([{id: 'one'}]);
++    });
++
++    test('extension registry indexes manifests', () => {
++        const registry = new ExtensionRegistry();
++        const manifest = createManifestFromLegacyItem({extensionId: 'pen', tags: ['scratch']});
++        registry.register(manifest);
++        expect(registry.get('pen').manifest).toBe(manifest);
++    });
++});

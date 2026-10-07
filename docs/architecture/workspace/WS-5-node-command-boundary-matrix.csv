@@ -1,0 +1,13 @@
+domain,product_surface,stable_identity,workspace_command,tool_provenance,native_authority,compatibility_path,backend_identity_in_command,status
+selection,Node Explorer,NodeId,SelectNode,ngvge.tool.node-explorer,Workspace selection writer,Scratch target is projection only,forbidden,CERTIFIED
+inspector-target,Inspector,NodeId,SelectNode for selection fallback,ngvge.tool.inspector,shared Workspace selection writer,Scratch target is projection only,forbidden,CERTIFIED
+context-menu-create,Node Explorer,NodeId/Create typeId,CreateNode,ngvge.tool.node-explorer,ngvge.runtime-node-command,Project Node compatibility adapter,forbidden,CERTIFIED
+context-menu-delete,Node Explorer,NodeId,DestroyNode,ngvge.tool.node-explorer,ngvge.runtime-node-command,Project Node compatibility adapter,forbidden,CERTIFIED
+context-menu-duplicate,Node Explorer,NodeId,DuplicateNode,ngvge.tool.node-explorer,ngvge.runtime-node-command,Project Node compatibility adapter,forbidden,CERTIFIED
+rename,Node Explorer + Inspector,NodeId,PatchNode(name),ngvge.tool.node-explorer / ngvge.tool.inspector,ngvge.runtime-node-command,Project Node compatibility adapter,forbidden,CERTIFIED
+enabled-state,Node Explorer + Inspector,NodeId,PatchNode(enabled),ngvge.tool.node-explorer / ngvge.tool.inspector,ngvge.runtime-node-command,Project Node compatibility adapter,forbidden,CERTIFIED
+inspector-property,Inspector,NodeId,PatchNode(properties),ngvge.tool.inspector,Runtime component-specific protocols where native; Node command for Project compatibility property record,Project Node compatibility adapter,forbidden,CERTIFIED
+reparent,Node Explorer,NodeId,ReparentNode/ReparentNodes,ngvge.tool.node-explorer,ngvge.runtime-node-command,Project Node compatibility adapter,forbidden,CERTIFIED
+drag-drop,Node Explorer,NodeId,ReparentNode/ReparentNodes,ngvge.tool.node-explorer,ngvge.runtime-node-command,Project Node compatibility adapter,forbidden,CERTIFIED
+scene-hierarchy-read,Node Explorer,NodeId,read-only projection,ngvge.tool.node-explorer,Runtime Node Model capability frozen snapshots,Project Node compatibility projection,n/a,CERTIFIED
+scratch-activation-compatibility,Node Explorer,NodeId primary / target runtime-only,no semantic node command,ngvge.tool.node-explorer,Node selection remains NodeId,Scratch target projection seam,targetId excluded from command DTO,CERTIFIED

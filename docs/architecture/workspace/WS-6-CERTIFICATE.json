@@ -1,0 +1,83 @@
+{
+  "stage": "WS-6",
+  "title": "Extension Manager Workspace Tool",
+  "status": "COMPLETE / VERIFIED",
+  "baseline": {
+    "stage": "WS-5",
+    "localCommit": "878b2b6"
+  },
+  "identities": {
+    "toolId": "ngvge.tool.extension-manager",
+    "windowId": "extension-manager",
+    "model": "ngvge.workspace-extension-manager-model@1",
+    "runtime": "ngvge.workspace-extension-manager-runtime@1",
+    "discoveryAdapter": "ngvge.workspace-extension-manager-discovery@1",
+    "legacyAddonAdapter": "ngvge.workspace-extension-manager.legacy-addon-adapter@1",
+    "itemSchemaVersion": 1
+  },
+  "hostAuthorities": {
+    "ngvgeModules": "Module Manager client",
+    "scratchExtensions": "ScratchExtensionHost",
+    "legacyAddons": "LegacyAddonHost + SettingsStore adapter",
+    "trustCapabilityPermission": "LEX ExtensionDescriptor query boundary"
+  },
+  "machineCertification": {
+    "passed": 27,
+    "total": 27,
+    "status": "PASS"
+  },
+  "focusedTests": {
+    "suites": 5,
+    "tests": 23,
+    "status": "PASS"
+  },
+  "fullTests": {
+    "unitNodeSuites": 118,
+    "unitNodeTests": 636,
+    "unitDomSuites": 3,
+    "unitDomTests": 26,
+    "unitTotalSuites": 121,
+    "unitTotalTests": 662,
+    "integrationSuites": 4,
+    "integrationTests": 5,
+    "smokeSuites": 1,
+    "smokeTests": 1
+  },
+  "webpack": {
+    "extensionManagerEntry": {
+      "exit": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "editorEntry": {
+      "exit": 0,
+      "errors": 0,
+      "warnings": 0
+    }
+  },
+  "cumulativeWorkspaceGate": "PASS",
+  "crossDomainGates": {
+    "LSC-G1": "PASS",
+    "LRC-G1": "PASS",
+    "LPL-G1": "PASS",
+    "LEX-G1": "PASS",
+    "COL-0": "PASS",
+    "0009-E": "PASS",
+    "PermanentRegression": "PASS"
+  },
+  "authorityInvariants": {
+    "unifiedRuntimeHostIntroduced": false,
+    "rawScratchExtensionManagerAccess": false,
+    "legacyRawVMAcquiredByWorkspaceManager": false,
+    "moduleManagerPrivateHostAccess": false,
+    "newWorkspaceLocalStorageDomain": false,
+    "discoveryOnlyTrustFabricated": false
+  },
+  "aggregateCertification": {
+    "status": "CONSTITUENT GATES PASS / WRAPPER TIMEOUT",
+    "claimedExitZero": false,
+    "finalEditorWebpackIndependentlyVerified": true
+  },
+  "architectureFrozen": false,
+  "nextStage": "WS-7 | NGVGE Agent Workspace Integration"
+}

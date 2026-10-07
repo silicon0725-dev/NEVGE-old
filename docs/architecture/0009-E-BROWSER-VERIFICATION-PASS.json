@@ -1,0 +1,73 @@
+{
+  "schema": "ngvge-0009-browser-verification/v1",
+  "date": "2026-08-12",
+  "status": "PASS",
+  "targetUrl": "http://127.0.0.1:8601",
+  "browserExecutable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "browserExecutableSource": "platform-default",
+  "platform": "win32",
+  "proof": {
+    "adapterStatus": {
+      "bindingCount": 1,
+      "boundCount": 1,
+      "error": null,
+      "missingCount": 0,
+      "offlineCount": 0,
+      "reconciling": true,
+      "revision": 6,
+      "schemaVersion": 2,
+      "tracking": true,
+      "warningCount": 0
+    },
+    "sceneDataProject": {
+      "activeSceneId": "scene_mspqirt2_1_1qi4dzj",
+      "sceneIds": ["scene_mspqirt2_1_1qi4dzj"],
+      "schemaVersion": 1
+    },
+    "originalSpriteCount": 1,
+    "commandCapability": true,
+    "commandCapabilityId": "ngvge.transform2d-command",
+    "binding": {
+      "bindingId": "scratch-binding:14683b79-b8c1-4f35-8186-3e3112f6e09f",
+      "nodeId": "runtime-node:sprite:ecbe9396-704e-4b6c-9109-23bc15ae43a5",
+      "status": "bound",
+      "targetRuntimeIdPresentInAdapterView": true
+    },
+    "bindingAfterReconcile": {
+      "bindingId": "scratch-binding:14683b79-b8c1-4f35-8186-3e3112f6e09f",
+      "nodeId": "runtime-node:sprite:ecbe9396-704e-4b6c-9109-23bc15ae43a5",
+      "status": "bound"
+    },
+    "bindingCount": 1,
+    "probeCreated": true,
+    "probeTargetName": "NGVGE_0009_BROWSER_PROBE",
+    "reconcileResult": {
+      "bindingCount": 1,
+      "change": {
+        "createdNodeIds": ["runtime-node:sprite:ecbe9396-704e-4b6c-9109-23bc15ae43a5"],
+        "missingNodeIds": [],
+        "reason": "0009-e-browser-probe",
+        "removedNodeIds": [],
+        "sceneId": "scene_mspqirt2_1_1qi4dzj",
+        "type": "adapter:reconcile",
+        "warningCount": 0
+      }
+    },
+    "runtimeCapability": true,
+    "runtimeCapabilityId": "ngvge.transform2d-runtime",
+    "runtimeTransform": {
+      "position": [37, -23],
+      "rotation": 45,
+      "scale": [1.25, 1.25]
+    },
+    "sceneSystemState": {
+      "enableCompletion": "completed",
+      "enabled": true,
+      "error": null,
+      "initialized": true,
+      "moduleId": "ngvge.scene-system",
+      "state": "enabled"
+    }
+  },
+  "source": "User-local Windows Chrome execution of npm run test:browser:0009-e"
+}

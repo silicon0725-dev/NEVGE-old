@@ -1,0 +1,45 @@
+{
+  "certificateId": "ngvge-ws10d-2d-art-animation-semantic-freeze-certificate/v1",
+  "stage": "WS-10D",
+  "name": "2D Art & Animation Semantic Freeze",
+  "status": "COMPLETE / ARCHITECTURE FROZEN",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "workspaceParent": "WS-10C | COMPLETE / VERIFIED",
+  "contracts": {
+    "paintDocument": "ngvge.paint-document-contract@1",
+    "vectorDocument": "ngvge.vector-art-document@1",
+    "animatedRasterDocument": "ngvge.animated-raster-document@1"
+  },
+  "frozenSemantics": [
+    "ArtDocumentId",
+    "LayerId",
+    "FrameId",
+    "CelId",
+    "CelContentId",
+    "ClipId",
+    "MarkerId",
+    "PaletteId",
+    "PaletteEntryId",
+    "SliceId",
+    "Layer x Frame x Cel",
+    "shared CelContentId linked-cel semantics",
+    "authoring source != export",
+    "editor/session state != project semantics"
+  ],
+  "backendAuthority": false,
+  "productionBehaviorSwitch": false,
+  "verification": {
+    "machine": "26/26 PASS",
+    "focused": "3 suites / 25 tests PASS",
+    "fullUnit": "149 suites / 835 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typeScript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "ws10cFocused": "23/23 machine + 7 suites / 49 tests PASS",
+    "ws10cCertification": "34/34 PASS",
+    "ws10cProductionWebpack": "0 errors / 0 warnings PASS"
+  },
+  "next": "WS-10E | Paint Backend Contract & OSS Intake"
+}

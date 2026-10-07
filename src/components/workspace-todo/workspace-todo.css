@@ -1,0 +1,175 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    padding: 16px;
+    color: rgba(255, 255, 255, 0.88);
+    background: #191b1f;
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: 0.01em;
+}
+
+.meta {
+    margin: 4px 0 0;
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 11px;
+}
+
+.addRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.input {
+    min-width: 0;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.045);
+    outline: none;
+}
+
+.input:focus {
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.065);
+}
+
+.primaryButton,
+.quietButton,
+.removeButton {
+    border: 0;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.primaryButton {
+    min-width: 58px;
+    padding: 0 12px;
+    border-radius: 6px;
+    color: #111317;
+    background: rgba(255, 255, 255, 0.88);
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.primaryButton:disabled,
+.quietButton:disabled {
+    cursor: default;
+    opacity: 0.36;
+}
+
+.quietButton {
+    padding: 5px 8px;
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.56);
+    background: transparent;
+    font-size: 11px;
+}
+
+.quietButton:not(:disabled):hover {
+    color: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.list {
+    overflow: auto;
+    min-height: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 42px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+}
+
+.taskLabel {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    min-width: 0;
+    gap: 9px;
+    cursor: pointer;
+}
+
+.checkbox {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+}
+
+.taskTitle,
+.completedTitle {
+    overflow: hidden;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.completedTitle {
+    color: rgba(255, 255, 255, 0.38);
+    text-decoration: line-through;
+}
+
+.removeButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.4);
+    background: transparent;
+}
+
+.removeButton:hover {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.removeButton svg {
+    width: 13px;
+    height: 13px;
+}
+
+.empty {
+    padding: 34px 12px;
+    color: rgba(255, 255, 255, 0.34);
+    font-size: 12px;
+    text-align: center;
+}
+
+.visuallyHidden {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    margin: -1px;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}

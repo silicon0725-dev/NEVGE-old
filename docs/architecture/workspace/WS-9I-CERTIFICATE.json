@@ -1,0 +1,74 @@
+{
+  "stage": "WS-9I",
+  "title": "Privileged Tool Mutation Review Policy & WS-9 Certification",
+  "status": "COMPLETE / VERIFIED",
+  "authority": "ARC-0001",
+  "baseline": "WS-9H COMPLETE / VERIFIED",
+  "identities": {
+    "policy": "ngvge.workspace-privileged-mutation-review-policy@1",
+    "policySchemaVersion": 1,
+    "evidenceSchemaVersion": 1,
+    "reviewService": "ngvge.workspace-project-transaction-review@1",
+    "projectCommandHost": "ngvge.workspace-project-command-host@1"
+  },
+  "surfacePolicy": {
+    "project-command#mutate": "review-required",
+    "resource-command#mutate": "direct-denied",
+    "default": "not-required"
+  },
+  "evidenceBinding": [
+    "toolId",
+    "capabilityLeaseId",
+    "projectId",
+    "reviewRevision",
+    "subjectId",
+    "operation"
+  ],
+  "evidenceLifecycle": {
+    "states": ["active", "consumed", "stale", "revoked"],
+    "oneShot": true,
+    "leaseRevocationInvalidates": true,
+    "projectOrResourceReviewChangeInvalidates": true,
+    "rollbackRequiresFreshEvidence": true
+  },
+  "authorityRules": {
+    "policyWriterAuthority": false,
+    "reviewServiceWriterAuthority": false,
+    "projectCommandHostRemainsMutationAuthority": true,
+    "resourceAuthorityPreserved": true,
+    "projectLifecycleAuthorityPreserved": true,
+    "directResourceToolMutationDenied": true,
+    "rawBackendHandlesExposed": false
+  },
+  "verification": {
+    "machineChecks": "18/18 PASS",
+    "focusedJest": "6 suites / 53 tests PASS",
+    "ws9iWebpack": "0 errors / 0 warnings PASS",
+    "fullEditorWebpack": "0 errors / 0 warnings PASS",
+    "unitNode": "137 suites / 751 tests PASS",
+    "unitDom": "3 suites / 27 tests PASS",
+    "unitTotal": "140 suites / 778 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "arcC0011Baseline": "7/7 PASS",
+    "lscG1": "19/19 machine PASS; certification PASS",
+    "lrcG1": "15/15 machine PASS; certification PASS",
+    "lplG1": "17/17 machine PASS; certification PASS",
+    "lexG1": "19/19 machine PASS; certification PASS",
+    "col0": "15/15 machine PASS; 4 suites / 12 tests PASS",
+    "ws8Focused": "27/27 machine PASS; 6 suites / 22 tests PASS",
+    "ws9aFocused": "12/12 machine PASS; 2 suites / 15 tests PASS",
+    "ws9bFocused": "12/12 machine PASS; 3 suites / 24 tests PASS",
+    "ws9cFocused": "12/12 machine PASS; runtime 3 suites / 21 tests PASS; DOM 2 suites / 24 tests PASS",
+    "ws9dFocused": "13/13 machine PASS; 7 suites / 35 tests PASS",
+    "ws9eFocused": "14/14 machine PASS; 6 suites / 36 tests PASS",
+    "ws9fFocused": "15/15 machine PASS; Node 6 suites / 51 tests PASS; DOM 1 suite / 3 tests PASS",
+    "ws9gFocused": "16/16 machine PASS; 4 suites / 35 tests PASS",
+    "ws9hFocused": "17/17 machine PASS; 5 suites / 44 tests PASS",
+    "ws9iFocused": "18/18 machine PASS; 6 suites / 53 tests PASS"
+  },
+  "nextRecommendedStage": "WS-10 | High-Capability Tool Integration"
+}

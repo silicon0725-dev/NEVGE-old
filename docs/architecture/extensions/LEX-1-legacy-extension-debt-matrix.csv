@@ -1,0 +1,9 @@
+DebtId,Location,CurrentBehavior,ContainmentStatus,Owner,Target,GateRule
+LEX-D001,src/addons/addons/02agent/tools.ts,Legacy 02Agent directly reads ExtensionManager private map and loads extensions,QUARANTINED,Legacy Addon Host + LSC,LEX-G1,"Must remain legacy-only; may not become NGVGE Module authority"
+LEX-D002,src/addons/addons/load-extensions/userscript.js,Bundled Legacy Addon loads built-in Scratch extensions,CONTAINED,Legacy Addon Capability + Scratch Extension Host,LEX-G1,"Uses declared legacy-addon.scratch-extension.load-built-in capability; no raw VM/ExtensionManager access"
+LEX-D003,src/lib/collaboration/asset-events.js,Collaboration reads ExtensionManager private loaded map,CONTAINED,COL-0,LEX-G1,"COL-0 routes extension mutation/query through Scratch Extension Host"
+LEX-D004,src/lib/collaboration/sync-manager.js,Collaboration directly loads/queries extensions and private loaded map,CONTAINED,COL-0,LEX-G1,"COL-0 project sync consumes Scratch Extension Host without raw ExtensionManager"
+LEX-D005,src/lib/collaboration-service.js,Legacy collaboration service wraps loadExtensionURL and performs direct extension loads,CONTAINED,COL-0,LEX-G1,"COL-0 observes Scratch Extension Host and no longer monkey-patches ExtensionManager"
+LEX-D006,src/lib/extension-debug.js,Developer debug helper reads/writes ExtensionManager private state,CONTAINED_DEV_ONLY,Developer Tools,LEX-G1,"Loaded only outside production via dynamic developer quarantine; not normal project/extension authority"
+LEX-D007,window.vm,Development browser diagnostics expose raw VM only outside production,DEV_QUARANTINE,Test/Browser Harness,LEX-G1,"Production builds must delete/never publish raw window.vm"
+LEX-D008,addon.tab.traps.vm,Bundled Legacy Addon API may request real VM,EXPLICIT_QUARANTINE,Legacy Addon Host,LEX-G1,"Only bundled legacy trust may receive legacy.raw-vm-quarantine; custom/untrusted denied"

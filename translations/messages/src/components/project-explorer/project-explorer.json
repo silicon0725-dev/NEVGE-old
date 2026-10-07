@@ -1,0 +1,17 @@
+[
+  {
+    "id": "gui.nodeExplorer.title",
+    "description": "Title of the primary Runtime Node Explorer panel",
+    "defaultMessage": "Node Explorer"
+  },
+  {
+    "id": "gui.projectExplorer.projectRoot",
+    "description": "Root node in the project explorer",
+    "defaultMessage": "Project"
+  },
+  {
+    "id": "gui.projectExplorer.entitiesRoot",
+    "description": "Entities provider root in the project explorer",
+    "defaultMessage": "Entities"
+  }
+]

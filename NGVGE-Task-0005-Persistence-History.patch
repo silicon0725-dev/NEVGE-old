@@ -1,0 +1,1422 @@
+--- a/docs/NGVGE-INSPECTOR-EXTENSION-API.md
++++ b/docs/NGVGE-INSPECTOR-EXTENSION-API.md
+@@ -1,4 +1,4 @@
+-# NGVGE Inspector Extension API v0.1
++# NGVGE Inspector Extension API v0.2
+ 
+ Unsandboxed extensions can add schema-driven property sections to the NGVGE Inspector through:
+ 
+@@ -6,7 +6,7 @@
+ const registry = Scratch.vm.runtime.ngvgeInspector;
+ ```
+ 
+-A section descriptor contains:
++A minimal section descriptor contains:
+ 
+ ```js
+ registry.register({
+@@ -24,7 +24,8 @@
+         }
+     ],
+     setValue: (target, fieldId, value, context) => {
+-        // Update runtime state.
++        // Update runtime state, redraw, and mark the project changed.
++        context.runtime.emitProjectChanged();
+         context.registry.notify({
+             sectionId: 'example',
+             targetId: target.id
+@@ -33,13 +34,63 @@
+ });
+ ```
+ 
+-Supported field types in v0.1:
++Supported field types:
+ 
+ - `number`
+ - `text`
+ - `boolean`
+ - `select`
+ 
+-The registry is runtime-only. A property provider remains responsible for persistence, rendering updates, validation, and project-changed events.
++## Automatic Inspector history
+ 
+-The bundled `NGVGE Camera V2` and `NGVGE XY Stretch` extensions demonstrate the contract.
++Changes committed through an Inspector field are automatically added to the NGVGE property-history stack. Undo and redo call the section's `setValue` function again with the previous or next value.
++
++For predictable history behavior, `setValue` should be deterministic and should accept values previously returned by `getFields`.
++
++## Project persistence
++
++A section can opt into SB3 persistence by implementing target-level or project-level serialization hooks.
++
++```js
++registry.register({
++    id: 'example',
++    extensionId: 'exampleExtension',
++    label: 'Example',
++    getFields: target => [],
++    setValue: (target, fieldId, value, context) => {},
++
++    serializeTarget: (target, context) => ({
++        amount: target.exampleAmount
++    }),
++
++    deserializeTarget: (target, data, context) => {
++        target.exampleAmount = Number(data.amount) || 0;
++    },
++
++    serializeProject: context => ({
++        sharedPreset: 'default'
++    }),
++
++    deserializeProject: (data, context) => {
++        // Restore data shared by all targets before target data is applied.
++    }
++});
++```
++
++`serializeProject` and `deserializeProject` are intended for shared systems such as camera definitions. `serializeTarget` and `deserializeTarget` are intended for per-target values such as camera binding, stretch, physics material, or tags.
++
++When serialized data is returned and `extensionId` is set, the persistence layer adds that extension to the saved project and preserves its custom extension URL when available. This allows an Inspector-only property to keep its extension dependency even when no block from that extension exists in the workspace.
++
++NGVGE stores this metadata in an additive `ngvge` field inside `project.json`. Standard Scratch fields remain unchanged. Unknown or unavailable Inspector sections are skipped instead of preventing the project from loading.
++
++## Registry utility methods
++
++```js
++registry.getSection('example');
++registry.listSections();
++registry.getSections(target, context);
++registry.subscribe(listener);
++registry.notify(change);
++```
++
++The bundled `NGVGE Camera V2` and `NGVGE XY Stretch` extensions demonstrate project-level and target-level persistence.
+--- /dev/null
++++ b/docs/TASK-0005-PERSISTENCE-HISTORY.md
+@@ -0,0 +1,54 @@
++# Task-0005 — Inspector persistence and undo/redo
++
++## Scope
++
++Task-0005 turns Inspector properties into project data instead of temporary editor state.
++
++Implemented paths:
++
++- Native Sprite properties continue to use Scratch VM serialization.
++- Layer order continues to use the native `layerOrder` SB3 field.
++- Inspector extension sections can serialize project-level and target-level metadata.
++- Required custom extensions and their URLs are retained when an Inspector property is used without extension blocks.
++- Inspector property changes have a 100-command in-memory undo/redo stack.
++- Loading a project clears the previous project's history.
++
++## Saved metadata shape
++
++```json
++{
++  "ngvge": {
++    "version": 1,
++    "projectSections": {
++      "camera": {}
++    }
++  },
++  "targets": [
++    {
++      "ngvge": {
++        "version": 1,
++        "sections": {
++          "camera": {},
++          "stretch": {}
++        }
++      }
++    }
++  ]
++}
++```
++
++The metadata is additive. Existing Scratch project fields and VM execution semantics are not replaced.
++
++## Undo/redo coverage
++
++- Sprite name
++- X and Y
++- Direction
++- Size
++- Rotation style
++- Visibility
++- Draggable state
++- Layer ordering
++- Registered extension fields, including Camera V2 and XY Stretch
++
++Undo/redo history is intentionally not saved in the SB3 file.
+--- a/docs/THIRD-PARTY-NGVGE-INSPECTOR-BRIDGES.md
++++ b/docs/THIRD-PARTY-NGVGE-INSPECTOR-BRIDGES.md
+@@ -7,6 +7,8 @@
+ - Original author: SharkPool
+ - License: MIT
+ - NGVGE modification: adds a schema-driven Inspector bridge for camera binding, X, Y, zoom, and direction.
++- Persistence: camera definitions are saved at project level; each Stage/Sprite camera binding is saved at target level.
++- History: Inspector camera edits participate in NGVGE undo and redo.
+ 
+ The original extension behavior and block ID are retained.
+ 
+@@ -17,5 +19,7 @@
+ - Original authors: GarboMuffin and TheStarWorld
+ - License: MIT AND MPL-2.0
+ - NGVGE modification: adds a schema-driven Inspector bridge for horizontal and vertical stretch.
++- Persistence: X and Y stretch are saved per target.
++- History: Inspector stretch edits participate in NGVGE undo and redo.
+ 
+ The uploaded source ended immediately after the `getY` method without the final class closure, extension registration, and IIFE closure. The NGVGE adaptation completes those structural endings before adding the Inspector bridge.
+--- a/src/components/project-inspector/project-inspector.css
++++ b/src/components/project-inspector/project-inspector.css
+@@ -123,6 +123,47 @@
+ .target-summary-text small {
+     color: $text-primary-transparent;
+     font-size: 0.66rem;
++}
++
++
++.history-bar {
++    display: grid;
++    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
++    align-items: center;
++    gap: 0.4rem;
++    padding: 0.45rem 0.7rem;
++    border-bottom: 1px solid $ui-black-transparent;
++    background: rgba(77, 151, 255, 0.045);
++}
++
++.history-bar button {
++    min-width: 0;
++    height: 1.8rem;
++    padding: 0 0.45rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.35rem;
++    background: $ui-white;
++    color: $text-primary;
++    font-size: 0.64rem;
++    cursor: pointer;
++}
++
++.history-bar button:hover:not(:disabled),
++.history-bar button:focus-visible:not(:disabled) {
++    border-color: $motion-primary;
++    color: $motion-primary;
++    outline: none;
++}
++
++.history-bar button:disabled {
++    opacity: 0.45;
++    cursor: default;
++}
++
++.history-bar span {
++    color: $text-primary-transparent;
++    font-size: 0.6rem;
++    white-space: nowrap;
+ }
+ 
+ .section {
+--- a/src/components/project-inspector/project-inspector.jsx
++++ b/src/components/project-inspector/project-inspector.jsx
+@@ -3,6 +3,7 @@
+ import React from 'react';
+ 
+ import {getInspectorRegistry} from '../../lib/project-inspector/inspector-registry';
++import {getPropertyHistory} from '../../lib/project-inspector/property-history';
+ 
+ import styles from './project-inspector.css';
+ 
+@@ -217,9 +218,12 @@
+         width
+     } = props;
+     const [revision, setRevision] = React.useState(0);
++    const [historyRevision, setHistoryRevision] = React.useState(0);
+     const refresh = React.useCallback(() => setRevision(value => value + 1), []);
++    const refreshHistory = React.useCallback(() => setHistoryRevision(value => value + 1), []);
+     const runtime = vm && vm.runtime;
+     const registry = React.useMemo(() => getInspectorRegistry(runtime), [runtime]);
++    const history = React.useMemo(() => getPropertyHistory(runtime), [runtime]);
+ 
+     React.useEffect(() => {
+         if (!vm || !registry) return () => {};
+@@ -230,6 +234,11 @@
+             vm.off('targetsUpdate', refresh);
+         };
+     }, [registry, refresh, vm]);
++
++    React.useEffect(() => {
++        if (!history) return () => {};
++        return history.subscribe(refreshHistory);
++    }, [history, refreshHistory]);
+ 
+     const target = runtime && editingTargetId ? runtime.getTargetById(editingTargetId) : null;
+ 
+@@ -247,32 +256,129 @@
+ 
+     const isExpanded = sectionId => expandedSectionIds.indexOf(sectionId) !== -1;
+ 
+-    const postSpriteInfo = React.useCallback(data => {
+-        if (!target || target.isStage) return;
+-        const currentEditingTarget = vm.editingTarget;
+-        if (!currentEditingTarget || currentEditingTarget.id !== target.id) return;
+-        vm.postSpriteInfo(data);
++    const emitTargetRefresh = React.useCallback(() => {
++        if (typeof vm.emitTargetsUpdate === 'function') vm.emitTargetsUpdate(false);
+         refresh();
+-    }, [refresh, target, vm]);
++    }, [refresh, vm]);
++
++    const applySpriteInfo = React.useCallback((targetId, data) => {
++        const currentTarget = runtime && runtime.getTargetById(targetId);
++        if (!currentTarget || currentTarget.isStage) return;
++        if (vm.editingTarget && vm.editingTarget.id === targetId) {
++            vm.postSpriteInfo(data);
++        } else {
++            currentTarget.postSpriteInfo(data);
++            runtime.emitProjectChanged();
++        }
++        emitTargetRefresh();
++    }, [emitTargetRefresh, runtime, vm]);
++
++    const commitSpriteProperty = React.useCallback((property, value, label) => {
++        if (!target || target.isStage || !history) return;
++        const targetId = target.id;
++        const before = target[property];
++        applySpriteInfo(targetId, {[property]: value});
++        const updatedTarget = runtime.getTargetById(targetId);
++        const after = updatedTarget ? updatedTarget[property] : value;
++        history.recordValue({
++            after,
++            apply: nextValue => applySpriteInfo(targetId, {[property]: nextValue}),
++            before,
++            label,
++            metadata: {property, targetId, type: 'sprite-property'}
++        });
++    }, [applySpriteInfo, history, runtime, target]);
++
++    const applyTargetName = React.useCallback((targetId, name) => {
++        const currentTarget = runtime && runtime.getTargetById(targetId);
++        if (!currentTarget || currentTarget.isStage) return;
++        vm.renameSprite(targetId, name);
++        emitTargetRefresh();
++        return currentTarget.getName();
++    }, [emitTargetRefresh, runtime, vm]);
+ 
+     const renameTarget = React.useCallback(name => {
+-        if (!target || target.isStage) return;
++        if (!target || target.isStage || !history) return;
+         const normalizedName = String(name).trim();
+-        if (!normalizedName || normalizedName === target.getName()) return;
+-        vm.renameSprite(target.id, normalizedName);
+-        refresh();
+-    }, [refresh, target, vm]);
++        const before = target.getName();
++        if (!normalizedName || normalizedName === before) return;
++        const targetId = target.id;
++        const after = applyTargetName(targetId, normalizedName) || normalizedName;
++        history.recordValue({
++            after,
++            apply: nextName => applyTargetName(targetId, nextName),
++            before,
++            label: `Rename ${before}`,
++            metadata: {targetId, type: 'rename'}
++        });
++    }, [applyTargetName, history, target]);
++
++    const getLayerSnapshot = React.useCallback(() => {
++        if (!runtime) return [];
++        return runtime.targets
++            .filter(candidate => candidate && candidate.isOriginal && !candidate.isStage)
++            .slice()
++            .sort((targetA, targetB) => targetB.getLayerOrder() - targetA.getLayerOrder())
++            .map(candidate => candidate.id);
++    }, [runtime]);
++
++    const applyLayerSnapshot = React.useCallback(targetIds => {
++        if (!runtime) return;
++        targetIds.forEach(targetId => {
++            const layerTarget = runtime.getTargetById(targetId);
++            if (layerTarget && !layerTarget.isStage) layerTarget.goToBack();
++        });
++        runtime.emitProjectChanged();
++        emitTargetRefresh();
++    }, [emitTargetRefresh, runtime]);
+ 
+     const moveLayer = React.useCallback(action => {
+-        if (!target || target.isStage) return;
++        if (!target || target.isStage || !history) return;
++        const before = getLayerSnapshot();
+         if (action === 'front') target.goToFront();
+         if (action === 'forward') target.goForwardLayers(1);
+         if (action === 'backward') target.goBackwardLayers(1);
+         if (action === 'back') target.goToBack();
+         runtime.emitProjectChanged();
+-        if (typeof vm.emitTargetsUpdate === 'function') vm.emitTargetsUpdate(false);
+-        refresh();
+-    }, [refresh, runtime, target, vm]);
++        emitTargetRefresh();
++        const after = getLayerSnapshot();
++        history.recordValue({
++            after,
++            apply: applyLayerSnapshot,
++            before,
++            label: `Layer: ${target.getName()} ${action}`,
++            metadata: {targetId: target.id, type: 'layer'}
++        });
++    }, [applyLayerSnapshot, emitTargetRefresh, getLayerSnapshot, history, runtime, target]);
++
++    const applyExtensionValue = React.useCallback((sectionId, targetId, fieldId, value) => {
++        if (!registry || !runtime) return;
++        const currentSection = registry.getSection(sectionId);
++        const currentTarget = runtime.getTargetById(targetId);
++        if (!currentSection || !currentTarget) return;
++        currentSection.setValue(currentTarget, fieldId, value, {
++            registry,
++            runtime,
++            vm
++        });
++        registry.notify({sectionId, targetId});
++        emitTargetRefresh();
++    }, [emitTargetRefresh, registry, runtime, vm]);
++
++    const handleHistoryKeyDown = React.useCallback(event => {
++        if (!history || (!event.ctrlKey && !event.metaKey) || event.altKey) return;
++        const tagName = event.target && event.target.tagName ? event.target.tagName.toLowerCase() : '';
++        if (tagName === 'input' || tagName === 'textarea' || tagName === 'select') return;
++        const key = event.key.toLowerCase();
++        if (key === 'z') {
++            event.preventDefault();
++            if (event.shiftKey) history.redo();
++            else history.undo();
++        } else if (key === 'y') {
++            event.preventDefault();
++            history.redo();
++        }
++    }, [history]);
+ 
+     const extensionSections = React.useMemo(() => {
+         if (!registry || !target) return [];
+@@ -296,14 +402,23 @@
+ 
+     const selectedLayerIndex = target && !target.isStage ?
+         originalSprites.findIndex(candidate => candidate.id === target.id) : -1;
++    const historyState = React.useMemo(() => (history ? history.getState() : {
++        canRedo: false,
++        canUndo: false,
++        redoDepth: 0,
++        undoDepth: 0
++    }), [history, historyRevision]);
+ 
+     return (
+         <aside
+             aria-label="Inspector"
++            data-ngvge-inspector="true"
++            tabIndex={-1}
+             className={classNames(styles.inspector, {
+                 [styles.inspectorEmbedded]: showHeader
+             })}
+             style={showHeader ? {width} : undefined}
++            onKeyDown={handleHistoryKeyDown}
+         >
+             {showHeader ? (
+                 <header className={styles.header}>
+@@ -335,6 +450,26 @@
+                                 <strong>{target.getName()}</strong>
+                                 <small>{target.isStage ? 'Stage' : 'Sprite'}</small>
+                             </span>
++                        </div>
++
++                        <div className={styles.historyBar}>
++                            <button
++                                disabled={!historyState.canUndo}
++                                title={historyState.undoLabel ? `Undo ${historyState.undoLabel}` : 'Nothing to undo'}
++                                type="button"
++                                onClick={() => history && history.undo()}
++                            >
++                                ↶ Undo
++                            </button>
++                            <button
++                                disabled={!historyState.canRedo}
++                                title={historyState.redoLabel ? `Redo ${historyState.redoLabel}` : 'Nothing to redo'}
++                                type="button"
++                                onClick={() => history && history.redo()}
++                            >
++                                Redo ↷
++                            </button>
++                            <span>{historyState.undoDepth} changes</span>
+                         </div>
+ 
+                         <InspectorSection
+@@ -372,7 +507,7 @@
+                                             step={1}
+                                             type="number"
+                                             value={target.x}
+-                                            onCommit={value => postSpriteInfo({x: value})}
++                                            onCommit={value => commitSpriteProperty('x', value, 'Set X')}
+                                         />
+                                     </InspectorRow>
+                                     <InspectorRow label="Y">
+@@ -380,7 +515,7 @@
+                                             step={1}
+                                             type="number"
+                                             value={target.y}
+-                                            onCommit={value => postSpriteInfo({y: value})}
++                                            onCommit={value => commitSpriteProperty('y', value, 'Set Y')}
+                                         />
+                                     </InspectorRow>
+                                 </div>
+@@ -389,7 +524,7 @@
+                                         step={1}
+                                         type="number"
+                                         value={target.direction}
+-                                        onCommit={value => postSpriteInfo({direction: value})}
++                                        onCommit={value => commitSpriteProperty('direction', value, 'Set direction')}
+                                     />
+                                 </InspectorRow>
+                                 <InspectorRow label="Size">
+@@ -399,7 +534,7 @@
+                                             step={1}
+                                             type="number"
+                                             value={target.size}
+-                                            onCommit={value => postSpriteInfo({size: value})}
++                                            onCommit={value => commitSpriteProperty('size', value, 'Set size')}
+                                         />
+                                         <span>%</span>
+                                     </div>
+@@ -408,7 +543,11 @@
+                                     <select
+                                         className={styles.select}
+                                         value={target.rotationStyle || 'all around'}
+-                                        onChange={event => postSpriteInfo({rotationStyle: event.target.value})}
++                                        onChange={event => commitSpriteProperty(
++                                            'rotationStyle',
++                                            event.target.value,
++                                            'Set rotation style'
++                                        )}
+                                     >
+                                         <option value="all around">All around</option>
+                                         <option value="left-right">Left / right</option>
+@@ -420,7 +559,11 @@
+                                         checked={Boolean(target.visible)}
+                                         className={styles.checkbox}
+                                         type="checkbox"
+-                                        onChange={event => postSpriteInfo({visible: event.target.checked})}
++                                        onChange={event => commitSpriteProperty(
++                                            'visible',
++                                            event.target.checked,
++                                            'Set visibility'
++                                        )}
+                                     />
+                                 </InspectorRow>
+                                 <InspectorRow label="Draggable">
+@@ -428,7 +571,11 @@
+                                         checked={Boolean(target.draggable)}
+                                         className={styles.checkbox}
+                                         type="checkbox"
+-                                        onChange={event => postSpriteInfo({draggable: event.target.checked})}
++                                        onChange={event => commitSpriteProperty(
++                                            'draggable',
++                                            event.target.checked,
++                                            'Set draggable'
++                                        )}
+                                     />
+                                 </InspectorRow>
+                             </InspectorSection>
+@@ -493,16 +640,44 @@
+                                             <ExtensionField
+                                                 field={field}
+                                                 onCommit={value => {
+-                                                    section.setValue(target, field.id, value, {
+-                                                        registry,
+-                                                        runtime,
+-                                                        vm
+-                                                    });
+-                                                    registry.notify({
+-                                                        sectionId: section.id,
+-                                                        targetId: target.id
+-                                                    });
+-                                                    refresh();
++                                                    const before = field.value;
++                                                    const targetId = target.id;
++                                                    applyExtensionValue(section.id, targetId, field.id, value);
++                                                    const currentSection = registry.getSection(section.id);
++                                                    const currentTarget = runtime.getTargetById(targetId);
++                                                    let after = value;
++                                                    try {
++                                                        const currentFields = currentSection && currentTarget ?
++                                                            currentSection.getFields(
++                                                                currentTarget,
++                                                                {registry, runtime, vm}
++                                                            ) : [];
++                                                        const currentField = currentFields.find(
++                                                            candidate => candidate.id === field.id
++                                                        );
++                                                        if (currentField) after = currentField.value;
++                                                    } catch {
++                                                        after = value;
++                                                    }
++                                                    if (history) {
++                                                        history.recordValue({
++                                                            after,
++                                                            apply: nextValue => applyExtensionValue(
++                                                                section.id,
++                                                                targetId,
++                                                                field.id,
++                                                                nextValue
++                                                            ),
++                                                            before,
++                                                            label: `${section.label}: ${field.label}`,
++                                                            metadata: {
++                                                                fieldId: field.id,
++                                                                sectionId: section.id,
++                                                                targetId,
++                                                                type: 'extension-property'
++                                                            }
++                                                        });
++                                                    }
+                                                 }}
+                                             />
+                                         </InspectorRow>
+@@ -516,7 +691,8 @@
+ 
+             <footer className={styles.footer}>
+                 <span className={styles.statusDot} />
+-                Live VM properties · {extensionSections.length} extension sections
++                Project persistence active · {historyState.undoDepth} undo steps ·
++                {' '}{extensionSections.length} extensions
+             </footer>
+         </aside>
+     );
+--- a/src/lib/project-inspector/index.js
++++ b/src/lib/project-inspector/index.js
+@@ -1 +1,3 @@
+ export * from './inspector-registry';
++export * from './project-persistence';
++export * from './property-history';
+--- a/src/lib/project-inspector/inspector-registry.js
++++ b/src/lib/project-inspector/inspector-registry.js
+@@ -44,6 +44,9 @@
+             if (removed) emit({type: 'registry', sectionId});
+             return removed;
+         },
++        getSection (sectionId) {
++            return sections.get(sectionId) || null;
++        },
+         getSections (target, context) {
+             return Array.from(sections.values())
+                 .filter(section => (
+@@ -55,6 +58,9 @@
+                     if (orderA !== orderB) return orderA - orderB;
+                     return sectionA.id.localeCompare(sectionB.id);
+                 });
++        },
++        listSections () {
++            return Array.from(sections.values());
+         },
+         subscribe (listener) {
+             if (typeof listener !== 'function') return () => {};
+--- /dev/null
++++ b/src/lib/project-inspector/project-persistence.js
+@@ -0,0 +1,290 @@
++import {getInspectorRegistry} from './inspector-registry';
++
++const NGVGE_DATA_KEY = 'ngvge';
++const NGVGE_DATA_VERSION = 1;
++const PERSISTENCE_PROPERTY = 'ngvgeProjectPersistence';
++
++const cloneSerializable = value => {
++    if (value === null || typeof value === 'undefined') return value;
++    return JSON.parse(JSON.stringify(value));
++};
++
++const hasSerializableValue = value => value !== null && typeof value !== 'undefined';
++
++const getOriginalTargets = runtime => (
++    runtime && Array.isArray(runtime.targets) ?
++        runtime.targets.filter(target => target && target.isOriginal) : []
++);
++
++const getSectionContext = (vm, registry, phase) => ({
++    phase,
++    registry,
++    runtime: vm.runtime,
++    vm
++});
++
++const getExtensionURLMap = runtime => {
++    const extensionManager = runtime && runtime.extensionManager;
++    if (!extensionManager || typeof extensionManager.getExtensionURLs !== 'function') return {};
++    return extensionManager.getExtensionURLs() || {};
++};
++
++const addRequiredExtensions = (projectJSON, requiredExtensionIds, runtime) => {
++    if (!requiredExtensionIds.size) return;
++    const existingExtensions = Array.isArray(projectJSON.extensions) ? projectJSON.extensions : [];
++    projectJSON.extensions = Array.from(new Set(existingExtensions.concat(Array.from(requiredExtensionIds))));
++
++    const extensionURLs = getExtensionURLMap(runtime);
++    requiredExtensionIds.forEach(extensionId => {
++        if (!extensionURLs[extensionId]) return;
++        if (!projectJSON.extensionURLs) projectJSON.extensionURLs = {};
++        projectJSON.extensionURLs[extensionId] = extensionURLs[extensionId];
++    });
++};
++
++const serializeProjectData = (vm, registry) => {
++    const projectSections = {};
++    const requiredExtensionIds = new Set();
++    const context = getSectionContext(vm, registry, 'serialize');
++
++    registry.listSections().forEach(section => {
++        if (typeof section.serializeProject !== 'function') return;
++        try {
++            const value = section.serializeProject(context);
++            if (!hasSerializableValue(value)) return;
++            projectSections[section.id] = cloneSerializable(value);
++            if (section.extensionId) requiredExtensionIds.add(section.extensionId);
++        } catch {
++            // A third-party inspector section should not prevent the project from saving.
++        }
++    });
++
++    return {projectSections, requiredExtensionIds};
++};
++
++const serializeTargetData = (target, vm, registry) => {
++    const sections = {};
++    const requiredExtensionIds = new Set();
++    const context = getSectionContext(vm, registry, 'serialize');
++
++    registry.getSections(target, context).forEach(section => {
++        if (typeof section.serializeTarget !== 'function') return;
++        try {
++            const value = section.serializeTarget(target, context);
++            if (!hasSerializableValue(value)) return;
++            sections[section.id] = cloneSerializable(value);
++            if (section.extensionId) requiredExtensionIds.add(section.extensionId);
++        } catch {
++            // A third-party inspector section should not prevent the project from saving.
++        }
++    });
++
++    if (!Object.keys(sections).length) return {data: null, requiredExtensionIds};
++    return {
++        data: {
++            sections,
++            version: NGVGE_DATA_VERSION
++        },
++        requiredExtensionIds
++    };
++};
++
++const injectProjectData = (projectJSON, vm, registry, targetId) => {
++    if (!projectJSON || typeof projectJSON !== 'object') return projectJSON;
++    const requiredExtensionIds = new Set();
++    const originalTargets = getOriginalTargets(vm.runtime);
++
++    if (targetId) {
++        const target = vm.runtime.getTargetById(targetId);
++        if (target) {
++            const serialized = serializeTargetData(target, vm, registry);
++            if (serialized.data) projectJSON[NGVGE_DATA_KEY] = serialized.data;
++            serialized.requiredExtensionIds.forEach(id => requiredExtensionIds.add(id));
++        }
++    } else {
++        const projectData = serializeProjectData(vm, registry);
++        projectData.requiredExtensionIds.forEach(id => requiredExtensionIds.add(id));
++        if (Object.keys(projectData.projectSections).length) {
++            projectJSON[NGVGE_DATA_KEY] = {
++                projectSections: projectData.projectSections,
++                version: NGVGE_DATA_VERSION
++            };
++        }
++
++        if (Array.isArray(projectJSON.targets)) {
++            projectJSON.targets.forEach((serializedTarget, index) => {
++                const target = originalTargets[index];
++                if (!target || !serializedTarget) return;
++                const serialized = serializeTargetData(target, vm, registry);
++                if (serialized.data) serializedTarget[NGVGE_DATA_KEY] = serialized.data;
++                serialized.requiredExtensionIds.forEach(id => requiredExtensionIds.add(id));
++            });
++        }
++    }
++
++    addRequiredExtensions(projectJSON, requiredExtensionIds, vm.runtime);
++    return projectJSON;
++};
++
++const extractProjectData = projectJSON => {
++    if (!projectJSON || typeof projectJSON !== 'object') return null;
++
++    const projectData = projectJSON[NGVGE_DATA_KEY];
++    const targetData = Array.isArray(projectJSON.targets) ?
++        projectJSON.targets.map(target => (
++            target && target[NGVGE_DATA_KEY] ? cloneSerializable(target[NGVGE_DATA_KEY]) : null
++        )) : [projectData ? cloneSerializable(projectData) : null];
++
++    if (!projectData && !targetData.some(Boolean)) return null;
++    return {
++        projectData: projectData ? cloneSerializable(projectData) : null,
++        targetData
++    };
++};
++
++const createProjectPersistence = (vm, registry = getInspectorRegistry(vm.runtime)) => {
++    let pendingSnapshot = null;
++    let unsubscribeRegistry = null;
++    let isLoadingProject = false;
++
++    const applyPending = () => {
++        if (!pendingSnapshot) return false;
++        const context = getSectionContext(vm, registry, 'deserialize');
++        const availableSections = new Map(registry.listSections().map(section => [section.id, section]));
++        let appliedAny = false;
++
++        const projectSections = pendingSnapshot.projectData && pendingSnapshot.projectData.projectSections;
++        if (projectSections && typeof projectSections === 'object') {
++            Object.keys(projectSections).forEach(sectionId => {
++                if (pendingSnapshot.appliedProjectSections.has(sectionId)) return;
++                const section = availableSections.get(sectionId);
++                if (!section || typeof section.deserializeProject !== 'function') return;
++                try {
++                    section.deserializeProject(cloneSerializable(projectSections[sectionId]), context);
++                    pendingSnapshot.appliedProjectSections.add(sectionId);
++                    appliedAny = true;
++                } catch {
++                    pendingSnapshot.appliedProjectSections.add(sectionId);
++                }
++            });
++        }
++
++        const originalTargets = getOriginalTargets(vm.runtime);
++        pendingSnapshot.targetData.forEach((targetSnapshot, targetIndex) => {
++            if (!targetSnapshot || !targetSnapshot.sections) return;
++            const target = originalTargets[targetIndex];
++            if (!target) return;
++            Object.keys(targetSnapshot.sections).forEach(sectionId => {
++                const applicationKey = `${targetIndex}:${sectionId}`;
++                if (pendingSnapshot.appliedTargetSections.has(applicationKey)) return;
++                const section = availableSections.get(sectionId);
++                if (!section || typeof section.deserializeTarget !== 'function') return;
++                try {
++                    section.deserializeTarget(
++                        target,
++                        cloneSerializable(targetSnapshot.sections[sectionId]),
++                        context
++                    );
++                    pendingSnapshot.appliedTargetSections.add(applicationKey);
++                    appliedAny = true;
++                } catch {
++                    pendingSnapshot.appliedTargetSections.add(applicationKey);
++                }
++            });
++        });
++
++        if (appliedAny) {
++            if (typeof vm.emitTargetsUpdate === 'function') vm.emitTargetsUpdate(false);
++            registry.notify({type: 'persistence:restore'});
++        }
++        return appliedAny;
++    };
++
++    const queueSnapshot = (snapshot, applyImmediately = true) => {
++        if (!snapshot) {
++            pendingSnapshot = null;
++            return;
++        }
++        pendingSnapshot = Object.assign(snapshot, {
++            appliedProjectSections: new Set(),
++            appliedTargetSections: new Set()
++        });
++        if (applyImmediately) applyPending();
++    };
++
++    const originalToJSON = vm.toJSON.bind(vm);
++    vm.toJSON = function (...args) {
++        const serialized = originalToJSON(...args);
++        if (typeof serialized !== 'string') return serialized;
++        try {
++            const projectJSON = JSON.parse(serialized);
++            injectProjectData(projectJSON, vm, registry, args[0]);
++            return JSON.stringify(projectJSON);
++        } catch {
++            return serialized;
++        }
++    };
++
++    const originalDeserializeProject = vm.deserializeProject.bind(vm);
++    vm.deserializeProject = function (projectJSON, zip) {
++        const snapshot = extractProjectData(projectJSON);
++        return Promise.resolve(originalDeserializeProject(projectJSON, zip)).then(result => {
++            queueSnapshot(snapshot, !isLoadingProject);
++            return result;
++        });
++    };
++
++    if (typeof vm.loadProject === 'function') {
++        const originalLoadProject = vm.loadProject.bind(vm);
++        vm.loadProject = function (...args) {
++            isLoadingProject = true;
++            return Promise.resolve(originalLoadProject(...args)).then(result => {
++                isLoadingProject = false;
++                applyPending();
++                return result;
++            }, error => {
++                isLoadingProject = false;
++                pendingSnapshot = null;
++                throw error;
++            });
++        };
++    }
++
++    unsubscribeRegistry = registry.subscribe(change => {
++        if (!isLoadingProject && change && change.type === 'registry') applyPending();
++    });
++
++    return {
++        version: 1,
++        applyPending,
++        dispose () {
++            if (unsubscribeRegistry) unsubscribeRegistry();
++            unsubscribeRegistry = null;
++        },
++        getPendingSnapshot: () => pendingSnapshot,
++        injectProjectData: (projectJSON, targetId) => injectProjectData(projectJSON, vm, registry, targetId),
++        queueSnapshot
++    };
++};
++
++const installProjectPersistence = vm => {
++    if (!vm || !vm.runtime) return null;
++    const current = vm[PERSISTENCE_PROPERTY];
++    if (current && current.version === 1) return current;
++    const persistence = createProjectPersistence(vm);
++    vm[PERSISTENCE_PROPERTY] = persistence;
++    return persistence;
++};
++
++export {
++    NGVGE_DATA_KEY,
++    NGVGE_DATA_VERSION,
++    PERSISTENCE_PROPERTY,
++    addRequiredExtensions,
++    createProjectPersistence,
++    extractProjectData,
++    injectProjectData,
++    installProjectPersistence,
++    serializeProjectData,
++    serializeTargetData
++};
+--- /dev/null
++++ b/src/lib/project-inspector/property-history.js
+@@ -0,0 +1,136 @@
++const HISTORY_PROPERTY = 'ngvgePropertyHistory';
++const DEFAULT_HISTORY_LIMIT = 100;
++
++const cloneValue = value => {
++    if (typeof value === 'undefined') return undefined;
++    return JSON.parse(JSON.stringify(value));
++};
++
++const valuesEqual = (valueA, valueB) => {
++    if (Object.is(valueA, valueB)) return true;
++    try {
++        return JSON.stringify(valueA) === JSON.stringify(valueB);
++    } catch (error) {
++        return false;
++    }
++};
++
++const createPropertyHistory = ({limit = DEFAULT_HISTORY_LIMIT} = {}) => {
++    const listeners = new Set();
++    const undoStack = [];
++    const redoStack = [];
++    let isApplying = false;
++
++    const getState = () => ({
++        canRedo: redoStack.length > 0,
++        canUndo: undoStack.length > 0,
++        isApplying,
++        redoDepth: redoStack.length,
++        redoLabel: redoStack.length ? redoStack[redoStack.length - 1].label : null,
++        undoDepth: undoStack.length,
++        undoLabel: undoStack.length ? undoStack[undoStack.length - 1].label : null
++    });
++
++    const emit = change => {
++        const state = getState();
++        listeners.forEach(listener => listener(state, change));
++    };
++
++    const push = command => {
++        if (!command || typeof command.undo !== 'function' || typeof command.redo !== 'function') {
++            throw new TypeError('Property history command must implement undo and redo');
++        }
++
++        undoStack.push(Object.assign({label: 'Property change'}, command));
++        if (undoStack.length > limit) undoStack.splice(0, undoStack.length - limit);
++        redoStack.length = 0;
++        emit({type: 'push'});
++        return true;
++    };
++
++    const applyFromStack = (source, destination, direction) => {
++        if (!source.length || isApplying) return false;
++        const command = source.pop();
++        isApplying = true;
++        emit({type: `${direction}:start`, command});
++        try {
++            command[direction]();
++            destination.push(command);
++            emit({type: direction, command});
++            return true;
++        } catch (error) {
++            source.push(command);
++            emit({type: `${direction}:error`, command, error});
++            throw error;
++        } finally {
++            isApplying = false;
++            emit({type: `${direction}:finish`, command});
++        }
++    };
++
++    return {
++        version: 1,
++        clear () {
++            if (!undoStack.length && !redoStack.length) return false;
++            undoStack.length = 0;
++            redoStack.length = 0;
++            emit({type: 'clear'});
++            return true;
++        },
++        getState,
++        push,
++        recordValue (options) {
++            const before = cloneValue(options.before);
++            const after = cloneValue(options.after);
++            if (valuesEqual(before, after)) return false;
++            return push({
++                label: options.label,
++                metadata: options.metadata || null,
++                undo: () => options.apply(cloneValue(before)),
++                redo: () => options.apply(cloneValue(after))
++            });
++        },
++        redo () {
++            return applyFromStack(redoStack, undoStack, 'redo');
++        },
++        subscribe (listener) {
++            if (typeof listener !== 'function') return () => {};
++            listeners.add(listener);
++            return () => listeners.delete(listener);
++        },
++        undo () {
++            return applyFromStack(undoStack, redoStack, 'undo');
++        }
++    };
++};
++
++const getPropertyHistory = runtime => {
++    if (!runtime) return null;
++    const currentHistory = runtime[HISTORY_PROPERTY];
++    if (
++        currentHistory &&
++        currentHistory.version === 1 &&
++        typeof currentHistory.push === 'function' &&
++        typeof currentHistory.undo === 'function'
++    ) {
++        return currentHistory;
++    }
++
++    const history = createPropertyHistory();
++    runtime[HISTORY_PROPERTY] = history;
++
++    if (typeof runtime.on === 'function') {
++        runtime.on('PROJECT_LOADED', () => history.clear());
++    }
++
++    return history;
++};
++
++export {
++    DEFAULT_HISTORY_LIMIT,
++    HISTORY_PROPERTY,
++    cloneValue,
++    createPropertyHistory,
++    getPropertyHistory,
++    valuesEqual
++};
+--- a/src/lib/vm-listener-hoc.jsx
++++ b/src/lib/vm-listener-hoc.jsx
+@@ -25,6 +25,8 @@
+ import {setCustomStageSize} from '../reducers/custom-stage-size';
+ import {openUnknownPlatformModal} from '../reducers/modals';
+ import implementGuiAPI from './tw-extension-gui-api';
++import {getPropertyHistory} from './project-inspector/property-history';
++import {installProjectPersistence} from './project-inspector/project-persistence';
+ 
+ let compileErrorCounter = 0;
+ 
+@@ -37,6 +39,8 @@
+     class VMListener extends React.Component {
+         constructor (props) {
+             super(props);
++            installProjectPersistence(this.props.vm);
++            getPropertyHistory(this.props.vm.runtime);
+             bindAll(this, [
+                 'handleKeyDown',
+                 'handleKeyUp',
+--- a/static/extensions/NGVGE-Camera-V2.js
++++ b/static/extensions/NGVGE-Camera-V2.js
+@@ -37,10 +37,16 @@
+         sections.set(section.id, section);
+         listeners.forEach(listener => listener({type: "registry", sectionId: section.id}));
+       },
++      getSection(sectionId) {
++        return sections.get(sectionId) || null;
++      },
+       getSections(target, context) {
+         return Array.from(sections.values())
+           .filter(section => !section.appliesTo || section.appliesTo(target, context))
+           .sort((a, b) => (a.order || 0) - (b.order || 0));
++      },
++      listSections() {
++        return Array.from(sections.values());
+       },
+       subscribe(listener) {
+         listeners.add(listener);
+@@ -991,6 +997,7 @@
+     const registry = ensureNGVGEInspectorRegistry();
+     registry.register({
+       id: "camera",
++      extensionId: "SPcamera",
+       label: "Camera",
+       order: 110,
+       appliesTo: target => Boolean(target && target.drawableID !== null && target.drawableID !== undefined),
+@@ -1013,6 +1020,62 @@
+           {id: "zoom", label: "Zoom", type: "number", value: camera.zoom * 100, step: 1},
+           {id: "direction", label: "Direction", type: "number", value: camera.dir, step: 1}
+         ];
++      },
++      serializeProject() {
++        const cameraNames = Object.keys(allCameras);
++        const defaultCamera = allCameras.default;
++        const defaultChanged = Boolean(defaultCamera && (
++          defaultCamera.xy[0] !== 0 ||
++          defaultCamera.xy[1] !== 0 ||
++          defaultCamera.zoom !== 1 ||
++          defaultCamera.dir !== 0
++        ));
++        if (cameraNames.length === 1 && cameraNames[0] === "default" && !defaultChanged) {
++          return null;
++        }
++        const cameras = {};
++        cameraNames.forEach(name => {
++          const camera = allCameras[name];
++          cameras[name] = {
++            xy: [Number(camera.xy[0]) || 0, Number(camera.xy[1]) || 0],
++            zoom: Number.isFinite(Number(camera.zoom)) ? Number(camera.zoom) : 1,
++            dir: Number(camera.dir) || 0
++          };
++        });
++        return {cameras};
++      },
++      deserializeProject(data) {
++        if (!data || typeof data !== "object" || !data.cameras) return;
++        const restored = {};
++        Object.keys(data.cameras).forEach(name => {
++          const camera = data.cameras[name] || {};
++          restored[name] = {
++            xy: Array.isArray(camera.xy) ? [Number(camera.xy[0]) || 0, Number(camera.xy[1]) || 0] : [0, 0],
++            zoom: Number.isFinite(Number(camera.zoom)) ? Number(camera.zoom) : 1,
++            dir: Number(camera.dir) || 0,
++            binds: name === "default" ? undefined : []
++          };
++        });
++        if (!restored.default) {
++          restored.default = {xy: [0, 0], zoom: 1, dir: 0, binds: undefined};
++        }
++        allCameras = restored;
++        runtime.extensionStorage["SPcamera"] = {cams: Object.keys(allCameras)};
++        runtime.requestBlocksUpdate();
++        Object.keys(allCameras).forEach(updateCamera);
++      },
++      serializeTarget(target) {
++        const drawable = render._allDrawables[target.drawableID];
++        if (!drawable) return null;
++        if (!drawable[cameraSymbol]) setupState(drawable);
++        if (drawable[cameraSymbol].name === "default") return null;
++        return {camera: drawable[cameraSymbol].name};
++      },
++      deserializeTarget(target, data) {
++        if (!data || typeof data.camera !== "string") return;
++        const drawable = render._allDrawables[target.drawableID];
++        if (!drawable || !allCameras[data.camera]) return;
++        bindDrawable(drawable, data.camera);
+       },
+       setValue(target, fieldId, value) {
+         const drawable = render._allDrawables[target.drawableID];
+--- a/static/extensions/NGVGE-Stretch.js
++++ b/static/extensions/NGVGE-Stretch.js
+@@ -12,6 +12,7 @@
+   const STRETCH_Y = Symbol("stretch.y");
+ 
+   const vm = Scratch.vm;
++  const runtime = vm.runtime;
+ 
+   const ensureNGVGEInspectorRegistry = () => {
+     if (runtime.ngvgeInspector && runtime.ngvgeInspector.version === 1) {
+@@ -25,10 +26,16 @@
+         sections.set(section.id, section);
+         listeners.forEach(listener => listener({type: "registry", sectionId: section.id}));
+       },
++      getSection(sectionId) {
++        return sections.get(sectionId) || null;
++      },
+       getSections(target, context) {
+         return Array.from(sections.values())
+           .filter(section => !section.appliesTo || section.appliesTo(target, context))
+           .sort((a, b) => (a.order || 0) - (b.order || 0));
++      },
++      listSections() {
++        return Array.from(sections.values());
+       },
+       subscribe(listener) {
+         listeners.add(listener);
+@@ -228,6 +235,7 @@
+     const registry = ensureNGVGEInspectorRegistry();
+     registry.register({
+       id: "stretch",
++      extensionId: "stretch",
+       label: "XY Stretch",
+       order: 120,
+       appliesTo: target => Boolean(target && !target.isStage),
+@@ -237,6 +245,21 @@
+           {id: "x", label: "Stretch X", type: "number", value: target[STRETCH_X], step: 1},
+           {id: "y", label: "Stretch Y", type: "number", value: target[STRETCH_Y], step: 1}
+         ];
++      },
++      serializeTarget(target) {
++        implementStretchForTarget(target);
++        if (target[STRETCH_X] === 100 && target[STRETCH_Y] === 100) return null;
++        return {
++          x: target[STRETCH_X],
++          y: target[STRETCH_Y]
++        };
++      },
++      deserializeTarget(target, data) {
++        implementStretchForTarget(target);
++        if (!data || typeof data !== "object") return;
++        if (Number.isFinite(Number(data.x))) target[STRETCH_X] = Number(data.x);
++        if (Number.isFinite(Number(data.y))) target[STRETCH_Y] = Number(data.y);
++        forceUpdateDirectionAndScale(target);
+       },
+       setValue(target, fieldId, value) {
+         implementStretchForTarget(target);
+--- a/test/unit/components/project-inspector.test.jsx
++++ b/test/unit/components/project-inspector.test.jsx
+@@ -35,7 +35,9 @@
+     const vm = {
+         runtime,
+         editingTarget: player,
+-        postSpriteInfo: jest.fn(),
++        postSpriteInfo: jest.fn(data => {
++            Object.assign(player, data);
++        }),
+         renameSprite: jest.fn(),
+         emitTargetsUpdate: jest.fn(),
+         on: jest.fn((event, listener) => {
+@@ -90,6 +92,31 @@
+         expect(vm.postSpriteInfo).toHaveBeenCalledWith({x: 42});
+     });
+ 
++    test('undoes and redoes an inspector property change', () => {
++        const {vm} = createVM();
++        const component = renderInspector(vm);
++        const numberInputs = component.root.findAll(node => (
++            node.type === 'input' && node.props.type === 'number'
++        ));
++
++        act(() => numberInputs[0].props.onChange({target: {value: '42'}}));
++        act(() => numberInputs[0].props.onBlur());
++
++        const undoButton = component.root.findAll(node => (
++            node.type === 'button' && node.children.join('') === '↶ Undo'
++        ))[0];
++        act(() => undoButton.props.onClick());
++
++        expect(vm.postSpriteInfo).toHaveBeenLastCalledWith({x: 10});
++
++        const redoButton = component.root.findAll(node => (
++            node.type === 'button' && node.children.join('') === 'Redo ↷'
++        ))[0];
++        act(() => redoButton.props.onClick());
++
++        expect(vm.postSpriteInfo).toHaveBeenLastCalledWith({x: 42});
++    });
++
+     test('moves the selected target to the front layer', () => {
+         const {player, vm} = createVM();
+         const component = renderInspector(vm);
+--- /dev/null
++++ b/test/unit/lib/project-inspector-persistence.test.js
+@@ -0,0 +1,88 @@
++import {createInspectorRegistry} from '../../../src/lib/project-inspector/inspector-registry';
++import {
++    NGVGE_DATA_KEY,
++    createProjectPersistence,
++    extractProjectData,
++    injectProjectData
++} from '../../../src/lib/project-inspector/project-persistence';
++
++const createFixture = () => {
++    const target = {
++        id: 'sprite-id',
++        isOriginal: true,
++        isStage: false,
++        value: 150
++    };
++    const runtime = {
++        extensionManager: {
++            getExtensionURLs: () => ({stretch: 'https://example.com/stretch.js'})
++        },
++        getTargetById: id => id === target.id ? target : null,
++        targets: [target]
++    };
++    const vm = {
++        deserializeProject: jest.fn(() => Promise.resolve('loaded')),
++        emitTargetsUpdate: jest.fn(),
++        runtime,
++        toJSON: jest.fn(() => JSON.stringify({
++            extensions: [],
++            targets: [{isStage: false, name: 'Sprite1'}]
++        }))
++    };
++    const registry = createInspectorRegistry();
++    registry.register({
++        id: 'stretch',
++        extensionId: 'stretch',
++        label: 'Stretch',
++        getFields: () => [],
++        setValue: () => {},
++        serializeTarget: currentTarget => ({value: currentTarget.value}),
++        deserializeTarget: (currentTarget, data) => {
++            currentTarget.value = data.value;
++        }
++    });
++    return {registry, runtime, target, vm};
++};
++
++describe('project inspector persistence', () => {
++    test('injects target metadata and required extension URLs', () => {
++        const {registry, target, vm} = createFixture();
++        const projectJSON = JSON.parse(vm.toJSON());
++        injectProjectData(projectJSON, vm, registry);
++
++        expect(projectJSON.targets[0][NGVGE_DATA_KEY].sections.stretch).toEqual({value: 150});
++        expect(projectJSON.extensions).toContain('stretch');
++        expect(projectJSON.extensionURLs.stretch).toBe('https://example.com/stretch.js');
++        expect(target.value).toBe(150);
++    });
++
++    test('extracts and restores metadata after deserialization', async () => {
++        const {registry, target, vm} = createFixture();
++        createProjectPersistence(vm, registry);
++        const serialized = JSON.parse(vm.toJSON());
++
++        target.value = 100;
++        const snapshot = extractProjectData(serialized);
++        expect(snapshot.targetData[0].sections.stretch.value).toBe(150);
++
++        await vm.deserializeProject(serialized, null);
++        expect(target.value).toBe(150);
++        expect(vm.emitTargetsUpdate).toHaveBeenCalledWith(false);
++    });
++
++    test('restores metadata after the complete project load lifecycle', async () => {
++        const {registry, target, vm} = createFixture();
++        vm.loadProject = jest.fn(async projectJSON => {
++            await vm.deserializeProject(projectJSON, null);
++            target.value = 25;
++            return 'loaded';
++        });
++        createProjectPersistence(vm, registry);
++        const serialized = JSON.parse(vm.toJSON());
++
++        target.value = 100;
++        await vm.loadProject(serialized);
++
++        expect(target.value).toBe(150);
++    });
++});
+--- /dev/null
++++ b/test/unit/lib/project-inspector-property-history.test.js
+@@ -0,0 +1,54 @@
++import {
++    createPropertyHistory,
++    getPropertyHistory
++} from '../../../src/lib/project-inspector/property-history';
++
++describe('project inspector property history', () => {
++    test('records, undoes and redoes value changes', () => {
++        const history = createPropertyHistory();
++        let value = 2;
++
++        value = 5;
++        history.recordValue({
++            after: 5,
++            apply: nextValue => {
++                value = nextValue;
++            },
++            before: 2,
++            label: 'Set value'
++        });
++
++        expect(history.getState()).toMatchObject({canUndo: true, canRedo: false, undoDepth: 1});
++        expect(history.undo()).toBe(true);
++        expect(value).toBe(2);
++        expect(history.getState()).toMatchObject({canUndo: false, canRedo: true, redoDepth: 1});
++        expect(history.redo()).toBe(true);
++        expect(value).toBe(5);
++    });
++
++    test('does not record equal values', () => {
++        const history = createPropertyHistory();
++        expect(history.recordValue({
++            after: {x: 1},
++            apply: () => {},
++            before: {x: 1},
++            label: 'No-op'
++        })).toBe(false);
++        expect(history.getState().undoDepth).toBe(0);
++    });
++
++    test('creates one history service per runtime and clears after project load', () => {
++        let projectLoadedHandler = null;
++        const runtime = {
++            on: jest.fn((event, handler) => {
++                if (event === 'PROJECT_LOADED') projectLoadedHandler = handler;
++            })
++        };
++        const history = getPropertyHistory(runtime);
++        history.push({label: 'Test', undo: () => {}, redo: () => {}});
++
++        expect(getPropertyHistory(runtime)).toBe(history);
++        projectLoadedHandler();
++        expect(history.getState().undoDepth).toBe(0);
++    });
++});
+--- a/test/unit/lib/project-inspector-registry.test.js
++++ b/test/unit/lib/project-inspector-registry.test.js
+@@ -33,6 +33,8 @@
+         expect(registry.getSections({kind: 'stage'}).map(section => section.id)).toEqual([
+             'late'
+         ]);
++        expect(registry.getSection('early').id).toBe('early');
++        expect(registry.listSections()).toHaveLength(2);
+     });
+ 
+     test('notifies subscribers when a section changes', () => {

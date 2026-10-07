@@ -1,0 +1,84 @@
+{
+  "gate": "LSC-G1",
+  "title": "Credentials & Unsafe Agent Containment Certification",
+  "status": "PASS / CERTIFIED",
+  "certifiedAt": "2026-08-13",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "scope": "Legacy credential durability and Legacy 02Agent unsafe mutation containment",
+  "identities": {
+    "credentialVault": "ngvge.legacy-credential-vault@1",
+    "legacyAgentContainment": "ngvge.legacy-agent-containment@1",
+    "legacyAgentMutationMode": "read-only",
+    "mutationBlockedCode": "NGVGE_LEGACY_AGENT_MUTATION_BLOCKED"
+  },
+  "prerequisites": {
+    "LSC-0": "COMPLETE",
+    "LRC-G1": "PASS / CERTIFIED",
+    "LPL-G1": "PASS / CERTIFIED",
+    "LEX-G1": "PASS / CERTIFIED",
+    "COL-0": "COMPLETE / VERIFIED"
+  },
+  "certifiedInvariants": {
+    "knownLegacyCredentialsDurableInBrowserStorage": false,
+    "credentialVaultDurability": "page-memory-only",
+    "credentialDiagnosticsExposeSecretKeysOrValues": false,
+    "startupPlaintextCredentialScrub": true,
+    "agentExportsIncludeCredentials": false,
+    "bridgeMetadataPersistsToken": false,
+    "bridgeTokenGeneration": "CSPRNG-only / fail-closed",
+    "gitMetadataPersistsToken": false,
+    "legacyAgentEnabledByDefault": false,
+    "mutatingToolsAdvertisedToModelOrBridge": false,
+    "mutatingToolsRuntimeExecutable": false,
+    "legacyAgentMessageRollbackOwnsProjectLifecycle": false,
+    "bridgeManifestExposesCredentials": false,
+    "legacyRawVMClassification": "LEX-G1 bundled Legacy Addon quarantine only"
+  },
+  "machineCertification": {
+    "passed": 19,
+    "total": 19,
+    "result": "PASS"
+  },
+  "focusedE2E": {
+    "suites": 1,
+    "tests": 7,
+    "result": "PASS"
+  },
+  "productionWebpack": {
+    "entry": "src/addons/addons/02agent/hooks/useBridgeClient.ts",
+    "webpackConfig": "webpack.config.js[0]",
+    "exitCode": 0,
+    "errors": 0,
+    "warnings": 0,
+    "result": "PASS"
+  },
+  "cumulativeEvidence": {
+    "LRC-G1": "15/15 + 9/9 PASS",
+    "LPL-G1": "17/17 + 9/9 PASS",
+    "LEX-G1": "19/19 + 9/9 PASS",
+    "COL-0": "15/15 + 12/12 PASS",
+    "0009-E": "12/12 PASS",
+    "PermanentRegression": "19/19 PASS",
+    "UnitNode": "100 suites / 537 tests PASS",
+    "UnitDOM": "3 suites / 26 tests PASS",
+    "Integration": "4 suites / 5 tests PASS",
+    "Smoke": "1 suite / 1 test PASS",
+    "TypeScript": "PASS",
+    "ESLintCorrectness": "PASS"
+  },
+  "deferredNotCertifiedAsComplete": {
+    "finalSecureCredentialService": "DEFERRED - current vault is containment, not a system keychain",
+    "nativeAgentChangeSetReviewAuthority": "DEFERRED TO WS-7 - Legacy Agent remains read-only",
+    "legacyAgentWorkspaceIntegration": "DEFERRED TO WS-7 - standalone Legacy DOM host remains compatibility UI",
+    "legacyRawVMRetirement": "DEFERRED - governed by LEX-G1 quarantine",
+    "bridgeProtocolCredentialTransport": "DEFERRED - loopback bearer token remains a Legacy bridge transport detail"
+  },
+  "ws3GateContribution": "SATISFIED",
+  "aggregateExecution": {
+    "command": "npm run test:legacy-containment:lsc-g1",
+    "result": "CONSTITUENT GATES PASS / WRAPPER TIMEOUT",
+    "observedThrough": "TypeScript PASS",
+    "remainingAfterTimeout": "ESLint correctness rerun independently",
+    "independentFinalLintExitCode": 0
+  }
+}

@@ -1,0 +1,1150 @@
+import {defineMessages, FormattedMessage, intlShape, injectIntl} from 'react-intl';
+import PropTypes from 'prop-types';
+import React from 'react';
+import classNames from 'classnames';
+import bindAll from 'lodash.bindall';
+import Box from '../box/box.jsx';
+import Modal from '../../containers/modal.jsx';
+import FancyCheckbox from '../tw-fancy-checkbox/checkbox.jsx';
+import Input from '../forms/input.jsx';
+import BufferedInputHOC from '../forms/buffered-input-hoc.jsx';
+import DocumentationLink from '../tw-documentation-link/documentation-link.jsx';
+import styles from './settings-modal.css';
+import helpIcon from './help-icon.svg';
+import {APP_NAME} from '../../lib/brand.js';
+import {EDITOR_BACKGROUND_TARGETS, normalizeEditorBackground} from '../../lib/editor-background';
+ 
+/* eslint-disable react/no-multi-comp */
+
+const BufferedInput = BufferedInputHOC(Input);
+
+const messages = defineMessages({
+    title: {
+        defaultMessage: 'Advanced Settings',
+        description: 'Title of settings modal',
+        id: 'tw.settingsModal.title'
+    },
+    engineTitle: {
+        defaultMessage: '02engine Settings',
+        description: 'Title of 02engine settings modal',
+        id: 'tw.settingsModal.02engineTitle'
+    },
+    help: {
+        defaultMessage: 'Click for help',
+        description: 'Hover text of help icon in settings',
+        id: 'tw.settingsModal.help'
+    }
+});
+
+const LearnMore = props => (
+    <React.Fragment>
+        {' '}
+        <DocumentationLink {...props}>
+            <FormattedMessage
+                defaultMessage="Learn more."
+                id="gui.alerts.cloudInfoLearnMore"
+            />
+        </DocumentationLink>
+    </React.Fragment>
+);
+
+class UnwrappedSetting extends React.Component {
+    constructor (props) {
+        super(props);
+        bindAll(this, [
+            'handleClickHelp'
+        ]);
+        this.state = {
+            helpVisible: false
+        };
+    }
+    componentDidUpdate (prevProps) {
+        if (this.props.active && !prevProps.active) {
+            // eslint-disable-next-line react/no-did-update-set-state
+            this.setState({
+                helpVisible: true
+            });
+        }
+    }
+    handleClickHelp () {
+        this.setState(prevState => ({
+            helpVisible: !prevState.helpVisible
+        }));
+    }
+    render () {
+        return (
+            <div
+                className={classNames(styles.setting, {
+                    [styles.active]: this.props.active
+                })}
+            >
+                <div className={styles.label}>
+                    {this.props.primary}
+                    <button
+                        className={styles.helpIcon}
+                        onClick={this.handleClickHelp}
+                        title={this.props.intl.formatMessage(messages.help)}
+                    >
+                        <img
+                            src={helpIcon}
+                            draggable={false}
+                        />
+                    </button>
+                </div>
+                {this.state.helpVisible && (
+                    <div className={styles.detail}>
+                        {this.props.help}
+                        {this.props.slug && <LearnMore slug={this.props.slug} />}
+                    </div>
+                )}
+                {this.props.secondary}
+            </div>
+        );
+    }
+}
+UnwrappedSetting.propTypes = {
+    intl: intlShape,
+    active: PropTypes.bool,
+    help: PropTypes.node,
+    primary: PropTypes.node,
+    secondary: PropTypes.node,
+    slug: PropTypes.string
+};
+const Setting = injectIntl(UnwrappedSetting);
+
+const BooleanSetting = ({value, onChange, label, ...props}) => (
+    <Setting
+        {...props}
+        active={value}
+        primary={
+            <label className={styles.label}>
+                <FancyCheckbox
+                    className={styles.checkbox}
+                    checked={value}
+                    onChange={onChange}
+                />
+                {label}
+            </label>
+        }
+    />
+);
+BooleanSetting.propTypes = {
+    onChange: PropTypes.func.isRequired,
+    value: PropTypes.bool.isRequired,
+    label: PropTypes.node.isRequired
+};
+
+const HighQualityPen = props => (
+    <BooleanSetting
+        {...props}
+        label={
+            <FormattedMessage
+                defaultMessage="High Quality Pen"
+                description="High quality pen setting"
+                id="tw.settingsModal.highQualityPen"
+            />
+        }
+        help={
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Allows pen projects to render at higher resolutions and disables some coordinate rounding in the editor. Not all projects benefit from this setting and it may impact performance."
+                description="High quality pen setting help"
+                id="tw.settingsModal.highQualityPenHelp"
+            />
+        }
+        slug="high-quality-pen"
+    />
+);
+
+const CustomFPS = props => (
+    <BooleanSetting
+        value={props.framerate !== 30}
+        onChange={props.onChange}
+        label={
+            <FormattedMessage
+                defaultMessage="60 FPS (Custom FPS)"
+                description="FPS setting"
+                id="tw.settingsModal.fps"
+            />
+        }
+        help={
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Runs scripts 60 times per second instead of 30. Most projects will not work properly with this enabled. You should try Interpolation with 60 FPS mode disabled if that is the case. {customFramerate}."
+                description="FPS setting help"
+                id="tw.settingsModal.fpsHelp"
+                values={{
+                    customFramerate: (
+                        <a
+                            onClick={props.onCustomizeFramerate}
+                            tabIndex="0"
+                        >
+                            <FormattedMessage
+                                defaultMessage="Click to use a framerate other than 30 or 60"
+                                description="FPS settings help"
+                                id="tw.settingsModal.fpsHelp.customFramerate"
+                            />
+                        </a>
+                    )
+                }}
+            />
+        }
+        slug="custom-fps"
+    />
+);
+CustomFPS.propTypes = {
+    framerate: PropTypes.number,
+    onChange: PropTypes.func,
+    onCustomizeFramerate: PropTypes.func
+};
+
+
+const CustomOPF = props => (
+    <BooleanSetting
+        value={props.opsPerFrame !== 1}
+        onChange={props.onChange}
+        label={
+            <FormattedMessage
+                defaultMessage="2 OpsPerFrame (Custom OpsPerFrame)"
+                description="OPF setting"
+                id="tw.settingsModal.opf"
+            />
+        }
+        help={
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Run the code multiple times within a frame.Open TurboMode will be better. {customOpsPerFrame}."
+                description="OPF setting help"
+                id="tw.settingsModal.opfHelp"
+                values={{
+                    customOpsPerFrame: (
+                        <a
+                            onClick={props.onCustomizeOpsPerFrame}
+                            tabIndex="0"
+                        >
+                            <FormattedMessage
+                                defaultMessage="Click to use a OpsPerFrame other than 1 or 2"
+                                description="OPF settings help"
+                                id="tw.settingsModal.opfHelp.customOpsPerFrame"
+                            />
+                        </a>
+                    )
+                }}
+            />
+        }
+        slug="opf"
+    />
+);
+CustomOPF.propTypes = {
+    opsPerFrame: PropTypes.number,
+    onChange: PropTypes.func,
+    onCustomizeOpsPerFrame: PropTypes.func
+};
+
+const CustomUI = props => (
+    <BooleanSetting
+        value={props.customUI}
+        onChange={props.onChange}
+        label={(
+            <FormattedMessage
+                defaultMessage="Use Custom UI (Separated Stage/Targets)"
+                description="Custom UI toggle"
+                id="tw.settingsModal.customUI"
+            />
+        )}
+        help={(
+            <FormattedMessage
+                defaultMessage="Switches between the custom separated-window stage/targets UI and the original single-window UI."
+                description="Help text for custom UI toggle"
+                id="tw.settingsModal.customUIHelp"
+            />
+        )}
+        slug="new-ui"
+    />
+);
+CustomUI.propTypes = {
+    customUI: PropTypes.bool,
+    onChange: PropTypes.func
+};
+
+const BackgroundSettings = props => {
+    const background = normalizeEditorBackground(props.editorBackground);
+    return (
+        <Setting
+            active={!!background.image}
+            primary={(
+                <div className={styles.label}>
+                    <FormattedMessage
+                        defaultMessage="Editor Background"
+                        description="Custom editor background setting title"
+                        id="tw.settingsModal.backgroundEditor"
+                    />
+                </div>
+            )}
+            help={(
+                <FormattedMessage
+                    defaultMessage="Choose a custom image for the blocks workspace background or for the area underneath NewUI windows. The image and blur amount are saved on this device."
+                    description="Help text for custom editor background settings"
+                    id="tw.settingsModal.backgroundSettingsHelp"
+                />
+            )}
+            secondary={(
+                <div className={styles.backgroundSettings}>
+                    <div className={styles.backgroundControlsRow}>
+                        <label className={styles.backgroundUploadButton}>
+                            <input
+                                accept="image/*"
+                                className={styles.backgroundFileInput}
+                                type="file"
+                                onChange={props.onImageChange}
+                            />
+                            <FormattedMessage
+                                defaultMessage="Upload Image"
+                                description="Button to upload a custom editor background image"
+                                id="tw.settingsModal.backgroundUpload"
+                            />
+                        </label>
+                        <button
+                            className={styles.backgroundClearButton}
+                            disabled={!background.image}
+                            type="button"
+                            onClick={props.onClearImage}
+                        >
+                            <FormattedMessage
+                                defaultMessage="Clear"
+                                description="Button to clear the custom editor background image"
+                                id="tw.settingsModal.backgroundClear"
+                            />
+                        </button>
+                    </div>
+                    <label className={styles.backgroundField}>
+                        <span>
+                            <FormattedMessage
+                                defaultMessage="Apply to"
+                                description="Label for choosing where the custom editor background is applied"
+                                id="tw.settingsModal.backgroundTarget"
+                            />
+                        </span>
+                        <select
+                            className={styles.backgroundSelect}
+                            value={background.target}
+                            onChange={props.onTargetChange}
+                        >
+                            <option value={EDITOR_BACKGROUND_TARGETS.BLOCKS}>
+                                {props.intl.formatMessage({
+                                    id: 'tw.settingsModal.backgroundTarget.blocks',
+                                    defaultMessage: 'Blocks workspace'
+                                })}
+                            </option>
+                            <option value={EDITOR_BACKGROUND_TARGETS.WINDOW}>
+                                {props.intl.formatMessage({
+                                    id: 'tw.settingsModal.backgroundTarget.window',
+                                    defaultMessage: 'NewUI window background'
+                                })}
+                            </option>
+                            <option value={EDITOR_BACKGROUND_TARGETS.BOTH}>
+                                {props.intl.formatMessage({
+                                    id: 'tw.settingsModal.backgroundTarget.both',
+                                    defaultMessage: 'Both'
+                                })}
+                            </option>
+                        </select>
+                    </label>
+                    <label className={styles.backgroundField}>
+                        <span>
+                            <FormattedMessage
+                                defaultMessage="Blur"
+                                description="Label for custom editor background blur"
+                                id="tw.settingsModal.backgroundBlur"
+                            />
+                        </span>
+                        <div className={styles.backgroundBlurControl}>
+                            <input
+                                max="40"
+                                min="0"
+                                step="1"
+                                type="range"
+                                value={background.blur}
+                                onChange={props.onBlurChange}
+                            />
+                            <BufferedInput
+                                className={styles.backgroundBlurInput}
+                                max="40"
+                                min="0"
+                                step="1"
+                                type="number"
+                                value={background.blur}
+                                onSubmit={props.onBlurChange}
+                            />
+                            <span>{'px'}</span>
+                        </div>
+                    </label>
+                    {background.image ? (
+                        <div
+                            className={styles.backgroundPreview}
+                            style={{
+                                '--tw-settings-background-image': `url("${background.image.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}")`,
+                                '--tw-settings-background-blur': `${background.blur}px`
+                            }}
+                        />
+                    ) : (
+                        <div className={styles.backgroundEmptyPreview}>
+                            <FormattedMessage
+                                defaultMessage="No background image selected"
+                                description="Placeholder shown when there is no custom editor background image"
+                                id="tw.settingsModal.backgroundEmpty"
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
+        />
+    );
+};
+BackgroundSettings.propTypes = {
+    editorBackground: PropTypes.shape({
+        image: PropTypes.string,
+        blur: PropTypes.number,
+        target: PropTypes.string
+    }),
+    intl: intlShape,
+    onBlurChange: PropTypes.func,
+    onClearImage: PropTypes.func,
+    onImageChange: PropTypes.func,
+    onTargetChange: PropTypes.func
+};
+
+
+const Interpolation = props => (
+    <BooleanSetting
+        {...props}
+        label={
+            <FormattedMessage
+                defaultMessage="Interpolation"
+                description="Interpolation setting"
+                id="tw.settingsModal.interpolation"
+            />
+        }
+        help={
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Makes projects appear smoother by interpolating sprite motion. Interpolation should not be used on 3D projects, raytracers, pen projects, and laggy projects as interpolation will make them run slower without making them appear smoother."
+                description="Interpolation setting help"
+                id="tw.settingsModal.interpolationHelp"
+            />
+        }
+        slug="interpolation"
+    />
+);
+
+const InfiniteClones = props => (
+    <BooleanSetting
+        {...props}
+        label={
+            <FormattedMessage
+                defaultMessage="Infinite Clones"
+                description="Infinite Clones setting"
+                id="tw.settingsModal.infiniteClones"
+            />
+        }
+        help={
+            <FormattedMessage
+                defaultMessage="Disables Scratch's 300 clone limit."
+                description="Infinite Clones setting help"
+                id="tw.settingsModal.infiniteClonesHelp"
+            />
+        }
+        slug="infinite-clones"
+    />
+);
+
+const RemoveFencing = props => (
+    <BooleanSetting
+        {...props}
+        label={
+            <FormattedMessage
+                defaultMessage="Remove Fencing"
+                description="Remove Fencing setting"
+                id="tw.settingsModal.removeFencing"
+            />
+        }
+        help={
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Allows sprites to move offscreen, become as large or as small as they want, and makes touching blocks work offscreen."
+                description="Remove Fencing setting help"
+                id="tw.settingsModal.removeFencingHelp"
+            />
+        }
+        slug="remove-fencing"
+    />
+);
+
+const RemoveMiscLimits = props => (
+    <BooleanSetting
+        {...props}
+        label={
+            <FormattedMessage
+                defaultMessage="Remove Miscellaneous Limits"
+                description="Remove Miscellaneous Limits setting"
+                id="tw.settingsModal.removeMiscLimits"
+            />
+        }
+        help={
+            <FormattedMessage
+                defaultMessage="Removes sound effect limits and pen size limits."
+                description="Remove Miscellaneous Limits setting help"
+                id="tw.settingsModal.removeMiscLimitsHelp"
+            />
+        }
+        slug="remove-misc-limits"
+    />
+);
+
+const OffscreenDrawableCulling = props => (
+    <BooleanSetting
+        {...props}
+        label={
+            <FormattedMessage
+                defaultMessage="Skip Offscreen Sprite Rendering"
+                description="Offscreen drawable culling setting"
+                id="tw.settingsModal.offscreenDrawableCulling"
+            />
+        }
+        help={
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Skips drawing sprites and clones that are fully outside the stage during the normal stage render pass. Touching blocks, color picking, stamping, screenshots, and other renderer queries still use the original behavior."
+                description="Offscreen drawable culling setting help"
+                id="tw.settingsModal.offscreenDrawableCullingHelp"
+            />
+        }
+        slug="offscreen-drawable-culling"
+    />
+);
+
+const WarpTimer = props => (
+    <BooleanSetting
+        {...props}
+        label={
+            <FormattedMessage
+                defaultMessage="Warp Timer"
+                description="Warp Timer setting"
+                id="tw.settingsModal.warpTimer"
+            />
+        }
+        help={
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Makes scripts check if they are stuck in a long or infinite loop and run at a low framerate instead of getting stuck until the loop finishes. This fixes most crashes but has a significant performance impact, so it's only enabled by default in the editor."
+                description="Warp Timer help"
+                id="tw.settingsModal.warpTimerHelp"
+            />
+        }
+        slug="warp-timer"
+    />
+);
+
+const DisableCompiler = props => (
+    <BooleanSetting
+        {...props}
+        label={
+            <FormattedMessage
+                defaultMessage="Disable Compiler"
+                description="Disable Compiler setting"
+                id="tw.settingsModal.disableCompiler"
+            />
+        }
+        help={
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Disables the {APP_NAME} compiler. You may want to enable this while editing projects so that scripts update immediately. Otherwise, you should never enable this."
+                description="Disable Compiler help"
+                id="tw.settingsModal.disableCompilerHelp"
+                values={{
+                    APP_NAME
+                }}
+            />
+        }
+        slug="disable-compiler"
+    />
+);
+
+const CustomStageSize = ({
+    customStageSizeEnabled,
+    stageWidth,
+    onStageWidthChange,
+    stageHeight,
+    onStageHeightChange
+}) => (
+    <Setting
+        active={customStageSizeEnabled}
+        primary={(
+            <div className={classNames(styles.label, styles.customStageSize)}>
+                <FormattedMessage
+                    defaultMessage="Custom Stage Size:"
+                    description="Custom Stage Size option"
+                    id="tw.settingsModal.customStageSize"
+                />
+                <BufferedInput
+                    value={stageWidth}
+                    onSubmit={onStageWidthChange}
+                    className={styles.customStageSizeInput}
+                    type="number"
+                    min="0"
+                    max="1024"
+                    step="1"
+                />
+                <span>{'×'}</span>
+                <BufferedInput
+                    value={stageHeight}
+                    onSubmit={onStageHeightChange}
+                    className={styles.customStageSizeInput}
+                    type="number"
+                    min="0"
+                    max="1024"
+                    step="1"
+                />
+            </div>
+        )}
+        secondary={
+            (stageWidth >= 1000 || stageHeight >= 1000) && (
+                <div className={styles.warning}>
+                    <FormattedMessage
+                        // eslint-disable-next-line max-len
+                        defaultMessage="Using a custom stage size this large is not recommended! Instead, use a lower size with the same aspect ratio and let fullscreen mode upscale it to match the user's display."
+                        description="Warning about using stages that are too large in settings modal"
+                        id="tw.settingsModal.largeStageWarning"
+                    />
+                    <LearnMore slug="custom-stage-size" />
+                </div>
+            )
+        }
+        help={(
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Changes the size of the Scratch stage from 480x360 to something else. Try 640x360 to make the stage widescreen. Very few projects will handle this properly."
+                description="Custom Stage Size option"
+                id="tw.settingsModal.customStageSizeHelp"
+            />
+        )}
+        slug="custom-stage-size"
+    />
+);
+CustomStageSize.propTypes = {
+    customStageSizeEnabled: PropTypes.bool,
+    stageWidth: PropTypes.number,
+    onStageWidthChange: PropTypes.func,
+    stageHeight: PropTypes.number,
+    onStageHeightChange: PropTypes.func
+};
+
+const StoreProjectOptions = ({onStoreProjectOptions}) => (
+    <div className={styles.setting}>
+        <div>
+            <button
+                onClick={onStoreProjectOptions}
+                className={styles.button}
+            >
+                <FormattedMessage
+                    defaultMessage="Store settings in project"
+                    description="Button in settings modal"
+                    id="tw.settingsModal.storeProjectOptions"
+                />
+            </button>
+            <p>
+                <FormattedMessage
+                    // eslint-disable-next-line max-len
+                    defaultMessage="Stores the selected settings in the project so they will be automatically applied when 02Engine loads this project. Warp timer and disable compiler will not be saved."
+                    description="Help text for the store settings in project button"
+                    id="tw.settingsModal.storeProjectOptionsHelp"
+                />
+            </p>
+        </div>
+    </div>
+);
+StoreProjectOptions.propTypes = {
+    onStoreProjectOptions: PropTypes.func
+};
+
+const WorkspaceSettings = props => {
+    const preferences = props.workspacePreferences && props.workspacePreferences.workspace ?
+        props.workspacePreferences.workspace : {};
+    const placement = props.workspaceLayout && props.workspaceLayout.dock && props.workspaceLayout.dock.placement ?
+        props.workspaceLayout.dock.placement : {
+            placement: 'bottom',
+            alignment: 'center',
+            offsetX: 0,
+            offsetY: 0
+        };
+    return (
+        <div className={styles.workspaceSettings}>
+            <div className={styles.workspaceSettingsGrid}>
+                <label className={styles.workspaceField}>
+                    <span><FormattedMessage
+                        defaultMessage="Preset"
+                        description="Workspace layout preset"
+                        id="tw.settingsModal.workspacePreset"
+                    /></span>
+                    <select
+                        className={styles.workspaceSelect}
+                        defaultValue="custom"
+                        onChange={props.onPresetChange}
+                    >
+                        <option value="custom">{'Custom / current'}</option>
+                        <option value="default">{'Floating Dock'}</option>
+                        <option value="left-sidebar">{'Left Sidebar'}</option>
+                        <option value="compact-bottom">{'Compact Bottom'}</option>
+                        <option value="bottom-drawer">{'Bottom Drawer'}</option>
+                    </select>
+                </label>
+                <label className={styles.workspaceField}>
+                    <span><FormattedMessage
+                        defaultMessage="Dock presentation"
+                        description="Workspace Dock presentation setting"
+                        id="tw.settingsModal.workspaceDockPresentation"
+                    /></span>
+                    <select
+                        className={styles.workspaceSelect}
+                        value={preferences.dockPresentation || 'floating'}
+                        onChange={props.onDockPresentationChange}
+                    >
+                        <option value="floating">{'Floating Dock'}</option>
+                        <option value="sidebar">{'Sidebar'}</option>
+                        <option value="drawer">{'Drawer'}</option>
+                        <option value="compact-shelf">{'Compact Shelf'}</option>
+                    </select>
+                </label>
+                <label className={styles.workspaceField}>
+                    <span><FormattedMessage
+                        defaultMessage="Placement"
+                        description="Workspace Dock placement setting"
+                        id="tw.settingsModal.workspaceDockPlacement"
+                    /></span>
+                    <select
+                        className={styles.workspaceSelect}
+                        value={placement.placement}
+                        onChange={props.onPlacementChange}
+                    >
+                        <option value="top">{'Top'}</option>
+                        <option value="bottom">{'Bottom'}</option>
+                        <option value="left">{'Left'}</option>
+                        <option value="right">{'Right'}</option>
+                    </select>
+                </label>
+                <label className={styles.workspaceField}>
+                    <span><FormattedMessage
+                        defaultMessage="Alignment"
+                        description="Workspace Dock alignment setting"
+                        id="tw.settingsModal.workspaceDockAlignment"
+                    /></span>
+                    <select
+                        className={styles.workspaceSelect}
+                        value={placement.alignment}
+                        onChange={props.onAlignmentChange}
+                    >
+                        <option value="start">{'Start'}</option>
+                        <option value="center">{'Center'}</option>
+                        <option value="end">{'End'}</option>
+                    </select>
+                </label>
+                <label className={styles.workspaceField}>
+                    <span><FormattedMessage
+                        defaultMessage="Organization"
+                        description="Workspace Dock organization mode setting"
+                        id="tw.settingsModal.workspaceDockOrganization"
+                    /></span>
+                    <select
+                        className={styles.workspaceSelect}
+                        value={preferences.organizationMode || 'custom'}
+                        onChange={props.onOrganizationModeChange}
+                    >
+                        <option value="flat">{'Flat'}</option>
+                        <option value="grouped">{'Grouped'}</option>
+                        <option value="custom">{'Custom'}</option>
+                    </select>
+                </label>
+                <label className={styles.workspaceField}>
+                    <span><FormattedMessage
+                        defaultMessage="Horizontal offset"
+                        description="Workspace Dock horizontal offset setting"
+                        id="tw.settingsModal.workspaceDockOffsetX"
+                    /></span>
+                    <input
+                        className={styles.workspaceNumberInput}
+                        type="number"
+                        value={placement.offsetX}
+                        onChange={props.onOffsetXChange}
+                    />
+                </label>
+                <label className={styles.workspaceField}>
+                    <span><FormattedMessage
+                        defaultMessage="Vertical offset"
+                        description="Workspace Dock vertical offset setting"
+                        id="tw.settingsModal.workspaceDockOffsetY"
+                    /></span>
+                    <input
+                        className={styles.workspaceNumberInput}
+                        type="number"
+                        value={placement.offsetY}
+                        onChange={props.onOffsetYChange}
+                    />
+                </label>
+            </div>
+            <p className={styles.workspaceSettingsHelp}>
+                <FormattedMessage
+                    defaultMessage="Workspace layout and Dock preferences use the versioned WS-4 persistence schema. Project data, session state, and secrets are stored in separate authority scopes."
+                    description="Help text for Workspace persistence settings"
+                    id="tw.settingsModal.workspacePersistenceHelp"
+                />
+            </p>
+        </div>
+    );
+};
+WorkspaceSettings.propTypes = {
+    workspaceLayout: PropTypes.object,
+    workspacePreferences: PropTypes.object,
+    onPresetChange: PropTypes.func,
+    onDockPresentationChange: PropTypes.func,
+    onPlacementChange: PropTypes.func,
+    onAlignmentChange: PropTypes.func,
+    onOffsetXChange: PropTypes.func,
+    onOffsetYChange: PropTypes.func,
+    onOrganizationModeChange: PropTypes.func
+};
+
+const ResetWindowCoefficients = ({onResetWindowCoefficients}) => (
+    <div className={styles.setting}>
+        <div>
+            <button
+                onClick={onResetWindowCoefficients}
+                className={styles.button}
+            >
+                <FormattedMessage
+                    defaultMessage="Reset Workspace Layout"
+                    description="Button in settings modal"
+                    id="tw.settingsModal.resetWindowCoefficients"
+                />
+            </button>
+            <p>
+                <FormattedMessage
+                    // eslint-disable-next-line max-len
+                    defaultMessage="Resets the versioned Workspace layout, Dock organization and window geometry to their defaults. Legacy window-state fallback is cleared at the same time."
+                    description="Help text for the reset window coefficients button"
+                    id="tw.settingsModal.resetWindowCoefficientsHelp"
+                />
+            </p>
+        </div>
+    </div>
+);
+ResetWindowCoefficients.propTypes = {
+    onResetWindowCoefficients: PropTypes.func
+};
+
+const CustomizeToolbox = ({onOpenToolboxLayout}) => (
+    <div className={styles.setting}>
+        <div>
+            <button
+                onClick={onOpenToolboxLayout}
+                className={styles.button}
+            >
+                <FormattedMessage
+                    defaultMessage="Customize Toolbox"
+                    description="Button in 02engine settings modal to customize toolbox categories"
+                    id="tw.settingsModal.customizeToolbox"
+                />
+            </button>
+            <p>
+                <FormattedMessage
+                    // eslint-disable-next-line max-len
+                    defaultMessage="Choose which default blocks appear in the toolbox and create your own colored groups."
+                    description="Help text for customize toolbox button"
+                    id="tw.settingsModal.customizeToolboxHelp"
+                />
+            </p>
+        </div>
+    </div>
+);
+CustomizeToolbox.propTypes = {
+    onOpenToolboxLayout: PropTypes.func
+};
+
+const ExtensionDebugging = ({isConnected, isConnectionFailed, onConnect}) => (
+    <div className={styles.setting}>
+        <div className={styles.label}>
+            <FormattedMessage
+                defaultMessage="02Engine VScode Toolbox Server"
+                description="Extension debugging server status"
+                id="tw.settingsModal.extensionDebuggingServer"
+            />
+        </div>
+        <div className={styles.extensionDebugStatus}>
+            {isConnected ? (
+                <FormattedMessage
+                    defaultMessage="Connected to 02Engine VScode Toolbox Server"
+                    description="Extension debugging server connected"
+                    id="tw.settingsModal.extensionDebugConnected"
+                />
+            ) : isConnectionFailed ? (
+                <FormattedMessage
+                    defaultMessage="Connection failed (server not available)"
+                    description="Extension debugging server connection failed"
+                    id="tw.settingsModal.extensionDebugFailed"
+                />
+            ) : (
+                <FormattedMessage
+                    defaultMessage="Not connected to 02Engine VScode Toolbox Server"
+                    description="Extension debugging server not connected"
+                    id="tw.settingsModal.extensionDebugNotConnected"
+                />
+            )}
+        </div>
+        <button
+            className={styles.extensionDebugButton}
+            onClick={onConnect}
+        >
+            <FormattedMessage
+                defaultMessage="Connect to 02Engine VScode Toolbox Server"
+                description="Connect to extension debugging server button"
+                id="tw.settingsModal.extensionDebugConnect"
+            />
+        </button>
+    </div>
+);
+
+ExtensionDebugging.propTypes = {
+    isConnected: PropTypes.bool,
+    isConnectionFailed: PropTypes.bool,
+    onConnect: PropTypes.func
+};
+
+const Header = props => (
+    <div className={styles.header}>
+        {props.children}
+        <div className={styles.divider} />
+    </div>
+);
+Header.propTypes = {
+    children: PropTypes.node
+};
+
+const SettingsModalComponent = props => (
+    <Modal
+        className={styles.modalContent}
+        onRequestClose={props.onClose}
+        contentLabel={props.intl.formatMessage(props.engineSettings ? messages.engineTitle : messages.title)}
+        id={props.engineSettings ? '02engineSettingsModal' : 'settingsModal'}
+    >
+        <Box className={styles.body}>
+            {!props.engineSettings && (
+                <React.Fragment>
+                    <Header>
+                        <FormattedMessage
+                            defaultMessage="Featured"
+                            description="Settings modal section"
+                            id="tw.settingsModal.featured"
+                        />
+                    </Header>
+                    <CustomFPS
+                        framerate={props.framerate}
+                        onChange={props.onFramerateChange}
+                        onCustomizeFramerate={props.onCustomizeFramerate}
+                    />
+                    <CustomOPF
+                        opsPerFrame={props.opsPerFrame}
+                        onChange={props.onOpsPerFrameChange}
+                        onCustomizeOpsPerFrame={props.onCustomizeOpsPerFrame}
+                    />
+                    <Interpolation
+                        value={props.interpolation}
+                        onChange={props.onInterpolationChange}
+                    />
+                    <HighQualityPen
+                        value={props.highQualityPen}
+                        onChange={props.onHighQualityPenChange}
+                    />
+                    <OffscreenDrawableCulling
+                        value={props.offscreenDrawableCulling}
+                        onChange={props.onOffscreenDrawableCullingChange}
+                    />
+                    <WarpTimer
+                        value={props.warpTimer}
+                        onChange={props.onWarpTimerChange}
+                    />
+                    <Header>
+                        <FormattedMessage
+                            defaultMessage="Remove Limits"
+                            description="Settings modal section"
+                            id="tw.settingsModal.removeLimits"
+                        />
+                    </Header>
+                    <InfiniteClones
+                        value={props.infiniteClones}
+                        onChange={props.onInfiniteClonesChange}
+                    />
+                    <RemoveFencing
+                        value={props.removeFencing}
+                        onChange={props.onRemoveFencingChange}
+                    />
+                    <RemoveMiscLimits
+                        value={props.removeLimits}
+                        onChange={props.onRemoveLimitsChange}
+                    />
+                    <Header>
+                        <FormattedMessage
+                            defaultMessage="Danger Zone"
+                            description="Settings modal section"
+                            id="tw.settingsModal.dangerZone"
+                        />
+                    </Header>
+                    {!props.isEmbedded && (
+                        <CustomStageSize
+                            {...props}
+                        />
+                    )}
+                    <DisableCompiler
+                        value={props.disableCompiler}
+                        onChange={props.onDisableCompilerChange}
+                    />
+                    {!props.isEmbedded && (
+                        <StoreProjectOptions
+                            {...props}
+                        />
+                    )}
+                </React.Fragment>
+            )}
+            {props.engineSettings && (
+                <React.Fragment>
+                    <Header>
+                        <FormattedMessage
+                            defaultMessage="02engine"
+                            description="02engine settings modal section"
+                            id="tw.settingsModal.02engine"
+                        />
+                    </Header>
+                    <CustomUI
+                        customUI={props.customUI}
+                        onChange={props.onCustomUIChange}
+                    />
+                    {props.customUI && (
+                        <React.Fragment>
+                            <Header>
+                                <FormattedMessage
+                                    defaultMessage="Workspace"
+                                    description="Workspace persistence and Dock settings section"
+                                    id="tw.settingsModal.workspace"
+                                />
+                            </Header>
+                            <WorkspaceSettings
+                                workspaceLayout={props.workspaceLayout}
+                                workspacePreferences={props.workspacePreferences}
+                                onAlignmentChange={props.onWorkspaceAlignmentChange}
+                                onDockPresentationChange={props.onWorkspaceDockPresentationChange}
+                                onOffsetXChange={props.onWorkspaceOffsetXChange}
+                                onOffsetYChange={props.onWorkspaceOffsetYChange}
+                                onOrganizationModeChange={props.onWorkspaceOrganizationModeChange}
+                                onPlacementChange={props.onWorkspacePlacementChange}
+                                onPresetChange={props.onWorkspacePresetChange}
+                            />
+                        </React.Fragment>
+                    )}
+                    <CustomizeToolbox
+                        onOpenToolboxLayout={props.onOpenToolboxLayout}
+                    />
+                </React.Fragment>
+            )}
+            {props.engineSettings && props.customUI && (
+                <ResetWindowCoefficients
+                    onResetWindowCoefficients={props.onResetWindowCoefficients}
+                />
+            )}
+            {props.engineSettings && (
+                <React.Fragment>
+                    <Header>
+                        <FormattedMessage
+                            defaultMessage="02Engine VScode Toolbox"
+                            description="Settings modal section"
+                            id="tw.settingsModal.extensionDebugging"
+                        />
+                    </Header>
+                    <ExtensionDebugging
+                        isConnected={props.extensionDebugConnected}
+                        isConnectionFailed={props.extensionDebugFailed}
+                        onConnect={props.onExtensionDebugConnect}
+                    />
+                    <Header>
+                        <FormattedMessage
+                            defaultMessage="Background Settings"
+                            description="Settings modal section for custom editor backgrounds"
+                            id="tw.settingsModal.backgroundSettings"
+                        />
+                    </Header>
+                    <BackgroundSettings
+                        editorBackground={props.editorBackground}
+                        intl={props.intl}
+                        onBlurChange={props.onBackgroundBlurChange}
+                        onClearImage={props.onClearBackgroundImage}
+                        onImageChange={props.onBackgroundImageChange}
+                        onTargetChange={props.onBackgroundTargetChange}
+                    />
+                </React.Fragment>
+            )}
+        </Box>
+    </Modal>
+);
+
+SettingsModalComponent.propTypes = {
+    intl: intlShape,
+    onClose: PropTypes.func,
+    isEmbedded: PropTypes.bool,
+    engineSettings: PropTypes.bool,
+    framerate: PropTypes.number,
+    onFramerateChange: PropTypes.func,
+    onCustomizeFramerate: PropTypes.func,
+    opsPerFrame: PropTypes.number,
+    onOpsPerFrameChange: PropTypes.func,
+    onCustomizeOpsPerFrame: PropTypes.func,
+    highQualityPen: PropTypes.bool,
+    onHighQualityPenChange: PropTypes.func,
+    interpolation: PropTypes.bool,
+    onInterpolationChange: PropTypes.func,
+    infiniteClones: PropTypes.bool,
+    onInfiniteClonesChange: PropTypes.func,
+    removeFencing: PropTypes.bool,
+    onRemoveFencingChange: PropTypes.func,
+    removeLimits: PropTypes.bool,
+    onRemoveLimitsChange: PropTypes.func,
+    offscreenDrawableCulling: PropTypes.bool,
+    onOffscreenDrawableCullingChange: PropTypes.func,
+    warpTimer: PropTypes.bool,
+    onWarpTimerChange: PropTypes.func,
+    disableCompiler: PropTypes.bool,
+    onDisableCompilerChange: PropTypes.func,
+    customUI: PropTypes.bool,
+    onCustomUIChange: PropTypes.func,
+    editorBackground: PropTypes.shape({
+        image: PropTypes.string,
+        blur: PropTypes.number,
+        target: PropTypes.string
+    }),
+    onBackgroundImageChange: PropTypes.func,
+    onBackgroundBlurChange: PropTypes.func,
+    onBackgroundTargetChange: PropTypes.func,
+    onClearBackgroundImage: PropTypes.func,
+    onOpenToolboxLayout: PropTypes.func,
+    onResetWindowCoefficients: PropTypes.func,
+    workspaceLayout: PropTypes.object,
+    workspacePreferences: PropTypes.object,
+    onWorkspacePresetChange: PropTypes.func,
+    onWorkspaceDockPresentationChange: PropTypes.func,
+    onWorkspacePlacementChange: PropTypes.func,
+    onWorkspaceAlignmentChange: PropTypes.func,
+    onWorkspaceOffsetXChange: PropTypes.func,
+    onWorkspaceOffsetYChange: PropTypes.func,
+    onWorkspaceOrganizationModeChange: PropTypes.func,
+    extensionDebugConnected: PropTypes.bool,
+    extensionDebugFailed: PropTypes.bool,
+    onExtensionDebugConnect: PropTypes.func
+};
+
+export default injectIntl(SettingsModalComponent);

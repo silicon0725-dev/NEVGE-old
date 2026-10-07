@@ -1,0 +1,90 @@
+﻿@echo off
+setlocal EnableExtensions
+chcp 65001 >nul
+cd /d "%~dp0"
+
+title Next Generation Visual Game Engine - Development Server
+
+echo.
+echo ============================================================
+echo   Next Generation Visual Game Engine
+echo   NES Studio Development Launcher
+echo ============================================================
+echo.
+
+set "BUN_EXE="
+for /f "delims=" %%I in ('where bun 2^>nul') do (
+    if not defined BUN_EXE set "BUN_EXE=%%I"
+)
+
+if not defined BUN_EXE (
+    if exist "%USERPROFILE%\.bun\bin\bun.exe" (
+        set "BUN_EXE=%USERPROFILE%\.bun\bin\bun.exe"
+    )
+)
+
+if not defined BUN_EXE (
+    echo [ERROR] Bun was not found.
+    echo.
+    echo Install Bun first, then double-click this file again.
+    echo After installing Bun, close and reopen this window so PATH is refreshed.
+    echo.
+    pause
+    exit /b 1
+)
+
+echo [OK] Bun:
+echo      %BUN_EXE%
+echo.
+
+set "NEED_INSTALL=0"
+if not exist "node_modules\" set "NEED_INSTALL=1"
+if not exist "node_modules\webpack-dev-server\bin\webpack-dev-server.js" set "NEED_INSTALL=1"
+if not exist "node_modules\webpack\bin\webpack.js" set "NEED_INSTALL=1"
+
+if "%NEED_INSTALL%"=="1" (
+    echo [SETUP] Dependencies are missing or incomplete.
+    echo [SETUP] Running: bun install
+    echo.
+    "%BUN_EXE%" install
+    if errorlevel 1 (
+        echo.
+        echo [ERROR] Dependency installation failed.
+        echo Check the network output above, then run START-EDITOR.bat again.
+        echo.
+        pause
+        exit /b 1
+    )
+    echo.
+    echo [OK] Dependencies installed.
+    echo.
+) else (
+    echo [OK] Dependencies already installed.
+    echo.
+)
+
+if not defined PORT set "PORT=8601"
+set "EDITOR_URL=http://localhost:%PORT%/"
+
+echo [START] Development server:
+echo         %EDITOR_URL%
+echo.
+echo The browser will open automatically.
+echo Press Ctrl+C in this window to stop the server.
+echo.
+
+start "" powershell.exe -NoLogo -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 5; Start-Process '%EDITOR_URL%'"
+
+"%BUN_EXE%" run start
+set "SERVER_EXIT=%ERRORLEVEL%"
+
+echo.
+if "%SERVER_EXIT%"=="0" (
+    echo [STOPPED] Development server stopped.
+) else (
+    echo [ERROR] Development server exited with code %SERVER_EXIT%.
+    echo Review the output above for the first error.
+    pause
+)
+
+exit /b %SERVER_EXIT%

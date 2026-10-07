@@ -1,0 +1,2016 @@
+diff -ruN /mnt/data/base_873/scratch-gui-main/docs/TASK-0008.7.3-SCRATCH-ADAPTER-BOUNDARY-STABILIZATION.md /mnt/data/work_873/scratch-gui-main/docs/TASK-0008.7.3-SCRATCH-ADAPTER-BOUNDARY-STABILIZATION.md
+--- /mnt/data/base_873/scratch-gui-main/docs/TASK-0008.7.3-SCRATCH-ADAPTER-BOUNDARY-STABILIZATION.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/docs/TASK-0008.7.3-SCRATCH-ADAPTER-BOUNDARY-STABILIZATION.md	2026-08-05 01:41:44.174772510 +0000
+@@ -0,0 +1,92 @@
++# Task 0008.7.3 — Scratch Adapter Boundary Stabilization
++
++## Status
++
++Implemented on top of `0008.7.2.2` and `EXT-0001`.
++
++Scene System version: `0.7.3`
++
++## Problem
++
++The previous adapter used `ngvge.scratch-sprite-node` as both the semantic Runtime Node type and the Scratch binding representation. Project Explorer also identified ownership by checking that backend-specific type ID.
++
++This made the Scratch implementation part of the semantic node identity and allowed generic Runtime mutation paths to bypass Target and Sidecar ownership cleanup.
++
++## New ownership model
++
++```text
++ngvge.sprite-node                 Semantic owner
++└── ngvge.scratch-target-binding Compatibility component
++```
++
++`ngvge.sprite-node` is now a hidden semantic Runtime Node type registered by the Runtime Node Model. It contains no Scratch Target, Renderer object or backend handle.
++
++`ngvge.scratch-sprite-node` remains only as a legacy migration type.
++
++## Implemented changes
++
++### Semantic node migration
++
++- Added `SpriteRuntimeNode` under `src/lib/runtime-nodes`.
++- Added `SEMANTIC_RUNTIME_NODE_TYPE_IDS.SPRITE`.
++- Registered hidden `ngvge.sprite-node` as a built-in semantic node type.
++- Legacy `ngvge.scratch-sprite-node` records migrate through Runtime state import.
++- Migration preserves NodeId, BindingId, components, parent and descendants.
++
++### Binding schema v2
++
++- Adapter capability version is now 2.
++- Sidecar schema version is now 2.
++- Added explicit `destroyPolicy` with `delete-target` and `detach` values.
++- Version 1 records default to `delete-target` and upgrade during the next write.
++- Binding components include `adapterType`, lifecycle and schema metadata.
++
++### Scene-scoped target indexing
++
++Volatile target indexes now use:
++
++```text
++SceneId + targetRuntimeId
++```
++
++Public target lookup accepts an optional SceneId and otherwise resolves against the active scene.
++
++### Ownership deletion
++
++- Added `destroyBindingByNodeId()`.
++- Project Explorer routes bound Sprite deletion through the Adapter.
++- Direct Runtime Node deletion is intercepted by the Adapter lifecycle listener.
++- Target, Sidecar, binding indexes, semantic node and Runtime child subtree are removed consistently.
++- Adapter-owned node destruction uses a recursion guard.
++
++### Editor projection
++
++- Added `createScratchSpriteTreeProjection()`.
++- Project Explorer associates bindings by NodeId rather than node type.
++- Raw Scratch sprite rows are hidden only when a valid semantic owner node exists.
++- Scratch-bound nodes display as semantic `Sprite` rows with `Scratch · Bound/offline` status.
++- Runtime rename, duplicate and enabled-state actions are disabled for Scratch-authoritative Sprite nodes.
++
++## Compatibility
++
++Existing projects using:
++
++```text
++ngvge.scratch-sprite-node
++scratchSpriteBindings schemaVersion 1
++```
++
++are migrated automatically. Stable identities are retained.
++
++The old `SCRATCH_SPRITE_NODE_TYPE_ID` export remains as a deprecated alias for migration callers. New code must use `SPRITE_NODE_TYPE_ID` and detect Scratch ownership through the binding component/capability.
++
++## Validation targets
++
++- One Project Explorer row per original Scratch Sprite.
++- No backend-specific node type required for editor projection.
++- Childless Sprite rows have no disclosure control.
++- Scene A and Scene B bindings remain isolated.
++- Deleting a bound semantic node removes its Target and Runtime subtree.
++- Direct Runtime deletion cannot leave an orphan Sidecar.
++- Legacy type and schema migration retain stable identity.
++- Volatile target IDs are absent from persistent records.
+diff -ruN /mnt/data/base_873/scratch-gui-main/docs/ngvge/scratch-sprite-node-adapter.md /mnt/data/work_873/scratch-gui-main/docs/ngvge/scratch-sprite-node-adapter.md
+--- /mnt/data/base_873/scratch-gui-main/docs/ngvge/scratch-sprite-node-adapter.md	2026-08-04 11:39:19.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/docs/ngvge/scratch-sprite-node-adapter.md	2026-08-05 01:41:44.173985910 +0000
+@@ -1,153 +1,198 @@
+-# Scratch Sprite Node Adapter
++# Scratch Sprite Adapter Boundary
+ 
+-Task: `0008.7.1 Stable Binding Identity`
++Task: `0008.7.3 Scratch Adapter Boundary Stabilization`
+ 
+-Scene System version: `0.7.1`
++Scene System version: `0.7.3`
+ 
+-The Scratch Sprite Node Adapter establishes a persistent identity relationship between an original Scratch sprite target and an NGVGE Runtime Node without replacing the Scratch VM target.
++The Scratch Sprite Adapter projects original Scratch sprite Targets into backend-independent NGVGE semantic Sprite nodes. Scratch remains the current execution authority, but it no longer defines the Runtime Node type.
+ 
+ ## Capability
+ 
+ Enabling Scene System provides:
+ 
+ ```text
+-ngvge.scratch-sprite-node-adapter@1
++ngvge.scratch-sprite-node-adapter@2
+ ```
+ 
+-The identity layer registers an internal Runtime Node type:
++The Runtime Node Model owns the semantic type:
+ 
+ ```text
+-ngvge.scratch-sprite-node
++ngvge.sprite-node
+ ```
+ 
+-and a binding component type:
++The compatibility adapter attaches the binding component:
+ 
+ ```text
+ ngvge.scratch-target-binding
+ ```
+ 
+-The node type is hidden from the generic Create Node dialog and rejects direct construction unless a valid adapter-managed `source` containing a stable `bindingId` is supplied.
++The legacy node type:
+ 
+-## Identity layers
++```text
++ngvge.scratch-sprite-node
++```
+ 
+-Three IDs have separate responsibilities:
++is registered only as a migration reader. Existing records are imported and rewritten to `ngvge.sprite-node` without changing NodeId, parentage, children or BindingId.
++
++## Boundary model
+ 
+ ```text
++ngvge.sprite-node
++├── semantic NodeId
++├── name / parent / children
++├── future semantic Sprite components
++└── ngvge.scratch-target-binding
++    ├── BindingId
++    ├── SceneId
++    ├── serialized target index
++    ├── last-known Scratch name
++    └── destroy policy
++            │
++            ▼
++Scratch Compatibility Adapter
++            │
++            ▼
++Scratch Target / target.id
++```
++
++The Scratch Target object and volatile `target.id` never enter the persistent Runtime Node record.
++
++## Identity layers
++
++```text
++NodeId
++    Stable NGVGE semantic identity.
++
++BindingId
++    Stable Scratch compatibility relationship.
++
+ Scratch target.id
+-    Volatile runtime identity. It may change after scene deserialization.
++    Volatile active-runtime identity. Scoped by SceneId and never persisted.
++```
+ 
+-bindingId
+-    Stable adapter identity. It survives scene capture, reload and Target recreation.
++Runtime target lookup is indexed by:
+ 
+-Runtime Node id
+-    Stable NGVGE graph identity. It is preserved with the binding record.
++```text
++SceneId + target.id
+ ```
+ 
+-The adapter never treats the volatile Scratch `target.id` as persistent identity.
++This prevents a target ID observed during scene restoration from being reconciled under the wrong scene.
+ 
+-## Persistent records
++## Persistent binding schema
+ 
+-Scene System project extension data stores a sidecar under:
++The project sidecar is stored under:
+ 
+ ```js
+ project.extensionData.scratchSpriteBindings
+ ```
+ 
+-Example:
++Schema version 2 record:
+ 
+ ```json
+ {
+-  "schemaVersion": 1,
+-  "scenes": {
+-    "scene-a": {
+-      "items": [
+-        {
+-          "bindingId": "scratch-binding:...",
+-          "nodeId": "runtime-node:scratch-sprite:...",
+-          "lastKnownName": "Player",
+-          "role": "sprite",
+-          "serializedTargetIndex": 1
+-        }
+-      ]
+-    }
+-  }
++  "bindingId": "scratch-binding:...",
++  "destroyPolicy": "delete-target",
++  "lastKnownName": "Player",
++  "nodeId": "runtime-node:sprite:...",
++  "role": "sprite",
++  "serializedTargetIndex": 1
+ }
+ ```
+ 
+-The Runtime Node also persists:
++Version 1 records are accepted and upgraded in place. Missing `destroyPolicy` defaults to `delete-target`.
+ 
+-```js
+-source: {
+-    kind: 'scratch-target',
+-    role: 'sprite',
+-    bindingId,
+-    sceneId
++The binding component stores only serializable adapter metadata:
++
++```json
++{
++  "adapterType": "scratch.sprite",
++  "bindingId": "scratch-binding:...",
++  "destroyPolicy": "delete-target",
++  "lastKnownName": "Player",
++  "lifecycle": "attached",
++  "role": "sprite",
++  "sceneId": "scene-a",
++  "schemaVersion": 2,
++  "serializedTargetIndex": 1
+ }
+ ```
+ 
+-and a `ngvge.scratch-target-binding` component containing the same stable identity metadata.
++## Ownership and deletion
+ 
+-Neither record contains a Scratch Target object or the volatile runtime `target.id`.
++A Scratch-backed Sprite row is one semantic owner. Deletion follows:
+ 
+-## Establishment and matching
++```text
++Project Explorer delete
++→ adapter.destroyBindingByNodeId(NodeId)
++→ delete Scratch Target when policy is delete-target
++→ remove binding sidecar
++→ remove binding indexes
++→ destroy semantic Sprite node and Runtime child subtree
++→ reconcile active scene
++```
+ 
+-For the active scene, `establishBindings()` scans original non-Stage Scratch targets. Clones are excluded.
++Direct calls to `runtimeNodeModel.destroyNode()` are also observed. If a bound semantic Sprite node is removed outside the Adapter API, the adapter performs the remaining Target and sidecar cleanup.
+ 
+-Existing identities are matched in this order:
++Adapter-initiated Runtime Node destruction is guarded so the lifecycle observer cannot recursively process the same deletion.
+ 
+-1. same serialized target index and last-known name;
+-2. unique last-known name;
+-3. same serialized target index;
+-4. create a new binding and Runtime Node.
++## Editor tree projection
+ 
+-This allows a deserialized Scratch Target with a new runtime ID to reuse the previous `bindingId` and Runtime Node ID.
++Project Explorer consumes `createScratchSpriteTreeProjection()`.
+ 
+-## Read-only query API
++The projection associates a binding with its semantic owner NodeId. It does not infer Scratch ownership from `node.typeId` and does not render the raw Scratch target row when a valid semantic owner exists.
+ 
+-```js
+-const adapter = moduleManager.getCapability(
+-    'ngvge.scratch-sprite-node-adapter'
+-);
++Result:
++
++```text
++Scene A
++└── Player        Sprite · Scratch · Bound
++```
++
++not:
++
++```text
++Scene A
++├── Player        Scratch target
++└── Player        Scratch adapter node
++```
++
++Inactive scene nodes remain semantic Sprite nodes and are shown as `Scratch · offline`.
+ 
+-adapter.getBindingByNodeId(nodeId);
++## Query and mutation API
++
++```js
++adapter.getBinding(sceneId, bindingId);
+ adapter.getBindingByBindingId(bindingId);
+-adapter.getBindingByTargetRuntimeId(targetRuntimeId);
++adapter.getBindingByNodeId(nodeId, optionalSceneId);
++adapter.getBindingByTargetRuntimeId(targetRuntimeId, optionalSceneId);
+ adapter.listBindings(optionalSceneId);
++adapter.destroyBindingByNodeId(nodeId, options);
++adapter.reconcileScene(optionalSceneId, options);
+ adapter.getStatus();
+-adapter.establishBindings(optionalSceneId);
+ ```
+ 
+-Returned binding views are deeply frozen and contain no mutable Scratch Target reference.
++Binding views are deeply frozen and expose no mutable Scratch Target reference.
+ 
+-A binding view has this shape:
++## Current authority
+ 
+-```js
+-{
+-    bindingId,
+-    nodeId,
+-    sceneId,
+-    role: 'sprite',
+-    lastKnownName,
+-    serializedTargetIndex,
+-    status: 'bound' | 'missing' | 'offline' | 'reconciling' | 'error',
+-    targetRuntimeId // ephemeral, query-only
+-}
++```text
++Sprite existence / name / costume execution authority: Scratch
++Semantic identity and Runtime tree ownership: NGVGE
++Projection direction: Scratch → NGVGE
+ ```
+ 
+-## Current scope
++Project Explorer therefore blocks direct Runtime duplication, renaming and enable/disable actions for Scratch-bound Sprite nodes. Those operations must currently originate from Scratch controls so the Target and binding are created or changed together.
+ 
+-Task `0008.7.1` implements identity creation, persistence, one-to-one indexes and read-only queries.
++## Non-goals
+ 
+-It deliberately does not yet implement:
++`0008.7.3` does not yet implement:
+ 
+-- automatic VM target lifecycle subscriptions;
+-- Sprite add/delete/duplicate operations;
+-- bidirectional rename synchronization;
+-- scene-switch Offline/Rebind orchestration;
+-- Project Explorer de-duplication and unified Sprite rendering;
+-- Inspector binding controls;
+-- Scratch Clone Runtime Nodes;
++- bidirectional Transform ownership;
++- native Sprite rendering;
++- Scratch clone semantic nodes;
+ - Stage adaptation;
+-- Transform ownership.
++- direct NGVGE-side Sprite duplication;
++- Inspector binding reassignment;
++- final component Schema Registry integration.
+ 
+-Those responsibilities remain in `0008.7.2` through `0008.7.5`.
++Those belong to later `0008` stabilization work, ARC conformance construction and `0009 Transform System`.
+diff -ruN /mnt/data/base_873/scratch-gui-main/scripts/validate-ngvge-task-0008.7.3.js /mnt/data/work_873/scratch-gui-main/scripts/validate-ngvge-task-0008.7.3.js
+--- /mnt/data/base_873/scratch-gui-main/scripts/validate-ngvge-task-0008.7.3.js	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/scripts/validate-ngvge-task-0008.7.3.js	2026-08-05 01:44:59.966437461 +0000
+@@ -0,0 +1,304 @@
++#!/usr/bin/env node
++'use strict';
++
++const assert = require('assert');
++const {EventEmitter} = require('events');
++const {
++    createRuntimeNodeModelService
++} = require('../src/lib/runtime-nodes');
++const {
++    LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID,
++    SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY,
++    SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID,
++    SPRITE_NODE_TYPE_ID,
++    createScratchSpriteNodeAdapterService,
++    createScratchSpriteTreeProjection
++} = require('../src/lib/scratch-sprite-adapter');
++
++const clone = value => JSON.parse(JSON.stringify(value));
++const flush = (milliseconds = 25) => new Promise(resolve => setTimeout(resolve, milliseconds));
++
++const createTarget = (id, name, options = {}) => ({
++    id,
++    isOriginal: options.isOriginal !== false,
++    isStage: Boolean(options.isStage),
++    sprite: {name}
++});
++
++const createLegacyProject = () => ({
++    activeSceneId: 'scene-a',
++    extensionData: {
++        runtimeNodeModel: {
++            activeSceneId: 'scene-a',
++            nodes: [{
++                components: [{
++                    data: {
++                        bindingId: 'legacy-binding-a',
++                        lastKnownName: 'Player',
++                        role: 'sprite',
++                        sceneId: 'scene-a',
++                        schemaVersion: 1,
++                        serializedTargetIndex: 1
++                    },
++                    enabled: true,
++                    id: 'legacy-component-a',
++                    typeId: SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID
++                }],
++                enabled: true,
++                id: 'stable-node-a',
++                metadata: {adapterManaged: true},
++                name: 'Player',
++                parentId: 'runtime-node:scene-root:scene-a',
++                sceneId: 'scene-a',
++                scope: 'scene',
++                source: {
++                    bindingId: 'legacy-binding-a',
++                    kind: 'scratch-target',
++                    role: 'sprite',
++                    sceneId: 'scene-a'
++                },
++                typeId: LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID
++            }],
++            scenes: [
++                {id: 'scene-a', name: 'Scene A'},
++                {id: 'scene-b', name: 'Scene B'}
++            ],
++            version: 1
++        },
++        [SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY]: {
++            scenes: {
++                'scene-a': {
++                    items: [{
++                        bindingId: 'legacy-binding-a',
++                        lastKnownName: 'Player',
++                        nodeId: 'stable-node-a',
++                        role: 'sprite',
++                        serializedTargetIndex: 1
++                    }]
++                }
++            },
++            schemaVersion: 1
++        }
++    },
++    scenes: [
++        {id: 'scene-a', name: 'Scene A'},
++        {id: 'scene-b', name: 'Scene B'}
++    ]
++});
++
++const createHarness = () => {
++    let project = createLegacyProject();
++    const dataListeners = new Set();
++    const sceneRuntimeListeners = new Set();
++    const sceneDataModel = {
++        getStatus: () => ({}),
++        readProject: () => clone(project),
++        subscribe: listener => {
++            dataListeners.add(listener);
++            return () => dataListeners.delete(listener);
++        },
++        writeProject: nextProject => {
++            project = clone(nextProject);
++            dataListeners.forEach(listener => listener({type: 'data'}));
++        }
++    };
++    const runtime = new EventEmitter();
++    runtime.targets = [
++        createTarget('stage-a', 'Stage', {isStage: true}),
++        createTarget('shared-target', 'Player')
++    ];
++    const vm = new EventEmitter();
++    vm.runtime = runtime;
++    const deletedTargetIds = [];
++    vm.deleteSprite = targetRuntimeId => {
++        deletedTargetIds.push(targetRuntimeId);
++        runtime.targets = runtime.targets.filter(target => target.id !== targetRuntimeId);
++        vm.emit('targetsUpdate');
++        return true;
++    };
++    const sceneRuntime = {
++        subscribe: listener => {
++            sceneRuntimeListeners.add(listener);
++            return () => sceneRuntimeListeners.delete(listener);
++        }
++    };
++    const runtimeNodeModel = createRuntimeNodeModelService(sceneDataModel);
++    let sequence = 0;
++    const adapter = createScratchSpriteNodeAdapterService(
++        {vm},
++        sceneDataModel,
++        runtimeNodeModel,
++        {
++            bindingIdFactory: () => `generated-binding-${++sequence}`,
++            componentIdFactory: () => `generated-component-${sequence}`,
++            nodeIdFactory: () => `generated-node-${sequence}`,
++            sceneRuntime
++        }
++    );
++    return {
++        adapter,
++        deletedTargetIds,
++        emitSceneRuntime: change => sceneRuntimeListeners.forEach(listener => listener(change)),
++        getProject: () => clone(project),
++        runtime,
++        runtimeNodeModel,
++        setActiveScene: sceneId => {
++            project.activeSceneId = sceneId;
++            sceneDataModel.writeProject(project);
++        },
++        vm
++    };
++};
++
++const assertNoVolatileTargetIdPersisted = project => {
++    const serialized = JSON.stringify(project);
++    assert.strictEqual(
++        serialized.includes('targetRuntimeId'),
++        false,
++        'Persistent project data must not contain targetRuntimeId.'
++    );
++};
++
++const main = async () => {
++    const harness = createHarness();
++    try {
++        await flush();
++
++        // Legacy v1 node and sidecar migrate in place to the semantic Sprite model.
++        const migratedBinding = harness.adapter.getBinding('scene-a', 'legacy-binding-a');
++        assert(migratedBinding, 'Legacy binding should be restored.');
++        assert.strictEqual(migratedBinding.nodeId, 'stable-node-a');
++        assert.strictEqual(migratedBinding.status, 'bound');
++        assert.strictEqual(migratedBinding.targetRuntimeId, 'shared-target');
++
++        const migratedNode = harness.runtimeNodeModel.getNode('stable-node-a');
++        assert(migratedNode, 'Migrated semantic Sprite node should exist.');
++        assert.strictEqual(migratedNode.typeId, SPRITE_NODE_TYPE_ID);
++        assert.deepStrictEqual(migratedNode.source, {
++            adapterType: 'scratch.sprite',
++            bindingId: 'legacy-binding-a',
++            kind: 'compatibility-adapter',
++            sceneId: 'scene-a'
++        });
++        const migratedComponent = migratedNode.components.find(component => (
++            component.typeId === SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID
++        ));
++        assert(migratedComponent, 'Migrated node should own a Scratch binding component.');
++        assert.strictEqual(migratedComponent.data.schemaVersion, 2);
++        assert.strictEqual(migratedComponent.data.destroyPolicy, 'delete-target');
++        assert.strictEqual(
++            harness.getProject().extensionData[SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY].schemaVersion,
++            2
++        );
++        assertNoVolatileTargetIdPersisted(harness.getProject());
++
++        // Scene transition with the same volatile target id proves scene-scoped indexing.
++        harness.emitSceneRuntime({fromSceneId: 'scene-a', sceneId: 'scene-b', type: 'before-load'});
++        harness.runtime.targets = [
++            createTarget('stage-b', 'Stage', {isStage: true}),
++            createTarget('shared-target', 'Enemy')
++        ];
++        harness.vm.emit('targetsUpdate');
++        harness.runtime.emit('PROJECT_LOADED');
++        await flush();
++        harness.setActiveScene('scene-b');
++        harness.emitSceneRuntime({fromSceneId: 'scene-a', sceneId: 'scene-b', type: 'loaded'});
++        await flush();
++
++        const sceneABinding = harness.adapter.getBinding('scene-a', 'legacy-binding-a');
++        const sceneBBindings = harness.adapter.listBindings('scene-b');
++        assert.strictEqual(sceneABinding.status, 'offline');
++        assert.strictEqual(sceneABinding.targetRuntimeId, null);
++        assert.strictEqual(sceneBBindings.length, 1);
++        assert.strictEqual(sceneBBindings[0].status, 'bound');
++        assert.strictEqual(sceneBBindings[0].targetRuntimeId, 'shared-target');
++        assert.notStrictEqual(sceneBBindings[0].nodeId, sceneABinding.nodeId);
++        assert.strictEqual(
++            harness.adapter.getBindingByTargetRuntimeId('shared-target', 'scene-a'),
++            null,
++            'Inactive scene must not resolve the active scene target.'
++        );
++        assert.strictEqual(
++            harness.adapter.getBindingByTargetRuntimeId('shared-target', 'scene-b').nodeId,
++            sceneBBindings[0].nodeId
++        );
++
++        // Explorer projection exposes one semantic row per valid owner and ignores stale bindings.
++        const runtimeNodes = harness.runtimeNodeModel.listNodes({includeRoots: false});
++        const allBindings = harness.adapter.listBindings();
++        const projection = createScratchSpriteTreeProjection({
++            bindings: allBindings.concat([{
++                bindingId: 'stale-binding',
++                nodeId: 'missing-node',
++                sceneId: 'scene-b',
++                status: 'offline',
++                targetRuntimeId: null
++            }]),
++            runtimeNodes
++        });
++        assert.strictEqual(projection.bindings.length, allBindings.length);
++        assert.strictEqual(projection.bindingByNodeId.has('missing-node'), false);
++        assert.strictEqual(projection.bindingByNodeId.has(sceneABinding.nodeId), true);
++        assert.strictEqual(projection.bindingByNodeId.has(sceneBBindings[0].nodeId), true);
++        assert.deepStrictEqual(projection.hiddenTargetRuntimeIds, ['shared-target']);
++
++        // Explicit owner deletion removes Scratch Target, Sidecar and Runtime subtree atomically.
++        const child = harness.runtimeNodeModel.createNode('ngvge.node2d', {
++            name: 'Enemy Child',
++            parentId: sceneBBindings[0].nodeId,
++            sceneId: 'scene-b'
++        });
++        await harness.adapter.destroyBindingByNodeId(sceneBBindings[0].nodeId, {
++            reason: '0008.7.3-validation'
++        });
++        await flush();
++        assert.strictEqual(harness.runtimeNodeModel.getNode(sceneBBindings[0].nodeId), null);
++        assert.strictEqual(harness.runtimeNodeModel.getNode(child.id), null);
++        assert.strictEqual(harness.adapter.listBindings('scene-b').length, 0);
++        assert.strictEqual(harness.runtime.targets.some(target => target.id === 'shared-target'), false);
++        assert.deepStrictEqual(
++            harness.getProject().extensionData[SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY].scenes['scene-b'].items,
++            []
++        );
++
++        // Return to Scene A and delete through Runtime Node Model to test interception.
++        harness.emitSceneRuntime({fromSceneId: 'scene-b', sceneId: 'scene-a', type: 'before-load'});
++        harness.runtime.targets = [
++            createTarget('stage-a-restored', 'Stage', {isStage: true}),
++            createTarget('shared-target', 'Player')
++        ];
++        harness.setActiveScene('scene-a');
++        harness.emitSceneRuntime({fromSceneId: 'scene-b', sceneId: 'scene-a', type: 'loaded'});
++        await flush();
++        const restoredA = harness.adapter.getBinding('scene-a', 'legacy-binding-a');
++        assert.strictEqual(restoredA.nodeId, 'stable-node-a');
++        assert.strictEqual(restoredA.status, 'bound');
++        assert.strictEqual(restoredA.targetRuntimeId, 'shared-target');
++
++        harness.runtimeNodeModel.destroyNode(restoredA.nodeId);
++        await flush();
++        assert.strictEqual(harness.adapter.listBindings('scene-a').length, 0);
++        assert.strictEqual(harness.runtime.targets.some(target => target.id === 'shared-target'), false);
++        assert.deepStrictEqual(
++            harness.getProject().extensionData[SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY].scenes['scene-a'].items,
++            []
++        );
++        assert.strictEqual(harness.deletedTargetIds.filter(id => id === 'shared-target').length, 2);
++        assertNoVolatileTargetIdPersisted(harness.getProject());
++
++        const status = harness.adapter.getStatus();
++        assert.strictEqual(status.schemaVersion, 2);
++        assert.strictEqual(status.bindingCount, 0);
++        assert.strictEqual(status.error, null);
++
++        process.stdout.write('NGVGE 0008.7.3 conformance smoke passed.\n');
++    } finally {
++        harness.adapter.dispose();
++        harness.runtimeNodeModel.dispose();
++    }
++};
++
++main().catch(error => {
++    console.error(error);
++    process.exitCode = 1;
++});
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/components/project-explorer/project-explorer.jsx /mnt/data/work_873/scratch-gui-main/src/components/project-explorer/project-explorer.jsx
+--- /mnt/data/base_873/scratch-gui-main/src/components/project-explorer/project-explorer.jsx	2026-08-04 14:10:15.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/components/project-explorer/project-explorer.jsx	2026-08-05 01:34:28.691008150 +0000
+@@ -24,6 +24,7 @@
+     getSceneTreeNodeId,
+     presentRuntimeNodeError
+ } from '../../lib/runtime-nodes';
++import {createScratchSpriteTreeProjection} from '../../lib/scratch-sprite-adapter';
+ 
+ import styles from './project-explorer.css';
+ 
+@@ -36,7 +37,6 @@
+ const SCENE_RUNTIME_CAPABILITY_ID = 'ngvge.scene-runtime';
+ const RUNTIME_NODE_MODEL_CAPABILITY_ID = 'ngvge.runtime-node-model';
+ const SCRATCH_SPRITE_ADAPTER_CAPABILITY_ID = 'ngvge.scratch-sprite-node-adapter';
+-const SCRATCH_SPRITE_NODE_TYPE_ID = 'ngvge.scratch-sprite-node';
+ 
+ const DisclosureIcon = ({expanded}) => (
+     <svg
+@@ -546,6 +546,12 @@
+ 
+ const NodeContextMenu = props => {
+     const {
++        canCreateChild,
++        canDelete,
++        canDuplicate,
++        canMakeRoot,
++        canRename,
++        canToggleEnabled,
+         node,
+         nodes,
+         nodeType,
+@@ -568,7 +574,7 @@
+     const canEditSingle = !isMultiple && !node.targetId;
+     const allCustomNodesDisabled = customNodes.length > 0 &&
+         customNodes.every(selectedNode => selectedNode.enabled === false);
+-    const canMakeRoot = customNodes.some(selectedNode => selectedNode.parentId);
++    const hasRootCandidate = customNodes.some(selectedNode => selectedNode.parentId);
+     const runAction = action => event => {
+         event.preventDefault();
+         event.stopPropagation();
+@@ -592,7 +598,7 @@
+                     {isMultiple ? `${selectedNodes.length} nodes selected` : node.name}
+                 </div>
+                 <button
+-                    disabled={isMultiple || (nodeType && nodeType.allowChildren === false)}
++                    disabled={!canCreateChild || isMultiple || (nodeType && nodeType.allowChildren === false)}
+                     role="menuitem"
+                     type="button"
+                     onClick={runAction(onCreateChild)}
+@@ -600,11 +606,11 @@
+                     + Add Child Node
+                 </button>
+                 <div className={styles.nodeContextSeparator} />
+-                <button disabled={!canEditSingle} role="menuitem" type="button" onClick={runAction(onRename)}>
++                <button disabled={!canRename || !canEditSingle} role="menuitem" type="button" onClick={runAction(onRename)}>
+                     Rename
+                 </button>
+                 <button
+-                    disabled={!customNodes.length}
++                    disabled={!canDuplicate || !customNodes.length}
+                     role="menuitem"
+                     type="button"
+                     onClick={runAction(onDuplicate)}
+@@ -612,7 +618,7 @@
+                     {isMultiple ? 'Duplicate Selected' : 'Duplicate'}
+                 </button>
+                 <button
+-                    disabled={!customNodes.length}
++                    disabled={!canToggleEnabled || !customNodes.length}
+                     role="menuitem"
+                     type="button"
+                     onClick={runAction(() => onToggleEnabled(allCustomNodesDisabled))}
+@@ -620,7 +626,7 @@
+                     {allCustomNodesDisabled ? 'Enable Selected' : 'Disable Selected'}
+                 </button>
+                 <button
+-                    disabled={!canMakeRoot}
++                    disabled={!canMakeRoot || !hasRootCandidate}
+                     role="menuitem"
+                     type="button"
+                     onClick={runAction(onMakeRoot)}
+@@ -637,7 +643,7 @@
+                 <div className={styles.nodeContextSeparator} />
+                 <button
+                     className={styles.nodeContextDanger}
+-                    disabled={!customNodes.length}
++                    disabled={!canDelete || !customNodes.length}
+                     role="menuitem"
+                     type="button"
+                     onClick={runAction(onDelete)}
+@@ -650,6 +656,12 @@
+ };
+ 
+ NodeContextMenu.propTypes = {
++    canCreateChild: PropTypes.bool,
++    canDelete: PropTypes.bool,
++    canDuplicate: PropTypes.bool,
++    canMakeRoot: PropTypes.bool,
++    canRename: PropTypes.bool,
++    canToggleEnabled: PropTypes.bool,
+     node: PropTypes.shape({
+         enabled: PropTypes.bool,
+         id: PropTypes.string.isRequired,
+@@ -679,6 +691,12 @@
+ };
+ 
+ NodeContextMenu.defaultProps = {
++    canCreateChild: true,
++    canDelete: true,
++    canDuplicate: true,
++    canMakeRoot: true,
++    canRename: true,
++    canToggleEnabled: true,
+     makeRootLabel: 'Reparent to Scene Root',
+     nodes: [],
+     nodeType: null
+@@ -955,18 +973,12 @@
+             return [];
+         }
+     }, [scratchBindingRevision, scratchSpriteAdapter]);
+-    const scratchBindingByNodeId = React.useMemo(() => {
+-        const map = new Map();
+-        scratchBindings.forEach(binding => map.set(binding.nodeId, binding));
+-        return map;
+-    }, [scratchBindings]);
+-    const scratchBindingByTargetRuntimeId = React.useMemo(() => {
+-        const map = new Map();
+-        scratchBindings.forEach(binding => {
+-            if (binding.targetRuntimeId) map.set(binding.targetRuntimeId, binding);
+-        });
+-        return map;
+-    }, [scratchBindings]);
++    const scratchTreeProjection = React.useMemo(() => createScratchSpriteTreeProjection({
++        bindings: scratchBindings,
++        runtimeNodes
++    }), [runtimeNodes, scratchBindings]);
++    const scratchBindingByNodeId = scratchTreeProjection.bindingByNodeId;
++    const scratchBindingByTargetRuntimeId = scratchTreeProjection.bindingByTargetRuntimeId;
+ 
+     const selectableNodeById = React.useMemo(() => {
+         const map = new Map(nodeById);
+@@ -1467,6 +1479,15 @@
+ 
+     const handleRenameRuntimeNode = node => {
+         if (!node || node.protected) return;
++        if (scratchBindingByNodeId.has(node.id)) {
++            setRuntimeEditorNotice({
++                code: 'SCRATCH_BINDING_RENAME_REQUIRES_TARGET',
++                kind: 'info',
++                message: 'Rename this Sprite from the Scratch sprite controls while Scratch remains the authority.',
++                title: 'Scratch controls this Sprite name'
++            });
++            return;
++        }
+         setRenameNodeRequest({
+             id: node.id,
+             kind: 'runtime',
+@@ -1476,6 +1497,15 @@
+ 
+     const handleDuplicateRuntimeNode = node => {
+         if (!runtimeNodeModel || !node || node.protected) return;
++        if (scratchBindingByNodeId.has(node.id)) {
++            setRuntimeEditorNotice({
++                code: 'SCRATCH_BINDING_DUPLICATE_REQUIRES_TARGET',
++                kind: 'info',
++                message: 'Duplicate this Sprite from the Scratch sprite controls so a new Target and stable binding are created together.',
++                title: 'Scratch controls Sprite duplication'
++            });
++            return;
++        }
+         try {
+             const duplicate = runtimeNodeModel.duplicateNode(node.id);
+             if (duplicate.parentId) {
+@@ -1490,6 +1520,7 @@
+ 
+     const handleToggleRuntimeNodeEnabled = (node, enabled) => {
+         if (!runtimeNodeModel || !node || node.protected) return;
++        if (scratchBindingByNodeId.has(node.id)) return;
+         try {
+             runtimeNodeModel.setNodeEnabled(node.id, enabled);
+         } catch (error) {
+@@ -1501,10 +1532,18 @@
+         if (!runtimeNodeModel || !node || node.protected) return;
+         if (typeof window !== 'undefined' && !window.confirm(`Delete "${node.name}" and its child nodes?`)) return;
+         const parent = runtimeNodeModel.getParent(node.id);
++        const binding = scratchBindingByNodeId.get(node.id);
+         try {
+-            runtimeNodeModel.destroyNode(node.id);
+-            if (parent) setSelectionAndActivate([parent.id], parent.id);
+-            else setSelectionAndActivate([], null);
++            const result = binding && scratchSpriteAdapter &&
++                typeof scratchSpriteAdapter.destroyBindingByNodeId === 'function' ?
++                scratchSpriteAdapter.destroyBindingByNodeId(node.id, {reason: 'project-explorer-delete'}) :
++                runtimeNodeModel.destroyNode(node.id);
++            Promise.resolve(result).then(() => {
++                if (parent) setSelectionAndActivate([parent.id], parent.id);
++                else setSelectionAndActivate([], null);
++            }).catch(error => {
++                reportRuntimeNodeError(error, {action: 'delete', nodeId: node.id, nodeName: node.name});
++            });
+         } catch (error) {
+             reportRuntimeNodeError(error, {action: 'delete', nodeId: node.id, nodeName: node.name});
+         }
+@@ -1798,8 +1837,7 @@
+         const nodeType = runtimeNodeModel && typeof runtimeNodeModel.getNodeType === 'function' ?
+             runtimeNodeModel.getNodeType(node.typeId) : null;
+         const children = getRuntimeChildren(node.id).filter(child => isVisibleForSearch(child.id));
+-        const scratchBinding = node.typeId === SCRATCH_SPRITE_NODE_TYPE_ID ?
+-            scratchBindingByNodeId.get(node.id) : null;
++        const scratchBinding = scratchBindingByNodeId.get(node.id);
+         const compatibilityTargetNode = scratchBinding && scratchBinding.targetRuntimeId && nodeDatabase ?
+             nodeDatabase.getNodeForTarget(scratchBinding.targetRuntimeId) : null;
+         const compatibilityChildren = compatibilityTargetNode && nodeDatabase ?
+@@ -1807,7 +1845,7 @@
+                 .filter(child => isVisibleForSearch(child.id)) : [];
+         const acceptsChildren = !nodeType || nodeType.allowChildren !== false;
+         const scratchStatusLabel = scratchBinding ?
+-            `Scratch Sprite · ${scratchBinding.status === 'bound' ? 'Bound' : scratchBinding.status}` : null;
++            `Scratch · ${scratchBinding.status === 'bound' ? 'Bound' : scratchBinding.status}` : null;
+         return (
+             <TreeNode
+                 depth={depth}
+@@ -1870,6 +1908,7 @@
+     const contextNodeType = contextNode && nodeDatabase ? nodeDatabase.getNodeType(contextNode.typeId) : null;
+     const runtimeContextNode = nodeContextMenu && nodeContextMenu.runtimeNode && runtimeNodeModel ?
+         runtimeNodeModel.getNode(nodeContextMenu.nodeId) : null;
++    const runtimeContextBinding = runtimeContextNode ? scratchBindingByNodeId.get(runtimeContextNode.id) : null;
+     const runtimeContextNodeType = runtimeContextNode && runtimeNodeModel && typeof runtimeNodeModel.getNodeType === 'function' ?
+         runtimeNodeModel.getNodeType(runtimeContextNode.typeId) : null;
+     const runtimeContextParent = runtimeContextNode && runtimeNodeModel ?
+@@ -2346,6 +2385,10 @@
+         ) : null}
+         {nodeContextMenu && runtimeContextMenuNode ? (
+             <NodeContextMenu
++                canDelete={true}
++                canDuplicate={!runtimeContextBinding}
++                canRename={!runtimeContextBinding}
++                canToggleEnabled={!runtimeContextBinding}
+                 node={runtimeContextMenuNode}
+                 nodes={[runtimeContextMenuNode]}
+                 nodeType={runtimeContextNodeType}
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/lib/runtime-nodes/constants.js /mnt/data/work_873/scratch-gui-main/src/lib/runtime-nodes/constants.js
+--- /mnt/data/base_873/scratch-gui-main/src/lib/runtime-nodes/constants.js	2026-08-04 09:54:34.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/lib/runtime-nodes/constants.js	2026-08-05 01:39:18.959941633 +0000
+@@ -38,6 +38,10 @@
+     UNKNOWN_NODE: 'ngvge.unknown-node'
+ });
+ 
++const SEMANTIC_RUNTIME_NODE_TYPE_IDS = Object.freeze({
++    SPRITE: 'ngvge.sprite-node'
++});
++
+ const GLOBAL_ROOT_NODE_ID = 'runtime-node:global-root';
+ const getSceneRootNodeId = sceneId => `runtime-node:scene-root:${sceneId}`;
+ 
+@@ -50,5 +54,6 @@
+     NODE_SCOPES,
+     RUNTIME_NODE_MODEL_CAPABILITY_ID,
+     RUNTIME_NODE_MODEL_VERSION,
++    SEMANTIC_RUNTIME_NODE_TYPE_IDS,
+     getSceneRootNodeId
+ };
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/lib/runtime-nodes/index.js /mnt/data/work_873/scratch-gui-main/src/lib/runtime-nodes/index.js
+--- /mnt/data/base_873/scratch-gui-main/src/lib/runtime-nodes/index.js	2026-08-04 10:45:16.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/lib/runtime-nodes/index.js	2026-08-05 01:39:18.960091064 +0000
+@@ -7,6 +7,7 @@
+ const runtimeNodeImport = require('./runtime-node-import');
+ const runtimeNodeErrorPresenter = require('./runtime-node-error-presenter');
+ const runtimeTreeIdentity = require('./runtime-tree-identity');
++const spriteRuntimeNode = require('./sprite-runtime-node');
+ const {createRuntimeNodeModelService} = require('./runtime-node-model-service');
+ 
+ module.exports = {
+@@ -20,5 +21,6 @@
+     ...runtimeNodeImport,
+     ...runtimeNode,
+     ...runtimeNodeTypeRegistry,
++    ...spriteRuntimeNode,
+     ...runtimeTreeIdentity
+ };
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/lib/runtime-nodes/runtime-node-type-registry.js /mnt/data/work_873/scratch-gui-main/src/lib/runtime-nodes/runtime-node-type-registry.js
+--- /mnt/data/base_873/scratch-gui-main/src/lib/runtime-nodes/runtime-node-type-registry.js	2026-08-04 10:59:42.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/lib/runtime-nodes/runtime-node-type-registry.js	2026-08-05 01:40:10.671469738 +0000
+@@ -1,8 +1,10 @@
+ const {
+     BUILTIN_RUNTIME_NODE_TYPE_IDS,
+     NODE_FAMILIES,
+-    NODE_SCOPES
++    NODE_SCOPES,
++    SEMANTIC_RUNTIME_NODE_TYPE_IDS
+ } = require('./constants');
++const {SpriteRuntimeNode} = require('./sprite-runtime-node');
+ const {
+     RuntimeNode,
+     UnknownRuntimeNode,
+@@ -224,6 +226,20 @@
+         version: '1'
+     });
+     register({
++        abstract: false,
++        allowChildren: true,
++        allowedScopes: [NODE_SCOPES.SCENE],
++        category: '2D',
++        ctor: SpriteRuntimeNode,
++        defaultScope: NODE_SCOPES.SCENE,
++        family: NODE_FAMILIES.NODE_2D,
++        hidden: true,
++        id: SEMANTIC_RUNTIME_NODE_TYPE_IDS.SPRITE,
++        label: 'Sprite',
++        order: 11,
++        version: '1'
++    });
++    register({
+         abstract: false,
+         allowedScopes: [NODE_SCOPES.GLOBAL, NODE_SCOPES.SCENE],
+         category: 'Core',
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/lib/runtime-nodes/sprite-runtime-node.js /mnt/data/work_873/scratch-gui-main/src/lib/runtime-nodes/sprite-runtime-node.js
+--- /mnt/data/base_873/scratch-gui-main/src/lib/runtime-nodes/sprite-runtime-node.js	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/lib/runtime-nodes/sprite-runtime-node.js	2026-08-05 01:39:18.960060469 +0000
+@@ -0,0 +1,14 @@
++const {RuntimeNode2D} = require('./runtime-node');
++
++/**
++ * Backend-independent semantic Sprite node.
++ *
++ * Rendering, Scratch Target ownership and future native sprite execution are
++ * provided by components/adapters. This class intentionally carries no
++ * Scratch, renderer or backend handle.
++ */
++class SpriteRuntimeNode extends RuntimeNode2D {}
++
++module.exports = {
++    SpriteRuntimeNode
++};
+\ No newline at end of file
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/lib/scene-system/module-definition.js /mnt/data/work_873/scratch-gui-main/src/lib/scene-system/module-definition.js
+--- /mnt/data/base_873/scratch-gui-main/src/lib/scene-system/module-definition.js	2026-08-04 14:12:31.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/lib/scene-system/module-definition.js	2026-08-05 01:35:15.467156937 +0000
+@@ -79,7 +79,7 @@
+                 MODULE_PERMISSIONS.RUNTIME,
+                 MODULE_PERMISSIONS.SERIALIZATION
+             ],
+-            version: '0.7.2.2'
++            version: '0.7.3'
+         },
+         hooks: {
+             disable: disposeServices,
+@@ -109,7 +109,7 @@
+                     context.capabilities.provide(
+                         SCRATCH_SPRITE_ADAPTER_CAPABILITY_ID,
+                         scratchSpriteAdapter,
+-                        {version: '1'}
++                        {version: '2'}
+                     );
+ 
+                     sceneManager = createSceneManager(context, dataModelService, snapshotSerializer, runtimeManager);
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/constants.js /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/constants.js
+--- /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/constants.js	2026-08-04 11:31:28.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/constants.js	2026-08-05 01:39:18.960123943 +0000
+@@ -1,11 +1,22 @@
++const {SEMANTIC_RUNTIME_NODE_TYPE_IDS} = require('../runtime-nodes/constants');
++
+ const SCRATCH_SPRITE_ADAPTER_CAPABILITY_ID = 'ngvge.scratch-sprite-node-adapter';
+-const SCRATCH_SPRITE_ADAPTER_VERSION = 1;
+-const SCRATCH_SPRITE_BINDING_SCHEMA_VERSION = 1;
++const SCRATCH_SPRITE_ADAPTER_VERSION = 2;
++const SCRATCH_SPRITE_BINDING_SCHEMA_VERSION = 2;
+ const SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY = 'scratchSpriteBindings';
+-const SCRATCH_SPRITE_NODE_TYPE_ID = 'ngvge.scratch-sprite-node';
++const SPRITE_NODE_TYPE_ID = SEMANTIC_RUNTIME_NODE_TYPE_IDS.SPRITE;
++const LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID = 'ngvge.scratch-sprite-node';
++// Kept as a compatibility export for older callers. New code must use
++// SPRITE_NODE_TYPE_ID for semantic nodes and the binding component for Scratch ownership.
++const SCRATCH_SPRITE_NODE_TYPE_ID = LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID;
+ const SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID = 'ngvge.scratch-target-binding';
+ const SCRATCH_SPRITE_NODE_TYPE_OWNER = 'ngvge.scene-system';
+ 
++const SCRATCH_BINDING_DESTROY_POLICIES = Object.freeze({
++    DELETE_TARGET: 'delete-target',
++    DETACH: 'detach'
++});
++
+ const SCRATCH_TARGET_ROLES = Object.freeze({
+     SPRITE: 'sprite'
+ });
+@@ -19,6 +30,8 @@
+ });
+ 
+ module.exports = {
++    LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID,
++    SCRATCH_BINDING_DESTROY_POLICIES,
+     SCRATCH_BINDING_STATUSES,
+     SCRATCH_SPRITE_ADAPTER_CAPABILITY_ID,
+     SCRATCH_SPRITE_ADAPTER_VERSION,
+@@ -27,5 +40,6 @@
+     SCRATCH_SPRITE_NODE_TYPE_ID,
+     SCRATCH_SPRITE_NODE_TYPE_OWNER,
+     SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID,
+-    SCRATCH_TARGET_ROLES
++    SCRATCH_TARGET_ROLES,
++    SPRITE_NODE_TYPE_ID
+ };
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/id.js /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/id.js
+--- /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/id.js	2026-08-04 11:31:28.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/id.js	2026-08-05 01:30:58.860748718 +0000
+@@ -1,7 +1,7 @@
+ const {createRuntimeId} = require('../runtime-nodes/id');
+ 
+ const createScratchBindingId = () => createRuntimeId('scratch-binding');
+-const createScratchSpriteNodeId = () => createRuntimeId('runtime-node:scratch-sprite');
++const createScratchSpriteNodeId = () => createRuntimeId('runtime-node:sprite');
+ const createScratchBindingComponentId = () => createRuntimeId('runtime-component:scratch-target-binding');
+ 
+ module.exports = {
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/index.js /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/index.js
+--- /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/index.js	2026-08-04 11:31:28.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/index.js	2026-08-05 01:39:18.960167718 +0000
+@@ -1,11 +1,13 @@
+ const constants = require('./constants');
+ const id = require('./id');
+ const {ScratchSpriteRuntimeNode} = require('./scratch-sprite-node');
++const projection = require('./scratch-sprite-tree-projection');
+ const service = require('./scratch-sprite-node-adapter-service');
+ 
+ module.exports = {
+     ScratchSpriteRuntimeNode,
+     ...constants,
+     ...id,
++    ...projection,
+     ...service
+ };
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js
+--- /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js	2026-08-04 14:18:00.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js	2026-08-05 01:43:13.152800181 +0000
+@@ -2,15 +2,17 @@
+ const {cloneSerializable} = require('../runtime-nodes/serializable');
+ const {ScratchSpriteRuntimeNode} = require('./scratch-sprite-node');
+ const {
++    LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID,
++    SCRATCH_BINDING_DESTROY_POLICIES,
+     SCRATCH_BINDING_STATUSES,
+     SCRATCH_SPRITE_ADAPTER_CAPABILITY_ID,
+     SCRATCH_SPRITE_ADAPTER_VERSION,
+     SCRATCH_SPRITE_BINDING_SCHEMA_VERSION,
+     SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY,
+-    SCRATCH_SPRITE_NODE_TYPE_ID,
+     SCRATCH_SPRITE_NODE_TYPE_OWNER,
+     SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID,
+-    SCRATCH_TARGET_ROLES
++    SCRATCH_TARGET_ROLES,
++    SPRITE_NODE_TYPE_ID
+ } = require('./constants');
+ const {
+     createScratchBindingComponentId,
+@@ -30,6 +32,19 @@
+     typeof value === 'string' && value.trim() ? value.trim() : null
+ );
+ 
++const getScopedTargetKey = (sceneId, targetRuntimeId) => {
++    const normalizedSceneId = normalizeString(sceneId);
++    const normalizedTargetRuntimeId = normalizeString(targetRuntimeId);
++    return normalizedSceneId && normalizedTargetRuntimeId ? `${normalizedSceneId}\u0000${normalizedTargetRuntimeId}` : null;
++};
++
++const createAdapterSourceDescriptor = record => ({
++    adapterType: 'scratch.sprite',
++    bindingId: record.bindingId,
++    kind: 'compatibility-adapter',
++    sceneId: record.sceneId
++});
++
+ const getTargetName = target => {
+     if (!target || typeof target !== 'object') return 'Sprite';
+     if (typeof target.getName === 'function') {
+@@ -43,7 +58,7 @@
+ 
+ const getTargetRuntimeId = target => normalizeString(target && target.id);
+ 
+-const getOriginalSpriteTargets = vm => {
++const getOriginalSpriteTargets = (vm, excludedTargetIds = new Set()) => {
+     const targets = vm && vm.runtime && Array.isArray(vm.runtime.targets) ? vm.runtime.targets : [];
+     return targets.map((target, serializedTargetIndex) => ({
+         serializedTargetIndex,
+@@ -51,7 +66,8 @@
+     })).filter(entry => (
+         entry.target &&
+         !entry.target.isStage &&
+-        entry.target.isOriginal !== false
++        entry.target.isOriginal !== false &&
++        !excludedTargetIds.has(getTargetRuntimeId(entry.target))
+     ));
+ };
+ 
+@@ -62,6 +78,8 @@
+     if (!bindingId || !nodeId) return null;
+     return {
+         bindingId,
++        destroyPolicy: Object.values(SCRATCH_BINDING_DESTROY_POLICIES).includes(value.destroyPolicy) ?
++            value.destroyPolicy : SCRATCH_BINDING_DESTROY_POLICIES.DELETE_TARGET,
+         lastKnownName: normalizeString(value.lastKnownName) || 'Sprite',
+         nodeId,
+         role: SCRATCH_TARGET_ROLES.SPRITE,
+@@ -73,6 +91,7 @@
+ 
+ const toPersistentBinding = binding => ({
+     bindingId: binding.bindingId,
++    destroyPolicy: binding.destroyPolicy || SCRATCH_BINDING_DESTROY_POLICIES.DELETE_TARGET,
+     lastKnownName: binding.lastKnownName,
+     nodeId: binding.nodeId,
+     role: SCRATCH_TARGET_ROLES.SPRITE,
+@@ -83,6 +102,7 @@
+     if (!binding) return null;
+     return deepFreeze({
+         bindingId: binding.bindingId,
++        destroyPolicy: binding.destroyPolicy || SCRATCH_BINDING_DESTROY_POLICIES.DELETE_TARGET,
+         lastKnownName: binding.lastKnownName,
+         nodeId: binding.nodeId,
+         role: SCRATCH_TARGET_ROLES.SPRITE,
+@@ -181,8 +201,10 @@
+     const listeners = new Set();
+     const bindingsByNodeId = new Map();
+     const bindingsByBindingId = new Map();
+-    const bindingsByTargetRuntimeId = new Map();
+-    const targetByRuntimeId = new Map();
++    const bindingsByScopedTargetId = new Map();
++    const targetByScopedRuntimeId = new Map();
++    const adapterDestroyingNodeIds = new Set();
++    const deletingTargetRuntimeIds = new Set();
+     let disposed = false;
+     let lastError = null;
+     let warnings = [];
+@@ -197,18 +219,18 @@
+     let deferredTransitionReconcile = null;
+     const lifecycleUnsubscribers = [];
+ 
+-    const unregisterNodeType = runtimeNodeModel.registerNodeType({
++    const unregisterLegacyNodeType = runtimeNodeModel.registerNodeType({
+         abstract: false,
+         allowChildren: true,
+         allowedScopes: [NODE_SCOPES.SCENE],
+-        category: 'Scratch',
++        category: 'Compatibility',
+         ctor: ScratchSpriteRuntimeNode,
+         defaultScope: NODE_SCOPES.SCENE,
+         family: NODE_FAMILIES.NODE_2D,
+         hidden: true,
+-        id: SCRATCH_SPRITE_NODE_TYPE_ID,
+-        label: 'Scratch Sprite',
+-        order: 0,
++        id: LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID,
++        label: 'Legacy Scratch Sprite',
++        order: -1,
+         version: '1'
+     }, {
+         owner: SCRATCH_SPRITE_NODE_TYPE_OWNER
+@@ -231,8 +253,8 @@
+     const clearIndexes = () => {
+         bindingsByNodeId.clear();
+         bindingsByBindingId.clear();
+-        bindingsByTargetRuntimeId.clear();
+-        targetByRuntimeId.clear();
++        bindingsByScopedTargetId.clear();
++        targetByScopedRuntimeId.clear();
+     };
+ 
+     const indexBinding = (binding, target = null) => {
+@@ -246,16 +268,17 @@
+             error.code = 'SCRATCH_BINDING_ID_CONFLICT';
+             throw error;
+         }
+-        if (binding.targetRuntimeId && bindingsByTargetRuntimeId.has(binding.targetRuntimeId)) {
++        const scopedTargetKey = getScopedTargetKey(binding.sceneId, binding.targetRuntimeId);
++        if (scopedTargetKey && bindingsByScopedTargetId.has(scopedTargetKey)) {
+             const error = new Error(`Scratch target is already bound: ${binding.targetRuntimeId}`);
+             error.code = 'SCRATCH_TARGET_ALREADY_BOUND';
+             throw error;
+         }
+         bindingsByNodeId.set(binding.nodeId, binding);
+         bindingsByBindingId.set(binding.bindingId, binding);
+-        if (binding.targetRuntimeId) {
+-            bindingsByTargetRuntimeId.set(binding.targetRuntimeId, binding);
+-            if (target) targetByRuntimeId.set(binding.targetRuntimeId, target);
++        if (scopedTargetKey) {
++            bindingsByScopedTargetId.set(scopedTargetKey, binding);
++            if (target) targetByScopedRuntimeId.set(scopedTargetKey, target);
+         }
+     };
+ 
+@@ -264,9 +287,12 @@
+         const result = [];
+         const bindingIds = new Set();
+         nodes.forEach(node => {
+-            const source = isObject(node.source) ? node.source : {};
+-            if (source.kind !== 'scratch-target' || source.role !== SCRATCH_TARGET_ROLES.SPRITE) return;
+-            const bindingId = normalizeString(source.bindingId);
++            const component = node.components.find(candidate => (
++                candidate.typeId === SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID
++            ));
++            if (!component) return;
++            const componentData = isObject(component.data) ? component.data : {};
++            const bindingId = normalizeString(componentData.bindingId);
+             if (!bindingId || bindingIds.has(bindingId)) {
+                 if (bindingId) warnings.push({
+                     bindingId,
+@@ -276,13 +302,20 @@
+                 });
+                 return;
+             }
+-            const component = node.components.find(candidate => (
+-                candidate.typeId === SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID
+-            ));
+-            const componentData = component && isObject(component.data) ? component.data : {};
++            if (node.typeId !== SPRITE_NODE_TYPE_ID && node.typeId !== LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID) {
++                warnings.push({
++                    bindingId,
++                    code: 'SCRATCH_BINDING_SEMANTIC_NODE_TYPE_INVALID',
++                    nodeId: node.id,
++                    sceneId
++                });
++                return;
++            }
+             bindingIds.add(bindingId);
+             result.push({
+                 bindingId,
++                destroyPolicy: Object.values(SCRATCH_BINDING_DESTROY_POLICIES).includes(componentData.destroyPolicy) ?
++                    componentData.destroyPolicy : SCRATCH_BINDING_DESTROY_POLICIES.DELETE_TARGET,
+                 lastKnownName: normalizeString(componentData.lastKnownName) || node.name,
+                 nodeId: node.id,
+                 role: SCRATCH_TARGET_ROLES.SPRITE,
+@@ -311,6 +344,43 @@
+         return Array.from(byBindingId.values());
+     };
+ 
++    const migrateLegacyRuntimeNodes = () => {
++        const snapshot = runtimeNodeModel.exportState();
++        const legacyNodeIds = [];
++        const nextNodes = snapshot.nodes.map(record => {
++            if (!record || record.typeId !== LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID) return record;
++            const components = Array.isArray(record.components) ? record.components : [];
++            const bindingComponent = components.find(component => (
++                component && component.typeId === SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID
++            ));
++            const bindingId = normalizeString(bindingComponent && bindingComponent.data && bindingComponent.data.bindingId) ||
++                normalizeString(record.source && record.source.bindingId);
++            if (!bindingId) return record;
++            legacyNodeIds.push(record.id);
++            return Object.assign({}, record, {
++                metadata: Object.assign({}, record.metadata, {
++                    adapterManaged: true,
++                    adapterType: 'scratch.sprite',
++                    semanticType: 'sprite'
++                }),
++                source: createAdapterSourceDescriptor({
++                    bindingId,
++                    sceneId: record.sceneId
++                }),
++                typeId: SPRITE_NODE_TYPE_ID
++            });
++        });
++        if (!legacyNodeIds.length) return Object.freeze([]);
++        runtimeNodeModel.importState(Object.assign({}, snapshot, {nodes: nextNodes}), {
++            transactionId: 'scratch-adapter:migrate-legacy-node-type'
++        });
++        emit({
++            migratedNodeIds: legacyNodeIds,
++            type: 'adapter:legacy-node-migrated'
++        });
++        return Object.freeze(legacyNodeIds.slice());
++    };
++
+     const writePersistentBindings = (sceneId, bindings) => {
+         const project = sceneDataModel.readProject();
+         const extensionData = isObject(project.extensionData) ? cloneSerializable(project.extensionData) : {};
+@@ -338,15 +408,13 @@
+     };
+ 
+     const ensureRuntimeNode = (record, targetName) => {
+-        const source = {
+-            bindingId: record.bindingId,
+-            kind: 'scratch-target',
+-            role: SCRATCH_TARGET_ROLES.SPRITE,
+-            sceneId: record.sceneId
+-        };
++        const source = createAdapterSourceDescriptor(record);
+         const componentData = {
++            adapterType: 'scratch.sprite',
+             bindingId: record.bindingId,
++            destroyPolicy: record.destroyPolicy || SCRATCH_BINDING_DESTROY_POLICIES.DELETE_TARGET,
+             lastKnownName: targetName,
++            lifecycle: 'attached',
+             role: SCRATCH_TARGET_ROLES.SPRITE,
+             sceneId: record.sceneId,
+             schemaVersion: SCRATCH_SPRITE_BINDING_SCHEMA_VERSION,
+@@ -354,7 +422,7 @@
+         };
+         let node = runtimeNodeModel.getNode(record.nodeId);
+         if (!node) {
+-            node = runtimeNodeModel.createNode(SCRATCH_SPRITE_NODE_TYPE_ID, {
++            node = runtimeNodeModel.createNode(SPRITE_NODE_TYPE_ID, {
+                 components: [{
+                     data: componentData,
+                     id: componentIdFactory(),
+@@ -363,7 +431,8 @@
+                 id: record.nodeId,
+                 metadata: {
+                     adapterManaged: true,
+-                    adapterType: 'scratch-sprite'
++                    adapterType: 'scratch.sprite',
++                    semanticType: 'sprite'
+                 },
+                 name: targetName,
+                 sceneId: record.sceneId,
+@@ -376,8 +445,8 @@
+             error.code = 'SCRATCH_BINDING_SCENE_CONFLICT';
+             throw error;
+         }
+-        if (node.typeId !== SCRATCH_SPRITE_NODE_TYPE_ID) {
+-            const error = new Error(`Runtime node is not a Scratch sprite node: ${record.nodeId}`);
++        if (node.typeId !== SPRITE_NODE_TYPE_ID) {
++            const error = new Error(`Runtime node is not a semantic Sprite node: ${record.nodeId}`);
+             error.code = 'SCRATCH_BINDING_NODE_TYPE_CONFLICT';
+             throw error;
+         }
+@@ -385,6 +454,15 @@
+             runtimeNodeModel.patchNode(node.id, {name: targetName, source});
+             node = runtimeNodeModel.getNode(node.id);
+         }
++        if (!node.metadata || node.metadata.adapterType !== 'scratch.sprite' ||
++            node.metadata.semanticType !== 'sprite' || node.metadata.adapterManaged !== true) {
++            runtimeNodeModel.patchNodeMetadata(node.id, {
++                adapterManaged: true,
++                adapterType: 'scratch.sprite',
++                semanticType: 'sprite'
++            });
++            node = runtimeNodeModel.getNode(node.id);
++        }
+         const component = node.components.find(candidate => (
+             candidate.typeId === SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID
+         ));
+@@ -474,10 +552,93 @@
+ 
+     const destroyBindingNode = binding => {
+         if (!binding || !runtimeNodeModel.getNode(binding.nodeId)) return false;
+-        runtimeNodeModel.destroyNode(binding.nodeId, {allowAdapterManaged: true});
++        adapterDestroyingNodeIds.add(binding.nodeId);
++        try {
++            runtimeNodeModel.destroyNode(binding.nodeId, {
++                transactionId: `scratch-adapter:destroy:${binding.bindingId}`
++            });
++        } finally {
++            adapterDestroyingNodeIds.delete(binding.nodeId);
++        }
+         return true;
+     };
+ 
++    const removeBindingFromIndexes = binding => {
++        if (!binding) return;
++        bindingsByNodeId.delete(binding.nodeId);
++        bindingsByBindingId.delete(binding.bindingId);
++        const scopedTargetKey = getScopedTargetKey(binding.sceneId, binding.targetRuntimeId);
++        if (scopedTargetKey) {
++            bindingsByScopedTargetId.delete(scopedTargetKey);
++            targetByScopedRuntimeId.delete(scopedTargetKey);
++        }
++    };
++
++    const removePersistentBinding = binding => {
++        const remainingBindings = Array.from(bindingsByNodeId.values()).filter(candidate => (
++            candidate.sceneId === binding.sceneId && candidate.bindingId !== binding.bindingId
++        ));
++        return writePersistentBindings(binding.sceneId, remainingBindings);
++    };
++
++    const releaseTargetDeleteGuard = targetRuntimeId => {
++        if (!targetRuntimeId) return;
++        setTimeout(() => deletingTargetRuntimeIds.delete(targetRuntimeId), 0);
++    };
++
++    const destroyOwnedBinding = async (binding, destroyOptions = {}) => {
++        assertAvailable();
++        if (!binding) return false;
++        const reason = normalizeString(destroyOptions.reason) || 'binding-owner-destroyed';
++        const targetRuntimeId = binding.targetRuntimeId || null;
++        const deleteTarget = destroyOptions.deleteTarget !== false &&
++            binding.destroyPolicy === SCRATCH_BINDING_DESTROY_POLICIES.DELETE_TARGET &&
++            Boolean(targetRuntimeId);
++        const vm = context && context.vm;
++
++        if (deleteTarget) {
++            deletingTargetRuntimeIds.add(targetRuntimeId);
++            if (vm && typeof vm.deleteSprite === 'function') {
++                try {
++                    await Promise.resolve(vm.deleteSprite(targetRuntimeId));
++                } catch (error) {
++                    deletingTargetRuntimeIds.delete(targetRuntimeId);
++                    const normalizedError = error instanceof Error ? error : new Error(String(error));
++                    normalizedError.code = normalizedError.code || 'SCRATCH_BINDING_TARGET_DELETE_FAILED';
++                    throw normalizedError;
++                }
++            } else {
++                warnings.push({
++                    bindingId: binding.bindingId,
++                    code: 'SCRATCH_BINDING_TARGET_DELETE_UNAVAILABLE',
++                    nodeId: binding.nodeId,
++                    sceneId: binding.sceneId,
++                    targetRuntimeId
++                });
++            }
++        }
++
++        removePersistentBinding(binding);
++        removeBindingFromIndexes(binding);
++        if (!destroyOptions.nodeAlreadyDestroyed) destroyBindingNode(binding);
++        const change = emit({
++            bindingId: binding.bindingId,
++            nodeId: binding.nodeId,
++            reason,
++            sceneId: binding.sceneId,
++            targetDeleted: deleteTarget,
++            targetRuntimeId,
++            type: 'adapter:binding-destroyed'
++        });
++        releaseTargetDeleteGuard(targetRuntimeId);
++        scheduleReconcile('binding-destroyed', {
++            delay: 0,
++            preserveMissing: false,
++            sceneId: binding.sceneId
++        });
++        return change;
++    };
++
+     const reconcileSceneInternal = (sceneId = null, reconcileOptions = {}) => {
+         assertAvailable();
+         const project = sceneDataModel.readProject();
+@@ -505,8 +666,9 @@
+                 Array.from(bindingsByNodeId.values()).filter(binding => binding.sceneId === project.activeSceneId) : [];
+             const liveTargetsById = new Map();
+             liveBindings.forEach(binding => {
+-                if (binding.targetRuntimeId && targetByRuntimeId.has(binding.targetRuntimeId)) {
+-                    liveTargetsById.set(binding.targetRuntimeId, targetByRuntimeId.get(binding.targetRuntimeId));
++                const scopedTargetKey = getScopedTargetKey(binding.sceneId, binding.targetRuntimeId);
++                if (scopedTargetKey && targetByScopedRuntimeId.has(scopedTargetKey)) {
++                    liveTargetsById.set(binding.targetRuntimeId, targetByScopedRuntimeId.get(scopedTargetKey));
+                 }
+             });
+             const offlineBindings = rebuildProjectBindingIndexes(project, liveBindings, liveTargetsById);
+@@ -537,7 +699,7 @@
+         const missingNodeIds = [];
+         const removedNodeIds = [];
+         const targetsById = new Map();
+-        const targetEntries = getOriginalSpriteTargets(vm);
++        const targetEntries = getOriginalSpriteTargets(vm, deletingTargetRuntimeIds);
+         targetEntries.forEach(({target}) => {
+             const targetRuntimeId = getTargetRuntimeId(target);
+             if (targetRuntimeId) targetsById.set(targetRuntimeId, target);
+@@ -553,6 +715,7 @@
+                 if (!record) {
+                     record = {
+                         bindingId: bindingIdFactory(),
++                        destroyPolicy: SCRATCH_BINDING_DESTROY_POLICIES.DELETE_TARGET,
+                         lastKnownName: targetName,
+                         nodeId: nodeIdFactory(),
+                         role: SCRATCH_TARGET_ROLES.SPRITE,
+@@ -754,6 +917,27 @@
+             delay: 0,
+             preserveMissing: true
+         }));
++        if (runtimeNodeModel && typeof runtimeNodeModel.subscribe === 'function') {
++            const unsubscribeRuntimeNodes = runtimeNodeModel.subscribe(change => {
++                if (!change || change.type !== 'node:destroy' || adapterDestroyingNodeIds.has(change.nodeId)) return;
++                const binding = bindingsByNodeId.get(change.nodeId);
++                if (!binding) return;
++                Promise.resolve(destroyOwnedBinding(binding, {
++                    nodeAlreadyDestroyed: true,
++                    reason: 'runtime-node-destroyed'
++                })).catch(error => {
++                    lastError = error && error.message ? error.message : String(error);
++                    emit({
++                        bindingId: binding.bindingId,
++                        error: lastError,
++                        nodeId: binding.nodeId,
++                        sceneId: binding.sceneId,
++                        type: 'bindings:error'
++                    });
++                });
++            });
++            lifecycleUnsubscribers.push(unsubscribeRuntimeNodes);
++        }
+         if (sceneRuntime && typeof sceneRuntime.subscribe === 'function') {
+             const unsubscribeRuntime = sceneRuntime.subscribe(change => {
+                 if (!change) return;
+@@ -812,6 +996,7 @@
+     }).bindings;
+ 
+     try {
++        migrateLegacyRuntimeNodes();
+         establishBindings();
+         startLifecycleTracking();
+     } catch {
+@@ -828,9 +1013,18 @@
+             reconcileGeneration += 1;
+             clearIndexes();
+             listeners.clear();
+-            unregisterNodeType();
++            unregisterLegacyNodeType();
++        },
++        destroyBindingByNodeId: (nodeId, destroyOptions = {}) => {
++            assertAvailable();
++            return destroyOwnedBinding(bindingsByNodeId.get(nodeId) || null, destroyOptions);
+         },
+         establishBindings,
++        getBinding: (sceneId, bindingId) => {
++            assertAvailable();
++            const binding = bindingsByBindingId.get(bindingId) || null;
++            return toBindingView(binding && binding.sceneId === sceneId ? binding : null);
++        },
+         reconcileActiveScene,
+         reconcileScene,
+         scheduleReconcile,
+@@ -840,13 +1034,17 @@
+             assertAvailable();
+             return toBindingView(bindingsByBindingId.get(bindingId) || null);
+         },
+-        getBindingByNodeId: nodeId => {
++        getBindingByNodeId: (nodeId, sceneId = null) => {
+             assertAvailable();
+-            return toBindingView(bindingsByNodeId.get(nodeId) || null);
++            const binding = bindingsByNodeId.get(nodeId) || null;
++            return toBindingView(binding && (!sceneId || binding.sceneId === sceneId) ? binding : null);
+         },
+-        getBindingByTargetRuntimeId: targetRuntimeId => {
++        getBindingByTargetRuntimeId: (targetRuntimeId, sceneId = null) => {
+             assertAvailable();
+-            return toBindingView(bindingsByTargetRuntimeId.get(targetRuntimeId) || null);
++            const project = sceneDataModel.readProject();
++            const resolvedSceneId = sceneId || project.activeSceneId;
++            const scopedTargetKey = getScopedTargetKey(resolvedSceneId, targetRuntimeId);
++            return toBindingView(scopedTargetKey ? bindingsByScopedTargetId.get(scopedTargetKey) || null : null);
+         },
+         getStatus: () => {
+             assertAvailable();
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node.js /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node.js
+--- /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node.js	2026-08-04 11:35:55.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node.js	2026-08-05 01:39:18.960147127 +0000
+@@ -1,6 +1,8 @@
+ const {RuntimeNode2D} = require('../runtime-nodes/runtime-node');
+ const {SCRATCH_TARGET_ROLES} = require('./constants');
+ 
++// Legacy constructor retained only so old persisted node records can be loaded
++// and migrated without losing their stable NodeId or child tree.
+ class ScratchSpriteRuntimeNode extends RuntimeNode2D {
+     constructor (options = {}) {
+         const source = options.source && typeof options.source === 'object' ? options.source : {};
+diff -ruN /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-tree-projection.js /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-tree-projection.js
+--- /mnt/data/base_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-tree-projection.js	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-tree-projection.js	2026-08-05 01:30:58.860937948 +0000
+@@ -0,0 +1,49 @@
++const createReadonlyLookup = source => {
++    const values = new Map(source);
++    return Object.freeze({
++        get: key => values.get(key) || null,
++        has: key => values.has(key),
++        keys: () => Object.freeze(Array.from(values.keys())),
++        values: () => Object.freeze(Array.from(values.values()))
++    });
++};
++
++/**
++ * Build the editor-facing projection for Scratch-backed semantic Sprite nodes.
++ *
++ * The Project Explorer consumes this projection instead of inferring adapter
++ * ownership from a backend-specific Runtime Node type. A binding is projected
++ * only when its semantic owner node exists in the Runtime Node Model.
++ *
++ * @param {object} options projection input
++ * @param {Array<object>} options.bindings adapter binding views
++ * @param {Array<object>} options.runtimeNodes runtime node views
++ * @returns {object} frozen read-only projection
++ */
++const createScratchSpriteTreeProjection = ({bindings = [], runtimeNodes = []} = {}) => {
++    const runtimeNodeIds = new Set(runtimeNodes.map(node => node && node.id).filter(Boolean));
++    const byNodeId = new Map();
++    const byTargetRuntimeId = new Map();
++    const projectedBindings = [];
++
++    bindings.forEach(binding => {
++        if (!binding || !runtimeNodeIds.has(binding.nodeId)) return;
++        if (byNodeId.has(binding.nodeId)) return;
++        byNodeId.set(binding.nodeId, binding);
++        if (binding.targetRuntimeId && !byTargetRuntimeId.has(binding.targetRuntimeId)) {
++            byTargetRuntimeId.set(binding.targetRuntimeId, binding);
++        }
++        projectedBindings.push(binding);
++    });
++
++    return Object.freeze({
++        bindingByNodeId: createReadonlyLookup(byNodeId),
++        bindingByTargetRuntimeId: createReadonlyLookup(byTargetRuntimeId),
++        bindings: Object.freeze(projectedBindings.slice()),
++        hiddenTargetRuntimeIds: Object.freeze(Array.from(byTargetRuntimeId.keys()))
++    });
++};
++
++module.exports = {
++    createScratchSpriteTreeProjection
++};
+\ No newline at end of file
+diff -ruN /mnt/data/base_873/scratch-gui-main/test/unit/components/project-explorer.test.jsx /mnt/data/work_873/scratch-gui-main/test/unit/components/project-explorer.test.jsx
+--- /mnt/data/base_873/scratch-gui-main/test/unit/components/project-explorer.test.jsx	2026-08-04 14:14:16.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/test/unit/components/project-explorer.test.jsx	2026-08-05 01:38:08.218615392 +0000
+@@ -270,18 +270,18 @@
+             protected: false,
+             sceneId: 'scene-a',
+             scope: 'scene',
+-            typeId: 'ngvge.scratch-sprite-node'
++            typeId: 'ngvge.sprite-node'
+         };
+         const runtimeNodeModel = {
+             getChildren: nodeId => nodeId === sceneRoot.id ? [spriteNode] : [],
+             getGlobalRoot: () => globalRoot,
+             getImportStatus: () => ({lastResult: null}),
+             getNode: nodeId => [globalRoot, sceneRoot, spriteNode].find(node => node.id === nodeId) || null,
+-            getNodeType: typeId => typeId === 'ngvge.scratch-sprite-node' ? {
++            getNodeType: typeId => typeId === 'ngvge.sprite-node' ? {
+                 allowChildren: true,
+                 family: '2d',
+                 id: typeId,
+-                label: 'Scratch Sprite'
++                label: 'Sprite'
+             } : null,
+             getParent: nodeId => nodeId === spriteNode.id ? sceneRoot : null,
+             getSceneRoot: () => sceneRoot,
+diff -ruN /mnt/data/base_873/scratch-gui-main/test/unit/lib/runtime-nodes/runtime-node-type-registry.test.js /mnt/data/work_873/scratch-gui-main/test/unit/lib/runtime-nodes/runtime-node-type-registry.test.js
+--- /mnt/data/base_873/scratch-gui-main/test/unit/lib/runtime-nodes/runtime-node-type-registry.test.js	2026-08-04 11:01:58.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/test/unit/lib/runtime-nodes/runtime-node-type-registry.test.js	2026-08-05 01:40:56.157109515 +0000
+@@ -1,9 +1,11 @@
+ import {
+     BUILTIN_RUNTIME_NODE_TYPE_IDS,
+     NODE_SCOPES,
++    SEMANTIC_RUNTIME_NODE_TYPE_IDS,
+     RuntimeNode,
+     RuntimeNode2D,
+     RuntimeServiceNode,
++    SpriteRuntimeNode,
+     createRuntimeNodeTypeRegistry
+ } from '../../../../src/lib/runtime-nodes';
+ 
+@@ -14,12 +16,13 @@
+         expect(registry.get(BUILTIN_RUNTIME_NODE_TYPE_IDS.NODE).ctor).toBe(RuntimeNode);
+         expect(registry.get(BUILTIN_RUNTIME_NODE_TYPE_IDS.NODE_2D).ctor).toBe(RuntimeNode2D);
+         expect(registry.get(BUILTIN_RUNTIME_NODE_TYPE_IDS.SERVICE_NODE).ctor).toBe(RuntimeServiceNode);
++        expect(registry.get(SEMANTIC_RUNTIME_NODE_TYPE_IDS.SPRITE).ctor).toBe(SpriteRuntimeNode);
+         expect(registry.list().map(type => type.id)).toEqual([
+             BUILTIN_RUNTIME_NODE_TYPE_IDS.NODE,
+             BUILTIN_RUNTIME_NODE_TYPE_IDS.NODE_2D,
+             BUILTIN_RUNTIME_NODE_TYPE_IDS.SERVICE_NODE
+         ]);
+-        expect(registry.list({includeHidden: true})).toHaveLength(6);
++        expect(registry.list({includeHidden: true})).toHaveLength(7);
+     });
+ 
+     test('enforces the scopes declared by each node type', () => {
+diff -ruN /mnt/data/base_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js /mnt/data/work_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js
+--- /mnt/data/base_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js	2026-08-04 14:14:16.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js	2026-08-05 01:37:48.044308432 +0000
+@@ -38,6 +38,11 @@
+     ];
+     const vm = new EventEmitter();
+     vm.runtime = runtime;
++    vm.deleteSprite = jest.fn(targetId => {
++        runtime.targets = runtime.targets.filter(target => target.id !== targetId);
++        vm.emit('targetsUpdate');
++        return true;
++    });
+     const runtimeNodeModel = createRuntimeNodeModelService(sceneDataModel);
+     const sceneRuntimeListeners = new Set();
+     const sceneRuntime = {
+@@ -126,6 +131,44 @@
+         harness.adapter.dispose();
+         harness.runtimeNodeModel.dispose();
+     });
++
++    test('deleting the semantic Sprite owner removes Target, Sidecar and Runtime subtree', async () => {
++        const harness = createHarness();
++        await flush();
++        const binding = harness.adapter.listBindings('scene-a')[0];
++        const child = harness.runtimeNodeModel.createNode('ngvge.node2d', {
++            name: 'Attached Child',
++            parentId: binding.nodeId,
++            sceneId: 'scene-a'
++        });
++
++        await harness.adapter.destroyBindingByNodeId(binding.nodeId, {reason: 'test-owner-delete'});
++        await flush();
++
++        expect(harness.vm.deleteSprite).toHaveBeenCalledWith('target-a');
++        expect(harness.adapter.listBindings('scene-a')).toHaveLength(0);
++        expect(harness.runtimeNodeModel.getNode(binding.nodeId)).toBeNull();
++        expect(harness.runtimeNodeModel.getNode(child.id)).toBeNull();
++        expect(harness.getProject().extensionData.scratchSpriteBindings.scenes['scene-a'].items).toEqual([]);
++        harness.adapter.dispose();
++        harness.runtimeNodeModel.dispose();
++    });
++
++    test('direct Runtime Node deletion is intercepted by adapter ownership cleanup', async () => {
++        const harness = createHarness();
++        await flush();
++        const binding = harness.adapter.listBindings('scene-a')[0];
++
++        harness.runtimeNodeModel.destroyNode(binding.nodeId);
++        await flush();
++
++        expect(harness.vm.deleteSprite).toHaveBeenCalledWith('target-a');
++        expect(harness.adapter.listBindings('scene-a')).toHaveLength(0);
++        expect(harness.runtime.targets.some(target => target.id === 'target-a')).toBe(false);
++        expect(harness.getProject().extensionData.scratchSpriteBindings.scenes['scene-a'].items).toEqual([]);
++        harness.adapter.dispose();
++        harness.runtimeNodeModel.dispose();
++    });
+ 
+     test('defers VM target events during scene restore and preserves inactive scene bindings', async () => {
+         const harness = createHarness();
+diff -ruN /mnt/data/base_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.test.js /mnt/data/work_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.test.js
+--- /mnt/data/base_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.test.js	2026-08-04 14:14:16.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.test.js	2026-08-05 01:37:22.497361803 +0000
+@@ -1,6 +1,7 @@
+ import {
+     SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY,
+-    SCRATCH_SPRITE_NODE_TYPE_ID,
++    LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID,
++    SPRITE_NODE_TYPE_ID,
+     SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID,
+     createScratchSpriteNodeAdapterService
+ } from '../../../../src/lib/scratch-sprite-adapter';
+@@ -76,18 +77,21 @@
+         const node = harness.runtimeNodeModel.getNode('runtime-node:scratch-player');
+         expect(node).toMatchObject({
+             sceneId: 'scene-a',
+-            typeId: SCRATCH_SPRITE_NODE_TYPE_ID
++            typeId: SPRITE_NODE_TYPE_ID
+         });
+         expect(node.source).toEqual({
++            adapterType: 'scratch.sprite',
+             bindingId: 'scratch-binding:player',
+-            kind: 'scratch-target',
+-            role: 'sprite',
++            kind: 'compatibility-adapter',
+             sceneId: 'scene-a'
+         });
+         expect(node.components[0]).toMatchObject({
+             typeId: SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID,
+             data: {
++                adapterType: 'scratch.sprite',
+                 bindingId: 'scratch-binding:player',
++                destroyPolicy: 'delete-target',
++                schemaVersion: 2,
+                 serializedTargetIndex: 1
+             }
+         });
+@@ -173,7 +177,88 @@
+         expect(harness.runtimeNodeModel.getNode('node-scene-b')).toMatchObject({
+             name: 'Offline NPC',
+             sceneId: 'scene-b',
+-            typeId: SCRATCH_SPRITE_NODE_TYPE_ID
++            typeId: SPRITE_NODE_TYPE_ID
++        });
++        expect(harness.getProject().extensionData[SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY].schemaVersion).toBe(2);
++    });
++
++    test('migrates the legacy Scratch node type without changing NodeId or BindingId', () => {
++        const initialProject = {
++            activeSceneId: 'scene-a',
++            extensionData: {
++                runtimeNodeModel: {
++                    activeSceneId: 'scene-a',
++                    nodes: [{
++                        components: [{
++                            data: {
++                                bindingId: 'legacy-binding',
++                                lastKnownName: 'Player',
++                                role: 'sprite',
++                                sceneId: 'scene-a',
++                                schemaVersion: 1,
++                                serializedTargetIndex: 1
++                            },
++                            enabled: true,
++                            id: 'legacy-component',
++                            typeId: SCRATCH_TARGET_BINDING_COMPONENT_TYPE_ID
++                        }],
++                        enabled: true,
++                        id: 'legacy-node',
++                        metadata: {adapterManaged: true},
++                        name: 'Player',
++                        parentId: 'runtime-node:scene-root:scene-a',
++                        sceneId: 'scene-a',
++                        scope: 'scene',
++                        source: {
++                            bindingId: 'legacy-binding',
++                            kind: 'scratch-target',
++                            role: 'sprite',
++                            sceneId: 'scene-a'
++                        },
++                        typeId: LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID
++                    }],
++                    scenes: [{id: 'scene-a', name: 'Scene A'}],
++                    version: 1
++                },
++                [SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY]: {
++                    scenes: {
++                        'scene-a': {
++                            items: [{
++                                bindingId: 'legacy-binding',
++                                lastKnownName: 'Player',
++                                nodeId: 'legacy-node',
++                                role: 'sprite',
++                                serializedTargetIndex: 1
++                            }]
++                        }
++                    },
++                    schemaVersion: 1
++                }
++            },
++            scenes: [{id: 'scene-a', name: 'Scene A'}]
++        };
++        const harness = createHarness(() => createTargets('target-runtime-a'), initialProject);
++        const adapter = createScratchSpriteNodeAdapterService(
++            harness.context,
++            harness.sceneDataModel,
++            harness.runtimeNodeModel
++        );
++
++        expect(adapter.listBindings()[0]).toMatchObject({
++            bindingId: 'legacy-binding',
++            destroyPolicy: 'delete-target',
++            nodeId: 'legacy-node',
++            targetRuntimeId: 'target-runtime-a'
++        });
++        expect(harness.runtimeNodeModel.getNode('legacy-node')).toMatchObject({
++            id: 'legacy-node',
++            typeId: SPRITE_NODE_TYPE_ID
++        });
++        expect(harness.runtimeNodeModel.getNode('legacy-node').source).toEqual({
++            adapterType: 'scratch.sprite',
++            bindingId: 'legacy-binding',
++            kind: 'compatibility-adapter',
++            sceneId: 'scene-a'
+         });
+     });
+ 
+@@ -205,9 +290,10 @@
+         );
+ 
+         const store = harness.getProject().extensionData[SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY];
+-        expect(store.schemaVersion).toBe(1);
++        expect(store.schemaVersion).toBe(2);
+         expect(store.scenes['scene-a'].items).toEqual([{
+             bindingId: 'scratch-binding:persistent',
++            destroyPolicy: 'delete-target',
+             lastKnownName: 'Player',
+             nodeId: 'runtime-node:scratch-persistent',
+             role: 'sprite',
+@@ -246,7 +332,7 @@
+         expect(adapter.listBindings()).toHaveLength(0);
+     });
+ 
+-    test('rejects creating a Scratch Sprite Runtime Node without an adapter binding', () => {
++    test('keeps the legacy Scratch node constructor protected during migration', () => {
+         const harness = createHarness(() => []);
+         const adapter = createScratchSpriteNodeAdapterService(
+             harness.context,
+@@ -254,7 +340,7 @@
+             harness.runtimeNodeModel
+         );
+ 
+-        expect(() => harness.runtimeNodeModel.createNode(SCRATCH_SPRITE_NODE_TYPE_ID, {
++        expect(() => harness.runtimeNodeModel.createNode(LEGACY_SCRATCH_SPRITE_NODE_TYPE_ID, {
+             name: 'Invalid Sprite Node',
+             sceneId: 'scene-a'
+         })).toThrow(/stable binding/i);
+diff -ruN /mnt/data/base_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-tree-projection.test.js /mnt/data/work_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-tree-projection.test.js
+--- /mnt/data/base_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-tree-projection.test.js	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_873/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-tree-projection.test.js	2026-08-05 01:38:08.339019380 +0000
+@@ -0,0 +1,42 @@
++import {createScratchSpriteTreeProjection} from '../../../../src/lib/scratch-sprite-adapter';
++
++describe('Scratch Sprite editor tree projection', () => {
++    test('projects bindings through semantic owner nodes and hides only bound Scratch target rows', () => {
++        const playerBinding = {
++            bindingId: 'binding-player',
++            nodeId: 'node-player',
++            sceneId: 'scene-a',
++            status: 'bound',
++            targetRuntimeId: 'target-player'
++        };
++        const staleBinding = {
++            bindingId: 'binding-stale',
++            nodeId: 'node-missing',
++            sceneId: 'scene-a',
++            status: 'bound',
++            targetRuntimeId: 'target-stale'
++        };
++        const projection = createScratchSpriteTreeProjection({
++            bindings: [playerBinding, staleBinding],
++            runtimeNodes: [{id: 'node-player', typeId: 'ngvge.sprite-node'}]
++        });
++
++        expect(projection.bindings).toEqual([playerBinding]);
++        expect(projection.bindingByNodeId.get('node-player')).toBe(playerBinding);
++        expect(projection.bindingByTargetRuntimeId.get('target-player')).toBe(playerBinding);
++        expect(projection.bindingByNodeId.get('node-missing')).toBeNull();
++        expect(projection.bindingByTargetRuntimeId.has('target-stale')).toBe(false);
++        expect(projection.hiddenTargetRuntimeIds).toEqual(['target-player']);
++        expect(Object.isFrozen(projection)).toBe(true);
++    });
++
++    test('does not infer ownership from a Scratch-specific node type', () => {
++        const projection = createScratchSpriteTreeProjection({
++            bindings: [],
++            runtimeNodes: [{id: 'legacy-looking-node', typeId: 'ngvge.scratch-sprite-node'}]
++        });
++
++        expect(projection.bindingByNodeId.has('legacy-looking-node')).toBe(false);
++        expect(projection.hiddenTargetRuntimeIds).toEqual([]);
++    });
++});

@@ -1,0 +1,30 @@
+legacy_source,legacy_field,semantic_owner,target,status,persistence,notes
+_twconfig_,framerate,ExecutionProfile,execution.simulationTickRate,mapped,native policy,30 is Scratch default; non-30 is explicit compatibility override with diagnostic
+_twconfig_,opsPerFrame,Legacy Scheduler Quarantine,legacy.scheduler.opsPerFrame,quarantined,legacy compatibility only,1 is dropped as default; never Native RuntimePolicy
+_twconfig_,turbo,ExecutionProfile,execution.legacyScratchTurboMode,mapped,native policy,Scratch turbo compatibility semantic
+_twconfig_,interpolation,PresentationProfile,scratch.sprite.transform + presentation.refreshPolicy,mapped,native policy,interpolation is transform-domain scoped; presentation refresh remains independent
+_twconfig_,hq,PresentationProfile + ScratchCompatibilityProfile,presentation.renderQuality + scratchCompatibility.penSizeLimits,split-domains,native policy,models renderer quality and Pen size compatibility separately
+_twconfig_,runtimeOptions.maxClones,RuntimeSafetyPolicy,safety.cloneBudget,mapped-bounded,native policy,Infinity becomes legacy-unbounded-request intent with Host hard ceiling
+_twconfig_,runtimeOptions.fencing,ScratchCompatibilityProfile,scratchCompatibility.fencing,mapped,native policy,explicit Scratch compatibility semantic
+_twconfig_,runtimeOptions.miscLimits,ScratchCompatibilityProfile,explicit compatibility bundle,expanded,native policy,never persists miscLimits as a Native field
+_twconfig_,runtimeOptions.offscreenDrawableCulling,BackendHintSet,backendHints.offscreenDrawableCulling,mapped-runtime-only,runtime only,backend optimization hint not project gameplay semantic
+_twconfig_,width,Project/Scene Viewport Compatibility,project.viewport.width,mapped,project/scene owner,explicitly outside RuntimePolicy
+_twconfig_,height,Project/Scene Viewport Compatibility,project.viewport.height,mapped,project/scene owner,explicitly outside RuntimePolicy
+URL,fps / 60fps,ExecutionProfile,execution.simulationTickRate,mapped-session,session,non-positive values fail visibly
+URL,interpolate,PresentationProfile,scratch.sprite.transform,mapped-session,session,domain-scoped Scratch interpolation
+URL,hqpen,PresentationProfile + ScratchCompatibilityProfile,renderQuality + penSizeLimits,mapped-session,session,preserves historical HQ Pen behavior
+URL,turbo,ExecutionProfile,execution.legacyScratchTurboMode,mapped-session,session,Scratch turbo compatibility semantic
+URL,stuck / warp_timer,Runtime Safety Quarantine,legacy.safety.warpTimer,quarantined,session,does not become Native project semantic
+URL,nocompile,ExecutionBackendPolicy,executionBackend.mode,mapped-runtime-only,runtime only,developer/backend override not project gameplay semantic
+URL,clones,RuntimeSafetyPolicy,safety.cloneBudget,mapped-session,session,non-positive values fail visibly; Host ceiling remains authoritative
+URL,offscreen,ScratchCompatibilityProfile,scratchCompatibility.fencing,mapped-session,session,preserves existing 02/TurboWarp URL behavior despite historical parameter name
+URL,limitless,ScratchCompatibilityProfile,explicit compatibility bundle,expanded-session,session,replaces miscLimits direct setter
+Green Flag gesture,Shift click,ExecutionProfile,execution.legacyScratchTurboMode,mapped-session,session,explicit session source
+Green Flag gesture,Alt/right click,ExecutionProfile,execution.simulationTickRate,mapped-session,session,explicit session source
+FPS control,framerate selection,ExecutionProfile,execution.simulationTickRate,mapped-session,session,explicit session source
+Turbo control,toggle,ExecutionProfile,execution.legacyScratchTurboMode,mapped-session,session,explicit session source
+Blocks mount,warpTimer,Runtime Safety Quarantine,legacy.safety.warpTimer,quarantined,workspace/device,lower precedence than explicit session/project claims
+Advanced Settings,Runtime Policy-owned options,Runtime Policy domains,per-domain semantic key,mapped-session,session,delegates through LRC-3 service then frozen LRC-2 command/authority path
+Advanced Settings,opsPerFrame,Legacy Scheduler Quarantine,legacy.scheduler.opsPerFrame,quarantined,session,not a Native field
+Advanced Settings,stage size,Project/Scene Viewport Compatibility,project.viewport width/height,mapped compatibility,session/project migration seam,not a RuntimePolicy field
+Advanced Settings,Store project options,Explicit Legacy Export,_twconfig_,explicit-export,legacy export only,never automatic Native project authority

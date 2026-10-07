@@ -1,0 +1,55 @@
+{
+  "certificateId": "ngvge-ws10f2b-unified-paint-shell-certificate/v1",
+  "stage": "WS-10F2B",
+  "name": "Unified Paint Shell",
+  "status": "COMPLETE / VERIFIED",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "parent": "WS-10F2A | COMPLETE / VERIFIED",
+  "shell": {
+    "shellId": "ngvge.native-paint-shell@1",
+    "schemaVersion": 1,
+    "primaryHost": "native Costume / Backdrop editor",
+    "slots": [
+      "context-toolbar",
+      "tool-rail",
+      "canvas-chrome",
+      "panel-rail",
+      "status-bar"
+    ]
+  },
+  "presentation": {
+    "vector": "NGVGE shell -> WorkspaceVectorEditor canvas -> SVG-Edit adapter",
+    "raster": "legacy Scratch Paint compatibility passthrough until WS-10G",
+    "standalonePaintWindow": "development-compatibility-only"
+  },
+  "authority": {
+    "project": false,
+    "resource": false,
+    "transaction": false,
+    "persistence": false,
+    "backendIdentity": false
+  },
+  "verification": {
+    "machine": "27/27 PASS",
+    "focusedNode": "2 suites / 6 tests PASS",
+    "focusedDom": "3 suites / 6 tests PASS",
+    "productionWebpack": "0 errors / 0 warnings PASS",
+    "fullUnit": "158 suites / 887 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "permanentRegression": "19/19 PASS",
+    "typeScript": "PASS",
+    "eslintCorrectness": "PASS",
+    "arcC0011": "7/7 PASS",
+    "lrcG1": "15/15 PASS",
+    "lplG1": "17/17 PASS",
+    "lexG1": "19/19 PASS",
+    "lscG1": "19/19 PASS",
+    "col0": "15/15 PASS",
+    "ws9Aggregate": "20/20 PASS",
+    "ws10eCertification": "24/24 PASS",
+    "ws10f2aCertification": "27/27 PASS",
+    "fullEditorWebpack": "0 errors / 0 warnings PASS"
+  },
+  "next": "WS-10F2C | Vector Professional Tooling"
+}

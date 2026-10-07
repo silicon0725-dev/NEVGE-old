@@ -1,0 +1,292 @@
+[
+  {
+    "id": "gui.extensionLibrary.chooseAnExtension",
+    "description": "Heading for the extension library",
+    "defaultMessage": "Extension Center"
+  },
+  {
+    "id": "ngvge.extensionLibrary.module.enable",
+    "description": "Button label for enabling an NGVGE first-party module",
+    "defaultMessage": "Enable module"
+  },
+  {
+    "id": "ngvge.extensionLibrary.module.disable",
+    "description": "Button label for disabling an NGVGE first-party module",
+    "defaultMessage": "Disable module"
+  },
+  {
+    "id": "ngvge.extensionLibrary.module.retry",
+    "description": "Button label for retrying a failed NGVGE first-party module",
+    "defaultMessage": "Retry enable"
+  },
+  {
+    "id": "ngvge.module.sceneSystem.name",
+    "description": "Name of the NGVGE Scene System first-party module",
+    "defaultMessage": "Scene System"
+  },
+  {
+    "id": "ngvge.module.sceneSystem.description",
+    "description": "Description of the NGVGE Scene System first-party module",
+    "defaultMessage": "Create, switch, duplicate, reorder and preload multiple scenes inside one project."
+  },
+  {
+    "id": "tw.extensionLibrary.batchImport",
+    "description": "Button label for importing multiple selected extensions",
+    "defaultMessage": "Batch import {count} extensions"
+  },
+  {
+    "id": "tw.extensionLibrary.clearSelection",
+    "description": "Button label for clearing selected extensions from the batch queue",
+    "defaultMessage": "Clear selection"
+  },
+  {
+    "id": "tw.extensionLibrary.sourcesTitle",
+    "description": "Sidebar title in the extension library",
+    "defaultMessage": "Sources"
+  },
+  {
+    "id": "tw.extensionLibrary.source.all",
+    "description": "Label for the all-sources filter in the extension library",
+    "defaultMessage": "All"
+  },
+  {
+    "id": "tw.extensionLibrary.source.ngvge",
+    "description": "Label for the NGVGE source filter in the extension library",
+    "defaultMessage": "NGVGE Official"
+  },
+  {
+    "id": "tw.extensionLibrary.source.scratch",
+    "description": "Label for the Scratch source filter in the extension library",
+    "defaultMessage": "Official Scratch"
+  },
+  {
+    "id": "tw.extensionLibrary.source.02engine",
+    "description": "Label for the 02Engine source filter in the extension library",
+    "defaultMessage": "02Engine"
+  },
+  {
+    "id": "tw.extensionLibrary.source.tw",
+    "description": "Label for the TurboWarp source filter in the extension library",
+    "defaultMessage": "TurboWarp"
+  },
+  {
+    "id": "tw.extensionLibrary.source.astra",
+    "description": "Label for the AstraEditor source filter in the extension library",
+    "defaultMessage": "AstraEditor"
+  },
+  {
+    "id": "tw.extensionLibrary.source.pm",
+    "description": "Label for the PenguinMod source filter in the extension library",
+    "defaultMessage": "PenguinMod"
+  },
+  {
+    "id": "tw.extensionLibrary.source.mist",
+    "description": "Label for the Mist source filter in the extension library",
+    "defaultMessage": "Mist"
+  },
+  {
+    "id": "tw.extensionLibrary.source.sharkpool",
+    "description": "Label for the SharkPool source filter in the extension library",
+    "defaultMessage": "SharkPool"
+  },
+  {
+    "id": "tw.extensionLibrary.source.ccw",
+    "description": "Label for the CCW source filter in the extension library",
+    "defaultMessage": "CCW"
+  },
+  {
+    "id": "tw.extensionLibrary.source.other",
+    "description": "Label for the Other source filter in the extension library",
+    "defaultMessage": "Other"
+  },
+  {
+    "id": "tw.extensionLibrary.source.custom",
+    "description": "Label for custom extension items in the extension library",
+    "defaultMessage": "Custom"
+  },
+  {
+    "id": "tw.extensionLibrary.source.builtin",
+    "description": "Label for special built-in feature items in the extension library",
+    "defaultMessage": "Built-in"
+  },
+  {
+    "id": "tw.extensionLibrary.quickFilter.favorites",
+    "description": "Quick filter label for favorite extensions",
+    "defaultMessage": "Favorites"
+  },
+  {
+    "id": "tw.extensionLibrary.quickFilter.selected",
+    "description": "Quick filter label for selected extensions",
+    "defaultMessage": "Selected"
+  },
+  {
+    "id": "tw.extensionLibrary.quickFilter.compatible",
+    "description": "Quick filter label for Scratch-compatible extensions",
+    "defaultMessage": "Scratch-compatible"
+  },
+  {
+    "id": "tw.extensionLibrary.quickFilter.native",
+    "description": "Quick filter label for native extensions",
+    "defaultMessage": "Native only"
+  },
+  {
+    "id": "tw.extensionLibrary.quickFilter.custom",
+    "description": "Quick filter label for custom extensions",
+    "defaultMessage": "Custom only"
+  },
+  {
+    "id": "tw.extensionLibrary.section.common",
+    "description": "Section title for favorite extensions",
+    "defaultMessage": "Favorites"
+  },
+  {
+    "id": "tw.extensionLibrary.section.source",
+    "description": "Section title for a source group in the extension library",
+    "defaultMessage": "{source} Extensions"
+  },
+  {
+    "id": "tw.extensionLibrary.section.more",
+    "description": "Section title for remaining source extensions after the common section",
+    "defaultMessage": "More from {source}"
+  },
+  {
+    "id": "tw.extensionLibrary.emptyTitle",
+    "description": "Empty state title in the extension library",
+    "defaultMessage": "No extensions match those filters"
+  },
+  {
+    "id": "tw.extensionLibrary.emptyDescription",
+    "description": "Empty state description in the extension library",
+    "defaultMessage": "Try another source, clear a filter, or search for a different keyword."
+  },
+  {
+    "id": "tw.extensionLibrary.clearFilters",
+    "description": "Button label to clear extension library filters",
+    "defaultMessage": "Clear filters"
+  },
+  {
+    "id": "tw.extensionLibrary.badge.incompatible",
+    "description": "Status badge for incompatible extensions",
+    "defaultMessage": "Not Scratch-compatible"
+  },
+  {
+    "id": "tw.extensionLibrary.badge.native",
+    "description": "Status badge for native extensions",
+    "defaultMessage": "Native"
+  },
+  {
+    "id": "tw.extensionLibrary.action.custom",
+    "description": "Action hint for the custom extension item",
+    "defaultMessage": "加载自定义扩展"
+  },
+  {
+    "id": "tw.extensionLibrary.action.website",
+    "description": "Action hint for extension library website links",
+    "defaultMessage": "Open website"
+  },
+  {
+    "id": "tw.extensionLibrary.action.enableFeature",
+    "description": "Action hint for special extension actions",
+    "defaultMessage": "Enable feature"
+  },
+  {
+    "id": "tw.extensionLibrary.action.import",
+    "description": "Action hint for importing an extension",
+    "defaultMessage": "Install"
+  },
+  {
+    "id": "tw.extensionLibrary.action.openInstalled",
+    "description": "Action for an installed extension",
+    "defaultMessage": "Open"
+  },
+  {
+    "id": "ngvge.extensionCenter.subtitle",
+    "description": "Subtitle for the NGVGE extension center",
+    "defaultMessage": "Official modules, compatible extensions and online marketplaces"
+  },
+  {
+    "id": "ngvge.extensionCenter.searchPlaceholder",
+    "description": "Search placeholder in the NGVGE extension center",
+    "defaultMessage": "Search extensions, sources or authors"
+  },
+  {
+    "id": "ngvge.extensionCenter.group.discover",
+    "description": "Discover navigation group",
+    "defaultMessage": "Discover"
+  },
+  {
+    "id": "ngvge.extensionCenter.home",
+    "description": "Extension center home navigation item",
+    "defaultMessage": "Home"
+  },
+  {
+    "id": "ngvge.extensionCenter.installed",
+    "description": "Installed extension navigation item",
+    "defaultMessage": "Installed"
+  },
+  {
+    "id": "ngvge.extensionCenter.group.ngvge",
+    "description": "NGVGE ecosystem navigation group",
+    "defaultMessage": "NGVGE Ecosystem"
+  },
+  {
+    "id": "ngvge.extensionCenter.community",
+    "description": "Community plugins navigation item",
+    "defaultMessage": "Community"
+  },
+  {
+    "id": "ngvge.extensionCenter.group.compatibility",
+    "description": "Compatibility extension group",
+    "defaultMessage": "Compatibility"
+  },
+  {
+    "id": "ngvge.extensionCenter.group.online",
+    "description": "Online marketplace navigation group",
+    "defaultMessage": "Online Markets"
+  },
+  {
+    "id": "ngvge.extensionCenter.soon",
+    "description": "Coming soon status",
+    "defaultMessage": "Soon"
+  },
+  {
+    "id": "ngvge.extensionCenter.sort",
+    "description": "Sort control label",
+    "defaultMessage": "Sort"
+  },
+  {
+    "id": "ngvge.extensionCenter.sort.recommended",
+    "description": "Recommended sort option",
+    "defaultMessage": "Recommended"
+  },
+  {
+    "id": "ngvge.extensionCenter.sort.name",
+    "description": "Name sort option",
+    "defaultMessage": "Name"
+  },
+  {
+    "id": "ngvge.extensionCenter.sort.source",
+    "description": "Source sort option",
+    "defaultMessage": "Source"
+  },
+  {
+    "id": "ngvge.extensionCenter.resultCount",
+    "description": "Visible extension count",
+    "defaultMessage": "{count} extensions"
+  },
+  {
+    "id": "ngvge.extensionCenter.section.officialDescription",
+    "description": "NGVGE official section description",
+    "defaultMessage": "Native modules maintained for the NGVGE editor and runtime."
+  },
+  {
+    "id": "ngvge.extensionCenter.section.compatibilityDescription",
+    "description": "Compatibility section description",
+    "defaultMessage": "Scratch-compatible and legacy 02Engine extensions."
+  },
+  {
+    "id": "ngvge.extensionCenter.section.onlineDescription",
+    "description": "Online marketplace section description",
+    "defaultMessage": "Extensions fetched from preserved external marketplaces."
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "stage": "WS-9B",
+  "title": "Workspace Context Service",
+  "status": "COMPLETE / VERIFIED",
+  "authority": "ARC-0001",
+  "baseline": "WS-9A COMPLETE / VERIFIED",
+  "identities": {
+    "contextService": "ngvge.workspace-context@1",
+    "snapshotSchemaVersion": 1,
+    "writerLeaseSchemaVersion": 1,
+    "contextReadCapability": "ngvge.workspace-capability.context-read"
+  },
+  "domains": ["project", "scene", "node-selection", "resource", "window"],
+  "authorityRules": {
+    "contextIsProjectionOnly": true,
+    "oneWriterSourcePerDomain": true,
+    "windowManagerRemainsAuthority": true,
+    "toolReadRequiresCapabilityLease": true,
+    "revokedLeaseStopsObservation": true,
+    "productionSelectionSwitch": false
+  },
+  "verification": {
+    "machineChecks": "12/12 PASS",
+    "focusedJest": "3 suites / 21 tests PASS",
+    "contextWebpack": "0 errors / 0 warnings",
+    "capabilityWebpack": "0 errors / 0 warnings",
+    "unit": "131 suites / 706 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "workspaceConstituentChain": "PASS via aggregate-to-WS-3D plus separately completed WS-3E through WS-9B focused gates",
+    "fullEditorWebpack": "INCONCLUSIVE: execution environment 120s timeout; no compile error emitted; not counted as PASS"
+  },
+  "nextRecommendedStage": "WS-9C | Context Source Integration & Lifecycle Binding"
+}

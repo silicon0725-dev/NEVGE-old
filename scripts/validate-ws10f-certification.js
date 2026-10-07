@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+'use strict';
+const fs=require('fs'); const path=require('path'); const root=path.resolve(__dirname,'..'); const read=r=>fs.readFileSync(path.join(root,r),'utf8'); const json=r=>JSON.parse(read(r)); const checks=[]; const check=(ok,label)=>{if(!ok){console.error(`WS-10F CONDITIONAL CERTIFICATION FAIL: ${label}`);process.exit(1);}checks.push(label);};
+const cert=json('docs/architecture/workspace/WS-10F-CERTIFICATE.json'); const arch=read('docs/architecture/workspace/WS-10F-VECTOR-BACKEND-INTEGRATION.md'); const verify=read('docs/architecture/workspace/WS-10F-VERIFICATION.md'); const backend=read('src/lib/paint-backends/svg-edit-vector-backend.js'); const transfer=read('src/lib/paint-backends/svg-edit-vector-transfer.js'); const comp=read('src/components/workspace-paint/workspace-vector-editor.jsx'); const roadmap=read('docs/architecture/workspace/WS-10-HIGH-CAPABILITY-TOOL-INTEGRATION.md'); const pkg=json('package.json');
+check(cert.stage==='WS-10F'&&cert.status==='IMPLEMENTED / CONDITIONAL VERIFIED','certificate status');
+check(cert.backend.adapterId==='ngvge.paint-backend-adapter.svg-edit@1'&&backend.includes(cert.backend.adapterId),'adapter identity');
+check(cert.backend.transferAdapterId==='ngvge.paint-backend-transfer-adapter.svg-edit@1'&&transfer.includes(cert.backend.transferAdapterId),'transfer identity');
+check(cert.backend.controlsId==='ngvge.vector-paint-backend-controls@1'&&backend.includes(cert.backend.controlsId),'controls identity');
+check(cert.backend.version==='7.4.2'&&pkg.dependencies['@svgedit/svgcanvas']==='7.4.2','dependency exact version');
+check(Object.values(cert.authority).every(v=>v===false),'OSS backend authority false');
+check(cert.production.svgBranchIntegrated===true&&cert.production.fullSvgEditAppShell===false,'production SVG branch / no app shell');
+check(comp.includes("import SvgCanvas from '@svgedit/svgcanvas'")&&comp.includes('createPaintBackendBinding'),'production component uses library contract');
+check(arch.includes('Workspace resize is presentation-only')&&backend.includes('Never call setResolution here'),'presentation boundary');
+check(verify.includes('6 suites / 45 tests PASS')&&cert.verification.focused==='6 suites / 45 tests PASS','focused evidence');
+check(cert.verification.machine==='34/34 PASS'&&verify.includes('34 / 34 PASS'),'machine evidence');
+check(cert.verification.fullUnit==='153 suites / 869 tests PASS'&&verify.includes('153 suites / 869 tests PASS'),'full unit evidence');
+check(cert.verification.integration==='4 suites / 5 tests PASS'&&cert.verification.smoke==='1 suite / 1 test PASS','integration/smoke evidence');
+check(cert.verification.permanentRegression==='19/19 PASS','regression evidence');
+check(cert.verification.ws10eCertification==='24/24 PASS','WS-10E parent evidence');
+check(cert.verification.typeScript==='PASS'&&cert.verification.eslintCorrectness==='PASS','type/lint evidence');
+check(cert.verification.publishedPackageByteGate.startsWith('PENDING'),'package byte gap explicit');
+check(verify.includes('not** accepted as real SVG-Edit runtime evidence')||verify.includes('not** included'),'verification double disclosure');
+check(roadmap.includes('WS-10F')&&roadmap.includes('CONDITIONAL'),'roadmap conditional status');
+check(typeof pkg.scripts['test:workspace-shell:ws10f:focused']==='string'&&typeof pkg.scripts['test:workspace-shell:ws10f-package']==='string','repeatable gates registered');
+console.log(`WS-10F Conditional Certification PASS (${checks.length}/${checks.length}).`);
+console.log(JSON.stringify({stage:'WS-10F',status:cert.status,backend:cert.backend.adapterId,packageByteGate:cert.verification.publishedPackageByteGate,checks:checks.length},null,2));

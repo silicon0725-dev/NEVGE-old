@@ -1,0 +1,63 @@
+{
+  "stage": "WS-9D",
+  "title": "Context Consumer Admission & Agent Migration",
+  "status": "COMPLETE / VERIFIED",
+  "authority": "ARC-0001",
+  "baseline": "WS-9C COMPLETE / VERIFIED",
+  "identities": {
+    "toolCapabilityHost": "ngvge.workspace-tool-capability-host@1",
+    "contextService": "ngvge.workspace-context@1",
+    "contextReadCapability": "ngvge.workspace-context-read-capability@1",
+    "contextConsumerAdmission": "ngvge.workspace-context-consumer-admission@1",
+    "agentToolId": "ngvge.tool.agent",
+    "agentRuntime": "ngvge.workspace-agent-runtime@1"
+  },
+  "agentAdmission": {
+    "ecosystemLifecycle": "active",
+    "ecosystemAuthority": "project-command",
+    "capabilityId": "ngvge.workspace-capability.context-read",
+    "access": "query",
+    "required": true,
+    "rawContextService": false,
+    "legacyGetCurrentNodeId": false,
+    "agentVisibleContextExpanded": false
+  },
+  "lifecycleRules": {
+    "toolRegistryUnregisterRevokesLease": true,
+    "hostDisposeRevokesLeases": true,
+    "contextSubscriptionImmediateRevocationCleanup": true,
+    "consumerRelease": true,
+    "agentRuntimeContextSubscriptionDisposable": true
+  },
+  "authorityRules": {
+    "contextIsProjectionOnly": true,
+    "capabilityHostIsNotProjectAuthority": true,
+    "agentMutationRemainsReviewedTransactionOnly": true,
+    "terminalActivated": false,
+    "paintActivated": false,
+    "backendPrivateObjectsExposed": false
+  },
+  "verification": {
+    "machineChecks": "13/13 PASS",
+    "focusedJest": "7 suites / 35 tests PASS",
+    "contextConsumerWebpack": "0 errors / 0 warnings",
+    "unit": "134 suites / 724 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "arcC0011Baseline": "7/7 PASS",
+    "lscG1": "PASS",
+    "lrcG1": "PASS",
+    "lplG1": "PASS",
+    "lexG1": "PASS",
+    "col0": "PASS",
+    "ws8Focused": "PASS",
+    "ws9aFocused": "PASS",
+    "ws9bFocused": "PASS",
+    "ws9cFocused": "PASS",
+    "fullEditorWebpack": "INCONCLUSIVE: execution environment 120s timeout; no compile error emitted; not counted as PASS"
+  },
+  "nextRecommendedStage": "WS-9E | Capability Provider Binding & Diagnostics"
+}

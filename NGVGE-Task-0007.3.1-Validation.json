@@ -1,0 +1,74 @@
+{
+  "task": "0007.3.1",
+  "title": "Extension Hub Architecture",
+  "base": "Task-0007.2.4 Context Menu Fix",
+  "changedFiles": [
+    "docs/TASK-0007.3.1-EXTENSION-HUB-ARCHITECTURE.md",
+    "src/containers/extension-library.jsx",
+    "src/lib/extension-hub/built-in-sources.js",
+    "src/lib/extension-hub/constants.js",
+    "src/lib/extension-hub/extension-registry.js",
+    "src/lib/extension-hub/index.js",
+    "src/lib/extension-hub/manifest.js",
+    "src/lib/extension-hub/source-registry.js",
+    "src/lib/libraries/extensions/index.jsx",
+    "test/unit/lib/extension-hub.test.js"
+  ],
+  "checks": [
+    {
+      "name": "Manifest v2 adapter behavior",
+      "passed": true
+    },
+    {
+      "name": "Extension source registry behavior",
+      "passed": true
+    },
+    {
+      "name": "Extension registry behavior",
+      "passed": true
+    },
+    {
+      "name": "NGVGE first-party source separation",
+      "passed": true
+    },
+    {
+      "name": "TurboWarp remote endpoint retained",
+      "passed": true
+    },
+    {
+      "name": "02Engine remote endpoint retained",
+      "passed": true
+    },
+    {
+      "name": "PenguinMod source entry retained",
+      "passed": true
+    },
+    {
+      "name": "AstraEditor remote endpoint retained",
+      "passed": true
+    },
+    {
+      "name": "Mist remote endpoint retained",
+      "passed": true
+    },
+    {
+      "name": "SharkPool remote endpoint retained",
+      "passed": true
+    },
+    {
+      "name": "CCW remote API retained",
+      "passed": true
+    },
+    {
+      "name": "JSX TypeScript parser validation",
+      "passed": true
+    },
+    {
+      "name": "Full Jest/ESLint/Webpack",
+      "passed": false,
+      "status": "NOT_RUN",
+      "detail": "node_modules is not included in the source archive."
+    }
+  ],
+  "allStaticChecksPassed": true
+}

@@ -1,0 +1,28 @@
+# NGVGE 0008.9.4.1 incremental patch file manifest
+# Paths are project-relative except the patch metadata files.
+
+NGVGE-Task-0008.9.4.1-Validation.md
+docs/ngvge/runtime-node-model.md
+docs/ngvge/scene-system-first-party-module.md
+docs/task-0008.9.4/component-schema-version-migration-authority-freeze.md
+docs/task-0008.9.4.1/component-migration-bootstrap-execution-isolation-closure.md
+package.json
+scripts/validate-ngvge-task-0008.9.2.js
+scripts/validate-ngvge-task-0008.9.2.1.js
+scripts/validate-ngvge-task-0008.9.2.2.js
+scripts/validate-ngvge-task-0008.9.3.js
+scripts/validate-ngvge-task-0008.9.3.1.js
+scripts/validate-ngvge-task-0008.9.3.1.1.js
+scripts/validate-ngvge-task-0008.9.3.1.2.js
+scripts/validate-ngvge-task-0008.9.4.js
+scripts/validate-ngvge-task-0008.9.4.1.js
+src/lib/first-party-modules/module-manager.js
+src/lib/runtime-nodes/runtime-component-type-registry.js
+src/lib/runtime-nodes/runtime-node-graph.js
+src/lib/runtime-nodes/runtime-node-import.js
+src/lib/runtime-nodes/runtime-node-model-service.js
+src/lib/scene-system/module-definition.js
+test/unit/lib/runtime-nodes/runtime-component-migration-bootstrap-execution-isolation.test.js
+PATCH-README.md
+FILE-MANIFEST.txt
+SHA256SUMS.txt

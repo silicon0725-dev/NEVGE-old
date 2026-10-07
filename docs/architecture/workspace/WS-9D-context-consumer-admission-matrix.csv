@@ -1,0 +1,5 @@
+toolId,ecosystemLifecycle,ecosystemAuthority,contextCapability,contextAccess,admittedInWS9D,consumerProjection,revocationPath,notes
+ngvge.tool.agent,active,project-command,ngvge.workspace-capability.context-read,query,yes,"NodeId + portable Node snapshot","consumer dispose; host dispose; ToolRegistry unregister","Reviewed Project mutation remains WS-7 AgentTransactionHost authority"
+ngvge.tool.todo,active,workspace-only,none,none,no,none,n/a,"Todo retains Workspace-state capability only"
+ngvge.tool.terminal,planned,workspace-only,none,none,no,none,n/a,"Still planned; no host/process capability"
+ngvge.tool.paint,planned,resource-command,none,none,no,none,n/a,"Still planned; no Resource provider binding"

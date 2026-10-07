@@ -1,0 +1,144 @@
+{
+  "task": "Task-0005 — Inspector persistence and undo/redo",
+  "base": "scratch-gui-main-task-0004-with-launcher",
+  "changed_file_count": 16,
+  "checks": [
+    {
+      "name": "changed JavaScript and JSX parser validation",
+      "status": "PASS"
+    },
+    {
+      "name": "Node syntax validation for services and bundled extensions",
+      "status": "PASS"
+    },
+    {
+      "name": "CSS module reference validation",
+      "status": "PASS"
+    },
+    {
+      "name": "relative import resolution",
+      "status": "PASS"
+    },
+    {
+      "name": "property history undo/redo behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "project metadata save/load behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "restore runs after complete vm.loadProject lifecycle",
+      "status": "PASS"
+    },
+    {
+      "name": "required extension and URL preservation",
+      "status": "PASS"
+    },
+    {
+      "name": "git apply --check against clean Task-0004 baseline",
+      "status": "PASS"
+    },
+    {
+      "name": "applied patch content comparison",
+      "status": "PASS"
+    },
+    {
+      "name": "Jest unit suite",
+      "status": "NOT_RUN",
+      "detail": "The uploaded GUI archive does not contain node_modules."
+    },
+    {
+      "name": "ESLint and production Webpack build",
+      "status": "NOT_RUN",
+      "detail": "Bun is unavailable in this runtime and GUI dependencies are not installed."
+    },
+    {
+      "name": "02Engine compiled-project persistence path",
+      "status": "NOT_COVERED",
+      "detail": "Task-0005 targets normal SB3 save/load through vm.toJSON and vm.loadProject."
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/NGVGE-INSPECTOR-EXTENSION-API.md",
+      "bytes": 3103,
+      "sha256": "1cfe63311a5a67f95aacc70d6089e2cc1aafe807bd887898df195c8bd1727ac8"
+    },
+    {
+      "path": "docs/TASK-0005-PERSISTENCE-HISTORY.md",
+      "bytes": 1298,
+      "sha256": "144b33e4d1bd571ef6c1bd6b5abaaf31c6fb7e1a636891a638441d5d5efe5a24"
+    },
+    {
+      "path": "docs/THIRD-PARTY-NGVGE-INSPECTOR-BRIDGES.md",
+      "bytes": 1109,
+      "sha256": "b35f770dd1dbea7b5f7aca0486eaf3fa1a67a995019558039e07eb054be52f9e"
+    },
+    {
+      "path": "src/components/project-inspector/project-inspector.css",
+      "bytes": 7701,
+      "sha256": "19d5d9df74ee28871f7647442403101a06ef8937978e094c2d97045f1e4cc66f"
+    },
+    {
+      "path": "src/components/project-inspector/project-inspector.jsx",
+      "bytes": 31804,
+      "sha256": "bfe629d52e7ddf2ab2aca2b50333fd23696c0d14770449a5d624ca4c4e6b2e88"
+    },
+    {
+      "path": "src/lib/project-inspector/index.js",
+      "bytes": 113,
+      "sha256": "34b8551357dcf6e78668b68e31c8f7f4169c60c3dc1bc61fdafd79c86f935083"
+    },
+    {
+      "path": "src/lib/project-inspector/inspector-registry.js",
+      "bytes": 3379,
+      "sha256": "42e871c2232aa14f4fa9782c52c3304dac3a10d32fa174bcd59cf369cf0e3507"
+    },
+    {
+      "path": "src/lib/project-inspector/project-persistence.js",
+      "bytes": 11224,
+      "sha256": "438513853f4a96c93d95b057849c8fe1619907804860f2ac7195646a3e757611"
+    },
+    {
+      "path": "src/lib/project-inspector/property-history.js",
+      "bytes": 4166,
+      "sha256": "3305a6dd52b88b7dabd9ed00251eaaee34260b90fa14178badf612776f7bc4c0"
+    },
+    {
+      "path": "src/lib/vm-listener-hoc.jsx",
+      "bytes": 16244,
+      "sha256": "3b5887da0472f19ed656f0e736e1e17f956e4dc27d3cf415a3b750b85e25588f"
+    },
+    {
+      "path": "static/extensions/NGVGE-Camera-V2.js",
+      "bytes": 53164,
+      "sha256": "b0111de2b214e1c4aae1aecfa025b6d8b391f2ef9de970a4eba87f3639fb69a8"
+    },
+    {
+      "path": "static/extensions/NGVGE-Stretch.js",
+      "bytes": 12850,
+      "sha256": "c994cf415879cb97a03cfd084c182ee21b8f8bf2903d291b5af212be4968739d"
+    },
+    {
+      "path": "test/unit/components/project-inspector.test.jsx",
+      "bytes": 4979,
+      "sha256": "b8f10d8f45a4f34eb0f4b3edc5253945334965c73053e7e1de355773c3dc4036"
+    },
+    {
+      "path": "test/unit/lib/project-inspector-persistence.test.js",
+      "bytes": 3100,
+      "sha256": "d122fe12df1fdee90051158152485e947ce21d62aa5ca00e276828b3545c7de1"
+    },
+    {
+      "path": "test/unit/lib/project-inspector-property-history.test.js",
+      "bytes": 1809,
+      "sha256": "e8ec1e733669ed9eb5cb389394ad17e983a25e7cb8523ec1ea8b8107e7f6e590"
+    },
+    {
+      "path": "test/unit/lib/project-inspector-registry.test.js",
+      "bytes": 1732,
+      "sha256": "07d154eb9b884714bdf1b01314e6d48acf31bf9a7080350dacb9740ec3d49a9f"
+    }
+  ]
+}

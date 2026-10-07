@@ -1,0 +1,68 @@
+{
+  "stage": "WS-4",
+  "title": "Workspace Persistence / Settings",
+  "status": "COMPLETE / VERIFIED",
+  "identities": {
+    "layoutSchema": "ngvge.workspace-layout@1",
+    "preferencesSchema": "ngvge.workspace-preferences@1",
+    "persistenceHost": "ngvge.workspace-persistence-host@1",
+    "storageAdapter": "ngvge.workspace-storage-adapter.local@1",
+    "legacyMigration": "ngvge.workspace-legacy-migration@1"
+  },
+  "scopes": [
+    "project",
+    "workspace",
+    "user",
+    "device",
+    "session",
+    "secret"
+  ],
+  "durableLocalScopes": [
+    "workspace",
+    "user",
+    "device"
+  ],
+  "forbiddenLocalScopes": [
+    "project",
+    "session",
+    "secret"
+  ],
+  "machineCertification": {
+    "passed": 34,
+    "total": 34,
+    "status": "PASS"
+  },
+  "focusedTests": {
+    "suites": 7,
+    "tests": 35,
+    "status": "PASS"
+  },
+  "fullTests": {
+    "unitNodeSuites": 115,
+    "unitNodeTests": 617,
+    "unitDomSuites": 3,
+    "unitDomTests": 26,
+    "unitTotalTests": 643,
+    "integrationTests": 5,
+    "smokeTests": 1
+  },
+  "webpack": {
+    "settingsEntry": {
+      "exit": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "editorEntry": {
+      "exit": 0,
+      "errors": 0,
+      "warnings": 0
+    }
+  },
+  "architectureFrozen": false,
+  "nextStage": "WS-5 | Node Explorer Workspace Integration",
+  "aggregateCertification": {
+    "status": "CONSTITUENT GATES PASS / WRAPPER TIMEOUT",
+    "claimedExitZero": false,
+    "finalEditorWebpackIndependentlyVerified": true
+  }
+}

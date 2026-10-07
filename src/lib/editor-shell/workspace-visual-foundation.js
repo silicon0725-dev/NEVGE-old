@@ -1,0 +1,22 @@
+const WORKSPACE_SHELL_VISUAL_FOUNDATION_ID = 'ngvge.workspace-shell.visual@1';
+const WORKSPACE_SHELL_VISUAL_MODE = 'neutral-dark';
+const WORKSPACE_SHELL_ACCENT_POLICY = 'neutral';
+const WORKSPACE_SHELL_ICON_POLICY = 'svg-only';
+const WORKSPACE_SHELL_WINDOW_CHROME = 'quiet-titlebar';
+
+const getWorkspaceShellVisualContract = () => Object.freeze({
+    accentPolicy: WORKSPACE_SHELL_ACCENT_POLICY,
+    iconPolicy: WORKSPACE_SHELL_ICON_POLICY,
+    id: WORKSPACE_SHELL_VISUAL_FOUNDATION_ID,
+    mode: WORKSPACE_SHELL_VISUAL_MODE,
+    windowChrome: WORKSPACE_SHELL_WINDOW_CHROME
+});
+
+export {
+    WORKSPACE_SHELL_ACCENT_POLICY,
+    WORKSPACE_SHELL_ICON_POLICY,
+    WORKSPACE_SHELL_VISUAL_FOUNDATION_ID,
+    WORKSPACE_SHELL_VISUAL_MODE,
+    WORKSPACE_SHELL_WINDOW_CHROME,
+    getWorkspaceShellVisualContract
+};

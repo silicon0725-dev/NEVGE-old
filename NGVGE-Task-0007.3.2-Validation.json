@@ -1,0 +1,137 @@
+{
+  "task": "Task-0007.3.2 — Extension Center UI Redesign",
+  "base": "scratch-gui-main-task-0007.3.1-extension-hub-architecture",
+  "changedFileCount": 6,
+  "checks": [
+    {
+      "name": "Extension Center JSX parser validation",
+      "status": "PASS"
+    },
+    {
+      "name": "Extension Library container parser validation",
+      "status": "PASS"
+    },
+    {
+      "name": "Unit-test source parser validation",
+      "status": "PASS"
+    },
+    {
+      "name": "CSS Module class reference coverage",
+      "status": "PASS"
+    },
+    {
+      "name": "Relative import resolution",
+      "status": "PASS"
+    },
+    {
+      "name": "Task-0007.3.1 Manifest v2 and Source Registry integration",
+      "status": "PASS"
+    },
+    {
+      "name": "NGVGE ecosystem separated from compatibility extensions",
+      "status": "PASS"
+    },
+    {
+      "name": "Grouped Discover / NGVGE / Compatibility / Online navigation",
+      "status": "PASS"
+    },
+    {
+      "name": "TurboWarp marketplace entry preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "PenguinMod marketplace entry preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "AstraEditor marketplace entry preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "Mist marketplace entry preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "SharkPool marketplace entry preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "CCW marketplace, sorting and pagination entry preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "No pre-existing remote marketplace URL removed",
+      "status": "PASS"
+    },
+    {
+      "name": "Custom extension loader retained as dedicated action",
+      "status": "PASS"
+    },
+    {
+      "name": "Duplicate custom-extension gallery card removed",
+      "status": "PASS"
+    },
+    {
+      "name": "Disabled extension activation guard",
+      "status": "PASS"
+    },
+    {
+      "name": "Author-link card activation guard",
+      "status": "PASS"
+    },
+    {
+      "name": "Git patch applies to clean Task-0007.3.1 source",
+      "status": "PASS"
+    },
+    {
+      "name": "Patched result byte comparison",
+      "status": "PASS"
+    },
+    {
+      "name": "Only intended Extension Center files changed",
+      "status": "PASS"
+    },
+    {
+      "name": "Jest unit suite",
+      "status": "NOT_RUN",
+      "detail": "The source archive does not contain node_modules."
+    },
+    {
+      "name": "ESLint and production Webpack build",
+      "status": "NOT_RUN",
+      "detail": "The local dependency tree is unavailable in this runtime."
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/TASK-0007.3.2-EXTENSION-CENTER-UI.md",
+      "bytes": 1595,
+      "sha256": "431c539b32a6bdb1d588dd0be4da5899cf7ef39beb55a85ccab746949db510da"
+    },
+    {
+      "path": "src/components/extension-center/extension-center.css",
+      "bytes": 13683,
+      "sha256": "ba2d4614e50e5cf02716e114069a61eaf813cacb34c431b31226777fcd7f1789"
+    },
+    {
+      "path": "src/components/extension-center/extension-center.jsx",
+      "bytes": 17491,
+      "sha256": "f9750031f1e7b75f2f368f2c878602936bc23f72aba6f8922157feac0f27b786"
+    },
+    {
+      "path": "src/components/extension-center/index.js",
+      "bytes": 48,
+      "sha256": "71b245cae49a3fea172685d6b5cdc4c52eef603034e9d3e6e179cf549aa7c523"
+    },
+    {
+      "path": "src/containers/extension-library.jsx",
+      "bytes": 69635,
+      "sha256": "ddc6206b2b9e4fd1d3e50c69595784b6b1a8635f647b05acb2b0509d90ff5fd9"
+    },
+    {
+      "path": "test/unit/components/extension-center.test.jsx",
+      "bytes": 3387,
+      "sha256": "0e5e687cbb5e9fa6ba129b906c38847d1c07bc9d2aa26937ef1ed2948d9dc4f6"
+    }
+  ]
+}

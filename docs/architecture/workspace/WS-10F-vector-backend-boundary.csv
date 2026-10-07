@@ -1,0 +1,11 @@
+surface,ngvge_owner,svg_edit_role,status,notes
+ResourceId,NGVGE,none,FROZEN,backend export must preserve canonical identity
+ArtDocumentId,NGVGE,none,FROZEN,derived from canonical ResourceId
+Canonical SVG source,NGVGE,edit working representation,INTEGRATED,load/export through PaintBackendTransfer
+Vector tool intent,NGVGE,mode implementation,INTEGRATED,freehand maps to fhpath privately
+Selection/backend DOM,SVG-Edit,private implementation,QUARANTINED,never persisted as NGVGE identity
+Undo/redo working history,SVG-Edit,backend-local history,INTEGRATED,does not equal Project rollback
+Workspace resize,NGVGE,presentation target,INTEGRATED,must not call document setResolution
+Project mutation,NGVGE,none,FROZEN,WS-10C Review/Evidence/Transaction only
+Persistence,NGVGE,none,FROZEN,no SVG-Edit storage authority
+Timeline,NGVGE,none,FROZEN,vector backend cannot create timeline identity

@@ -1,0 +1,571 @@
+diff -ruN '--exclude=.git' '--exclude=node_modules' /mnt/data/base_8721/scratch-gui-main/docs/TASK-0008.7.2.2-CROSS-SCENE-PROJECTION-EMPTY-NODE-CRASH-HOTFIX.md /mnt/data/work_8722/scratch-gui-main/docs/TASK-0008.7.2.2-CROSS-SCENE-PROJECTION-EMPTY-NODE-CRASH-HOTFIX.md
+--- /mnt/data/base_8721/scratch-gui-main/docs/TASK-0008.7.2.2-CROSS-SCENE-PROJECTION-EMPTY-NODE-CRASH-HOTFIX.md	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/work_8722/scratch-gui-main/docs/TASK-0008.7.2.2-CROSS-SCENE-PROJECTION-EMPTY-NODE-CRASH-HOTFIX.md	2026-08-04 14:24:10.097134541 +0000
+@@ -0,0 +1,33 @@
++# Task 0008.7.2.2 — Cross-Scene Projection & Empty-Node Crash Hotfix
++
++## Purpose
++
++Correct three regressions discovered after `0008.7.2.1 Sprite Tree Ownership Hotfix`:
++
++1. Scratch Sprite Adapter nodes created in one scene were not reliably projected while another scene was active.
++2. Adapter nodes with no Runtime or compatibility children still rendered a disclosure arrow.
++3. Activating an empty adapter node could crash Project Explorer with `ReferenceError: visitVisibleNode is not defined`.
++
++## Ownership rule
++
++Every original Scratch Sprite continues to have one canonical Project Explorer row: its Runtime Scratch Sprite Adapter node.
++
++Active-scene bindings are shown as `Scratch Sprite · Bound`. Bindings belonging to inactive scenes remain in the project Runtime Graph and are shown as `Scratch Sprite · offline`. The temporary Scratch `target.id` is not retained for inactive bindings.
++
++## Corrections
++
++- Project-wide binding indexes are rebuilt from every Scene binding sidecar, not only from scenes reconciled during the current service lifetime.
++- Missing inactive Runtime adapter nodes are recreated from persistent binding records.
++- A Scene Runtime transition guard defers VM target events between `before-load`/`before-reload` and `loaded`/`reloaded`.
++- New Target lists can no longer be reconciled against the previous `activeSceneId` during snapshot deserialization.
++- Project Explorer determines child existence from `React.Children.toArray(children)`, so null conditional children do not create false disclosure arrows.
++- The legacy compatibility-tree traversal function now has a stable lexical scope and is available to Runtime adapter traversal.
++- Scene System version is `0.7.2.2`.
++
++## Compatibility
++
++No binding schema or Runtime Node persistent DTO version was changed. Existing `scratchSpriteBindings` sidecars are hydrated as-is. Inactive bindings are projected as Offline and become Bound after their scene loads.
++
++## Non-goals
++
++This hotfix does not address asset download failures from `assets.scratch.mit.edu`, deprecated React lifecycle warnings in `SpriteSelectorItem`, or Chrome Built-In AI notices. Those log entries are unrelated to the Project Explorer crash fixed here.
+diff -ruN '--exclude=.git' '--exclude=node_modules' /mnt/data/base_8721/scratch-gui-main/src/components/project-explorer/project-explorer.jsx /mnt/data/work_8722/scratch-gui-main/src/components/project-explorer/project-explorer.jsx
+--- /mnt/data/base_8721/scratch-gui-main/src/components/project-explorer/project-explorer.jsx	2026-08-04 12:32:34.000000000 +0000
++++ /mnt/data/work_8722/scratch-gui-main/src/components/project-explorer/project-explorer.jsx	2026-08-04 14:10:15.161166582 +0000
+@@ -78,7 +78,8 @@
+         selected,
+         targetId
+     } = props;
+-    const hasChildren = Boolean(children);
++    const normalizedChildren = React.Children.toArray(children);
++    const hasChildren = normalizedChildren.length > 0;
+     const nodeRef = React.useRef(null);
+     const didDragRef = React.useRef(false);
+ 
+@@ -160,7 +161,7 @@
+                     <span className={styles.nodeSecondaryLabel}>{secondaryLabel}</span>
+                 ) : null}
+             </div>
+-            {hasChildren && expanded ? children : null}
++            {hasChildren && expanded ? normalizedChildren : null}
+         </React.Fragment>
+     );
+ };
+@@ -1196,21 +1197,21 @@
+     ]);
+ 
+     const visibleNodeOrder = [];
++    const visitProjectVisibleNode = node => {
++        if (!nodeDatabase || !node || !isVisibleForSearch(node.id)) return;
++        visibleNodeOrder.push(node.id);
++        if (!isExpandedForRender(node.id)) return;
++        nodeDatabase.getChildren(node.id).forEach(visitProjectVisibleNode);
++    };
+     if (nodeDatabase) {
+-        const visitVisibleNode = node => {
+-            if (!node || !isVisibleForSearch(node.id)) return;
+-            visibleNodeOrder.push(node.id);
+-            if (!isExpandedForRender(node.id)) return;
+-            nodeDatabase.getChildren(node.id).forEach(visitVisibleNode);
+-        };
+         entityNodes.forEach(entityNode => {
+             if (entityNode.kind === 'sprite' && scratchBindingByTargetRuntimeId.has(entityNode.targetId)) return;
+             const targetNode = nodeDatabase.getNodeForTarget(entityNode.targetId);
+-            if (targetNode) visitVisibleNode(targetNode);
++            if (targetNode) visitProjectVisibleNode(targetNode);
+         });
+         nodeDatabase.getChildren(null)
+             .filter(node => !node.targetId)
+-            .forEach(visitVisibleNode);
++            .forEach(visitProjectVisibleNode);
+     }
+     if (runtimeNodeModel) {
+         const visitRuntimeVisibleNode = node => {
+@@ -1221,7 +1222,7 @@
+             const binding = scratchBindingByNodeId.get(node.id);
+             const targetNode = binding && binding.targetRuntimeId && nodeDatabase ?
+                 nodeDatabase.getNodeForTarget(binding.targetRuntimeId) : null;
+-            if (targetNode) nodeDatabase.getChildren(targetNode.id).forEach(visitVisibleNode);
++            if (targetNode) nodeDatabase.getChildren(targetNode.id).forEach(visitProjectVisibleNode);
+         };
+         if (globalRuntimeRoot && (searchActive || expandedNodeIds.indexOf(GLOBAL_SCOPE_NODE_ID) !== -1)) {
+             getRuntimeChildren(globalRuntimeRoot.id).forEach(visitRuntimeVisibleNode);
+diff -ruN '--exclude=.git' '--exclude=node_modules' /mnt/data/base_8721/scratch-gui-main/src/lib/scene-system/module-definition.js /mnt/data/work_8722/scratch-gui-main/src/lib/scene-system/module-definition.js
+--- /mnt/data/base_8721/scratch-gui-main/src/lib/scene-system/module-definition.js	2026-08-04 12:35:22.000000000 +0000
++++ /mnt/data/work_8722/scratch-gui-main/src/lib/scene-system/module-definition.js	2026-08-04 14:12:31.489161350 +0000
+@@ -32,9 +32,9 @@
+ 
+     const disposeServices = () => {
+         if (sceneManager) sceneManager.dispose();
++        if (scratchSpriteAdapter) scratchSpriteAdapter.dispose();
+         if (runtimeManager) runtimeManager.dispose();
+         if (snapshotSerializer) snapshotSerializer.dispose();
+-        if (scratchSpriteAdapter) scratchSpriteAdapter.dispose();
+         if (runtimeNodeModel) runtimeNodeModel.dispose();
+         if (dataModelService) dataModelService.dispose();
+         sceneManager = null;
+@@ -79,7 +79,7 @@
+                 MODULE_PERMISSIONS.RUNTIME,
+                 MODULE_PERMISSIONS.SERIALIZATION
+             ],
+-            version: '0.7.2.1'
++            version: '0.7.2.2'
+         },
+         hooks: {
+             disable: disposeServices,
+@@ -94,10 +94,17 @@
+                     runtimeNodeModel = createRuntimeNodeModelService(dataModelService);
+                     context.capabilities.provide(RUNTIME_NODE_MODEL_CAPABILITY_ID, runtimeNodeModel, {version: '1'});
+ 
++                    snapshotSerializer = createSceneSnapshotSerializer(context, dataModelService);
++                    context.capabilities.provide(SCENE_SNAPSHOT_CAPABILITY_ID, snapshotSerializer, {version: '1'});
++
++                    runtimeManager = createSceneRuntimeManager(context, dataModelService, snapshotSerializer);
++                    context.capabilities.provide(SCENE_RUNTIME_CAPABILITY_ID, runtimeManager, {version: '1'});
++
+                     scratchSpriteAdapter = createScratchSpriteNodeAdapterService(
+                         context,
+                         dataModelService,
+-                        runtimeNodeModel
++                        runtimeNodeModel,
++                        {sceneRuntime: runtimeManager}
+                     );
+                     context.capabilities.provide(
+                         SCRATCH_SPRITE_ADAPTER_CAPABILITY_ID,
+@@ -105,12 +112,6 @@
+                         {version: '1'}
+                     );
+ 
+-                    snapshotSerializer = createSceneSnapshotSerializer(context, dataModelService);
+-                    context.capabilities.provide(SCENE_SNAPSHOT_CAPABILITY_ID, snapshotSerializer, {version: '1'});
+-
+-                    runtimeManager = createSceneRuntimeManager(context, dataModelService, snapshotSerializer);
+-                    context.capabilities.provide(SCENE_RUNTIME_CAPABILITY_ID, runtimeManager, {version: '1'});
+-
+                     sceneManager = createSceneManager(context, dataModelService, snapshotSerializer, runtimeManager);
+                     context.capabilities.provide(SCENE_MANAGER_CAPABILITY_ID, sceneManager, {version: '1'});
+                     context.capabilities.provide('variables.scope-metadata', Object.freeze({
+diff -ruN '--exclude=.git' '--exclude=node_modules' /mnt/data/base_8721/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js /mnt/data/work_8722/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js
+--- /mnt/data/base_8721/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js	2026-08-04 12:30:17.000000000 +0000
++++ /mnt/data/work_8722/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js	2026-08-04 14:18:00.929148708 +0000
+@@ -175,6 +175,7 @@
+     }
+ 
+     const bindingIdFactory = options.bindingIdFactory || createScratchBindingId;
++    const sceneRuntime = options.sceneRuntime || null;
+     const nodeIdFactory = options.nodeIdFactory || createScratchSpriteNodeId;
+     const componentIdFactory = options.componentIdFactory || createScratchBindingComponentId;
+     const listeners = new Set();
+@@ -192,6 +193,8 @@
+     let reconcileGeneration = 0;
+     let reconcileTimer = null;
+     let lastActiveSceneId = null;
++    let sceneTransition = null;
++    let deferredTransitionReconcile = null;
+     const lifecycleUnsubscribers = [];
+ 
+     const unregisterNodeType = runtimeNodeModel.registerNodeType({
+@@ -416,6 +419,59 @@
+         });
+     };
+ 
++    const rebuildProjectBindingIndexes = (project, liveBindings = [], targetsById = new Map()) => {
++        const result = [];
++        const offlineBindings = [];
++        const bindingIds = new Set();
++        const nodeIds = new Set();
++        const liveSceneIds = new Set();
++        const addBinding = binding => {
++            if (!binding || bindingIds.has(binding.bindingId) || nodeIds.has(binding.nodeId)) {
++                warnings.push({
++                    bindingId: binding && binding.bindingId,
++                    code: 'SCRATCH_BINDING_PROJECT_CONFLICT',
++                    nodeId: binding && binding.nodeId,
++                    sceneId: binding && binding.sceneId
++                });
++                return false;
++            }
++            bindingIds.add(binding.bindingId);
++            nodeIds.add(binding.nodeId);
++            result.push(binding);
++            return true;
++        };
++
++        liveBindings.forEach(binding => {
++            if (addBinding(binding)) liveSceneIds.add(binding.sceneId);
++        });
++
++        const scenes = project && Array.isArray(project.scenes) ? project.scenes : [];
++        scenes.forEach(scene => {
++            if (!scene || !normalizeString(scene.id) || liveSceneIds.has(scene.id)) return;
++            mergePersistentAndRuntimeBindings(project, scene.id).forEach(record => {
++                if (bindingIds.has(record.bindingId) || nodeIds.has(record.nodeId)) {
++                    warnings.push({
++                        bindingId: record.bindingId,
++                        code: 'SCRATCH_BINDING_PROJECT_CONFLICT',
++                        nodeId: record.nodeId,
++                        sceneId: scene.id
++                    });
++                    return;
++                }
++                ensureRuntimeNode(record, record.lastKnownName);
++                const offlineBinding = Object.assign({}, record, {
++                    sceneId: scene.id,
++                    status: SCRATCH_BINDING_STATUSES.OFFLINE,
++                    targetRuntimeId: null
++                });
++                if (addBinding(offlineBinding)) offlineBindings.push(offlineBinding);
++            });
++        });
++
++        replaceIndexes(result, targetsById);
++        return offlineBindings;
++    };
++
+     const destroyBindingNode = binding => {
+         if (!binding || !runtimeNodeModel.getNode(binding.nodeId)) return false;
+         runtimeNodeModel.destroyNode(binding.nodeId, {allowAdapterManaged: true});
+@@ -445,13 +501,15 @@
+         const previousStore = cloneSerializable(getBindingStore(project));
+ 
+         if (!vm || !vm.runtime || !Array.isArray(vm.runtime.targets) || !sceneIsActive) {
+-            const offlineBindings = mergePersistentAndRuntimeBindings(project, activeSceneId).map(record => Object.assign({}, record, {
+-                sceneId: activeSceneId,
+-                status: SCRATCH_BINDING_STATUSES.OFFLINE,
+-                targetRuntimeId: null
+-            }));
+-            const retained = Array.from(bindingsByNodeId.values()).filter(binding => binding.sceneId !== activeSceneId);
+-            replaceIndexes(retained.concat(offlineBindings), new Map());
++            const liveBindings = !sceneIsActive && project.activeSceneId ?
++                Array.from(bindingsByNodeId.values()).filter(binding => binding.sceneId === project.activeSceneId) : [];
++            const liveTargetsById = new Map();
++            liveBindings.forEach(binding => {
++                if (binding.targetRuntimeId && targetByRuntimeId.has(binding.targetRuntimeId)) {
++                    liveTargetsById.set(binding.targetRuntimeId, targetByRuntimeId.get(binding.targetRuntimeId));
++                }
++            });
++            const offlineBindings = rebuildProjectBindingIndexes(project, liveBindings, liveTargetsById);
+             lastError = null;
+             const change = emit({
+                 bindingRevision: revision + 1,
+@@ -465,7 +523,10 @@
+                 transactionId,
+                 type: 'adapter:reconcile'
+             });
+-            return deepFreeze({bindings: offlineBindings.map(toBindingView), change});
++            const sceneBindings = Array.from(bindingsByNodeId.values())
++                .filter(binding => binding.sceneId === activeSceneId)
++                .map(toBindingView);
++            return deepFreeze({bindings: sceneBindings, change});
+         }
+ 
+         warnings = [];
+@@ -547,19 +608,17 @@
+ 
+             lastActiveSceneId = activeSceneId;
+             writePersistentBindings(activeSceneId, nextBindings);
+-            const retained = Array.from(bindingsByNodeId.values())
+-                .filter(binding => binding.sceneId !== activeSceneId)
+-                .map(binding => Object.assign({}, binding, {
+-                    status: SCRATCH_BINDING_STATUSES.OFFLINE,
+-                    targetRuntimeId: null
+-                }));
+-            replaceIndexes(retained.concat(nextBindings), targetsById);
++            const offlineBindings = rebuildProjectBindingIndexes(
++                sceneDataModel.readProject(),
++                nextBindings,
++                targetsById
++            );
+             lastError = null;
+             const change = emit({
+                 bindingRevision: revision + 1,
+                 createdNodeIds,
+                 missingNodeIds,
+-                offlineNodeIds: [],
++                offlineNodeIds: offlineBindings.map(binding => binding.nodeId),
+                 reason,
+                 reboundNodeIds,
+                 removedNodeIds,
+@@ -608,6 +667,14 @@
+ 
+     const scheduleReconcile = (reason = 'scheduled', scheduleOptions = {}) => {
+         assertAvailable();
++        if (sceneTransition && scheduleOptions.allowDuringTransition !== true) {
++            deferredTransitionReconcile = {
++                options: Object.assign({}, scheduleOptions, {reason}),
++                reason,
++                sceneId: scheduleOptions.sceneId || sceneTransition.toSceneId || null
++            };
++            return reconcileInFlight;
++        }
+         reconcilePending = {
+             options: Object.assign({}, scheduleOptions, {reason}),
+             sceneId: scheduleOptions.sceneId || null
+@@ -618,6 +685,50 @@
+         return reconcileInFlight;
+     };
+ 
++    const beginSceneTransition = change => {
++        const project = sceneDataModel.readProject();
++        sceneTransition = {
++            fromSceneId: normalizeString(change && change.fromSceneId) || project.activeSceneId || lastActiveSceneId,
++            toSceneId: normalizeString(change && change.sceneId),
++            type: change && change.type ? change.type : 'before-load'
++        };
++        deferredTransitionReconcile = null;
++        reconcileGeneration += 1;
++        if (reconcileTimer !== null) {
++            clearTimeout(reconcileTimer);
++            reconcileTimer = null;
++        }
++        reconcilePending = null;
++        const offlineBindings = rebuildProjectBindingIndexes(project, [], new Map());
++        emit({
++            fromSceneId: sceneTransition.fromSceneId,
++            offlineNodeIds: offlineBindings.map(binding => binding.nodeId),
++            sceneId: sceneTransition.toSceneId,
++            type: 'adapter:transition-start'
++        });
++    };
++
++    const finishSceneTransition = (change, failed = false) => {
++        const transition = sceneTransition;
++        sceneTransition = null;
++        const deferred = deferredTransitionReconcile;
++        deferredTransitionReconcile = null;
++        const project = sceneDataModel.readProject();
++        const sceneId = failed ? project.activeSceneId : (
++            normalizeString(change && change.sceneId) ||
++            (transition && transition.toSceneId) ||
++            project.activeSceneId
++        );
++        if (!sceneId) return;
++        scheduleReconcile(failed ? 'scene-load-error' : 'scene-loaded', {
++            allowDuringTransition: true,
++            delay: 0,
++            preserveMissing: true,
++            sceneId,
++            transactionId: deferred && deferred.options && deferred.options.transactionId
++        });
++    };
++
+     const addRuntimeListener = (emitter, eventName, handler) => {
+         if (!emitter || typeof emitter.on !== 'function') return;
+         emitter.on(eventName, handler);
+@@ -643,6 +754,28 @@
+             delay: 0,
+             preserveMissing: true
+         }));
++        if (sceneRuntime && typeof sceneRuntime.subscribe === 'function') {
++            const unsubscribeRuntime = sceneRuntime.subscribe(change => {
++                if (!change) return;
++                try {
++                    if (change.type === 'before-load' || change.type === 'before-reload') {
++                        beginSceneTransition(change);
++                        return;
++                    }
++                    if (change.type === 'loaded' || change.type === 'reloaded') {
++                        finishSceneTransition(change, false);
++                        return;
++                    }
++                    if (change.type === 'load-error' || change.type === 'reload-error') {
++                        finishSceneTransition(change, true);
++                    }
++                } catch (error) {
++                    lastError = error && error.message ? error.message : String(error);
++                    emit({error: lastError, type: 'bindings:error'});
++                }
++            });
++            lifecycleUnsubscribers.push(unsubscribeRuntime);
++        }
+         if (sceneDataModel && typeof sceneDataModel.subscribe === 'function') {
+             const unsubscribe = sceneDataModel.subscribe(change => {
+                 if (!change || change.type !== 'data') return;
+@@ -668,6 +801,8 @@
+             reconcileTimer = null;
+         }
+         reconcilePending = null;
++        sceneTransition = null;
++        deferredTransitionReconcile = null;
+         return true;
+     };
+ 
+@@ -722,8 +857,9 @@
+                 error: lastError,
+                 missingCount: bindings.filter(binding => binding.status === SCRATCH_BINDING_STATUSES.MISSING).length,
+                 offlineCount: bindings.filter(binding => binding.status === SCRATCH_BINDING_STATUSES.OFFLINE).length,
+-                reconciling: Boolean(reconcileInFlight || reconcilePending),
++                reconciling: Boolean(reconcileInFlight || reconcilePending || sceneTransition),
+                 tracking,
++                transition: sceneTransition ? cloneSerializable(sceneTransition) : null,
+                 revision,
+                 schemaVersion: SCRATCH_SPRITE_BINDING_SCHEMA_VERSION,
+                 warningCount: warnings.length,
+diff -ruN '--exclude=.git' '--exclude=node_modules' /mnt/data/base_8721/scratch-gui-main/test/unit/components/project-explorer.test.jsx /mnt/data/work_8722/scratch-gui-main/test/unit/components/project-explorer.test.jsx
+--- /mnt/data/base_8721/scratch-gui-main/test/unit/components/project-explorer.test.jsx	2026-08-04 12:39:01.000000000 +0000
++++ /mnt/data/work_8722/scratch-gui-main/test/unit/components/project-explorer.test.jsx	2026-08-04 14:14:16.581157317 +0000
+@@ -345,6 +345,11 @@
+ 
+         expect(playerRows).toHaveLength(1);
+         expect(playerRows[0].props['data-node-id']).toBe(spriteNode.id);
++        expect(playerRows[0].props['aria-expanded']).toBeUndefined();
++        expect(playerRows[0].findAllByType('button')).toHaveLength(0);
++        expect(() => act(() => playerRows[0].props.onClick({
++            currentTarget: {focus: jest.fn()}
++        }))).not.toThrow();
+     });
+ 
+     test('renders scene tree search and multi-select semantics', () => {
+diff -ruN '--exclude=.git' '--exclude=node_modules' /mnt/data/base_8721/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js /mnt/data/work_8722/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js
+--- /mnt/data/base_8721/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js	2026-08-04 12:34:54.000000000 +0000
++++ /mnt/data/work_8722/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js	2026-08-04 14:14:16.581157317 +0000
+@@ -39,6 +39,13 @@
+     const vm = new EventEmitter();
+     vm.runtime = runtime;
+     const runtimeNodeModel = createRuntimeNodeModelService(sceneDataModel);
++    const sceneRuntimeListeners = new Set();
++    const sceneRuntime = {
++        subscribe: listener => {
++            sceneRuntimeListeners.add(listener);
++            return () => sceneRuntimeListeners.delete(listener);
++        }
++    };
+     let sequence = 0;
+     const adapter = createScratchSpriteNodeAdapterService(
+         {vm},
+@@ -46,12 +53,14 @@
+         runtimeNodeModel,
+         {
+             bindingIdFactory: () => `binding-${++sequence}`,
++            sceneRuntime,
+             componentIdFactory: () => `component-${sequence}`,
+             nodeIdFactory: () => `node-${sequence}`
+         }
+     );
+     return {
+         adapter,
++        emitSceneRuntime: change => sceneRuntimeListeners.forEach(listener => listener(change)),
+         getProject: () => clone(project),
+         runtime,
+         runtimeNodeModel,
+@@ -117,6 +126,57 @@
+         harness.adapter.dispose();
+         harness.runtimeNodeModel.dispose();
+     });
++
++    test('defers VM target events during scene restore and preserves inactive scene bindings', async () => {
++        const harness = createHarness();
++        await flush();
++        const sceneABinding = harness.adapter.listBindings('scene-a')[0];
++
++        harness.emitSceneRuntime({fromSceneId: 'scene-a', sceneId: 'scene-b', type: 'before-load'});
++        harness.runtime.targets = [
++            createTarget('stage-b', 'Stage', {isStage: true}),
++            createTarget('target-b', 'NPC')
++        ];
++        harness.vm.emit('targetsUpdate');
++        harness.runtime.emit('PROJECT_LOADED');
++        await flush();
++
++        expect(harness.adapter.listBindings('scene-a')[0]).toMatchObject({
++            bindingId: sceneABinding.bindingId,
++            nodeId: sceneABinding.nodeId,
++            status: 'offline',
++            targetRuntimeId: null
++        });
++        expect(harness.adapter.listBindings('scene-b')).toHaveLength(0);
++
++        harness.setActiveScene('scene-b');
++        harness.emitSceneRuntime({fromSceneId: 'scene-a', sceneId: 'scene-b', type: 'loaded'});
++        await flush();
++        const firstSceneBBinding = harness.adapter.listBindings('scene-b')[0];
++        expect(firstSceneBBinding).toMatchObject({status: 'bound', targetRuntimeId: 'target-b'});
++
++        harness.runtime.targets.push(createTarget('target-b-2', 'NPC 2'));
++        harness.vm.emit('targetsUpdate');
++        await flush();
++        const sceneBNodeIds = harness.adapter.listBindings('scene-b').map(binding => binding.nodeId);
++        expect(sceneBNodeIds).toHaveLength(2);
++
++        harness.emitSceneRuntime({fromSceneId: 'scene-b', sceneId: 'scene-a', type: 'before-load'});
++        harness.runtime.targets = [
++            createTarget('stage-a-recreated', 'Stage', {isStage: true}),
++            createTarget('target-a-recreated', 'Player')
++        ];
++        harness.vm.emit('targetsUpdate');
++        harness.setActiveScene('scene-a');
++        harness.emitSceneRuntime({fromSceneId: 'scene-b', sceneId: 'scene-a', type: 'loaded'});
++        await flush();
++
++        expect(harness.adapter.listBindings('scene-b')).toHaveLength(2);
++        expect(harness.adapter.listBindings('scene-b').every(binding => binding.status === 'offline')).toBe(true);
++        sceneBNodeIds.forEach(nodeId => expect(harness.runtimeNodeModel.getNode(nodeId)).not.toBeNull());
++        harness.adapter.dispose();
++        harness.runtimeNodeModel.dispose();
++    });
+ 
+     test('marks the previous scene offline when the active scene changes', async () => {
+         const harness = createHarness();
+diff -ruN '--exclude=.git' '--exclude=node_modules' /mnt/data/base_8721/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.test.js /mnt/data/work_8722/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.test.js
+--- /mnt/data/base_8721/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.test.js	2026-08-04 11:42:01.000000000 +0000
++++ /mnt/data/work_8722/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.test.js	2026-08-04 14:14:16.581157317 +0000
+@@ -130,6 +130,53 @@
+         expect(harness.runtimeNodeModel.listNodes({includeRoots: false})).toHaveLength(1);
+     });
+ 
++    test('hydrates inactive scene bindings and runtime nodes from the project sidecar', () => {
++        const initialProject = {
++            activeSceneId: 'scene-a',
++            extensionData: {
++                [SCRATCH_SPRITE_BINDINGS_EXTENSION_DATA_KEY]: {
++                    scenes: {
++                        'scene-b': {
++                            items: [{
++                                bindingId: 'binding-scene-b',
++                                lastKnownName: 'Offline NPC',
++                                nodeId: 'node-scene-b',
++                                role: 'sprite',
++                                serializedTargetIndex: 1
++                            }]
++                        }
++                    },
++                    schemaVersion: 1
++                }
++            },
++            scenes: [{id: 'scene-a', name: 'Scene A'}, {id: 'scene-b', name: 'Scene B'}]
++        };
++        const harness = createHarness(() => createTargets('target-runtime-a'), initialProject);
++        const adapter = createScratchSpriteNodeAdapterService(
++            harness.context,
++            harness.sceneDataModel,
++            harness.runtimeNodeModel,
++            {
++                bindingIdFactory: () => 'binding-scene-a',
++                componentIdFactory: () => 'component-scene-a',
++                nodeIdFactory: () => 'node-scene-a'
++            }
++        );
++
++        expect(adapter.listBindings('scene-b')).toEqual([expect.objectContaining({
++            bindingId: 'binding-scene-b',
++            nodeId: 'node-scene-b',
++            sceneId: 'scene-b',
++            status: 'offline',
++            targetRuntimeId: null
++        })]);
++        expect(harness.runtimeNodeModel.getNode('node-scene-b')).toMatchObject({
++            name: 'Offline NPC',
++            sceneId: 'scene-b',
++            typeId: SCRATCH_SPRITE_NODE_TYPE_ID
++        });
++    });
++
+     test('returns frozen binding views without exposing the mutable Scratch target', () => {
+         const harness = createHarness(() => createTargets('target-runtime-a'));
+         const adapter = createScratchSpriteNodeAdapterService(

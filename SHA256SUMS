@@ -1,0 +1,6 @@
+b472292080cf42c3589dd2d67cc8d4276a2ae49b2296827a55c9fbb14759581d  ./PATCH-README.md
+00b344a114599ff88431f5eba21d5c0f5755d6e04167b242209e1c39959318a2  ./VALIDATION.md
+e7ddff030e6f5530a6351bdd19bb82f9ccebcb89ceef53fc3d0d6894c6254106  ./package.json
+2a4bd970a2d382b7f11701f9f9a85eba7d38b2200341a9803836d2b68053568a  ./scripts/validate-ngvge-module-bootstrap-recovery.js
+4a0944790cf2e71d43363af3e5ef4cddf380208c92ac32e285670e7e950c46f0  ./src/lib/first-party-modules/module-manager.js
+63a90f40eca1362481d243525772edd01395bbfb168df567e399f0732389d99f  ./test/unit/lib/first-party-modules/module-bootstrap-recovery.test.js

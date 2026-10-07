@@ -1,0 +1,10 @@
+capability_id,access,production_state,provider_id,authority_source,notes
+ngvge.workspace-capability.context-read,query,ready,ngvge.workspace-capability-provider.context-read,WorkspaceContextService,Portable read-only Workspace Context facade
+ngvge.workspace-capability.workspace-state,query,ready,ngvge.workspace-capability-provider.workspace-state.query,WorkspaceToolPersistenceService,ToolId-scoped query
+ngvge.workspace-capability.workspace-state,mutate,ready,ngvge.workspace-capability-provider.workspace-state.mutate,WorkspaceToolPersistenceService,ToolId-scoped mutation
+ngvge.workspace-capability.project-read,query,ready when ProjectLifecycleHost is available,ngvge.workspace-capability-provider.project-read,ProjectLifecycleHost + WorkspaceContextService,Session Project context/lifecycle snapshot only
+ngvge.workspace-capability.project-command,propose,ready when Project Command Host transaction adapter is available,ngvge.workspace-capability-provider.project-command.propose,Workspace Project Command Host,Tool-owned Project-scoped proposal; no Scratch payload
+ngvge.workspace-capability.project-command,mutate,ready when Project Command Host transaction adapter is available,ngvge.workspace-capability-provider.project-command.mutate,Workspace Project Command Host + semantic transaction adapter,Commit/rollback transaction; v1 Resource rename/move only
+ngvge.workspace-capability.resource-read,query,ready when canonical Resource authority is available,ngvge.workspace-capability-provider.resource-read,Global Asset Database ResourceId seam,Portable descriptor strips backend identity
+ngvge.workspace-capability.resource-command,propose,ready when Resource command authority is available,ngvge.workspace-capability-provider.resource-command.propose,Global Asset Database ResourceId seam,Direct bounded Resource rename/move/delete proposal surface
+ngvge.workspace-capability.resource-command,mutate,ready when Resource command authority is available,ngvge.workspace-capability-provider.resource-command.mutate,Global Asset Database history/command seam,Direct bounded Resource rename/move/delete mutation surface

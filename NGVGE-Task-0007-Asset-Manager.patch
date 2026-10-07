@@ -1,0 +1,2571 @@
+diff --git a/docs/TASK-0007-ASSET-MANAGER.md b/docs/TASK-0007-ASSET-MANAGER.md
+new file mode 100644
+index 0000000..90aaf97
+--- /dev/null
++++ b/docs/TASK-0007-ASSET-MANAGER.md
+@@ -0,0 +1,117 @@
++# Task-0007 — Asset Manager
++
++## Status
++
++Implementation complete; local runtime validation required.
++
++## Goal
++
++Turn the Task-0006 global costume list into an engineering-oriented Asset Manager while preserving normal Scratch SB3 asset storage and target-local costume/sound arrays.
++
++## Implemented
++
++### Direct file import
++
++The Asset Manager accepts multiple image and audio files.
++
++Image formats:
++
++- SVG
++- PNG
++- JPEG
++- BMP
++- WebP
++- GIF, imported as multiple image assets when animated
++
++Audio formats:
++
++- WAV
++- MP3
++- Other browser-decodable audio formats are converted through the existing 02Engine audio import path when possible
++
++Imported files enter the project-level Global Asset Database without first being attached to a Sprite.
++
++### Images and sounds
++
++Global asset records now support:
++
++- `kind: costume`
++- `kind: sound`
++
++A shared image can be attached as a costume or backdrop. A shared sound can be attached to any Stage or Sprite target.
++
++Scratch target arrays remain the runtime compatibility layer:
++
++- `target.costumes`
++- `target.sounds`
++
++NGVGE stores only the logical global-asset binding in additive target metadata.
++
++### Asset folders
++
++Project-level folders support:
++
++- Create
++- Rename
++- Delete
++- Move assets between folders
++- Unfiled assets
++
++Deleting a folder does not delete its assets. They move to Unfiled.
++
++### Search and filters
++
++The Asset Manager supports:
++
++- Name, format, and hash search
++- All / Images / Sounds filter
++- Folder filter
++- Grid / List views
++
++### Preview
++
++- Image thumbnail preview
++- Audio type card
++- Audio playback control when the asset data is loaded
++
++### References
++
++Each asset shows every target-local costume or sound that references it. A reference can be selected or unlinked individually.
++
++### Asset operation history
++
++A dedicated 100-step Asset Manager history records:
++
++- Import
++- Capture
++- Attach to target
++- Global image replacement
++- Rename
++- Folder operations
++- Move
++- Unlink
++- Delete unused asset
++
++This is separate from the Task-0005 Inspector property history.
++
++## SB3 compatibility
++
++The physical assets remain content-hash files:
++
++```text
++<assetId>.<dataFormat>
++```
++
++Ordinary Scratch costume and sound entries remain in each target. NGVGE project-level folders, asset IDs, and bindings are stored in the additive `ngvge` metadata section.
++
++Zero-reference image and sound binaries are included in `vm.serializeAssets()` so a project-level asset does not disappear merely because no target currently uses it.
++
++## Deferred
++
++- Drag-and-drop folder reordering
++- Multi-select and batch operations
++- Waveform generation
++- Animation collections
++- Asset tags
++- External linked files
++- 02Engine compiled-project export integration
+diff --git a/src/components/project-assets/index.js b/src/components/project-assets/index.js
+new file mode 100644
+index 0000000..ea2ab55
+--- /dev/null
++++ b/src/components/project-assets/index.js
+@@ -0,0 +1 @@
++export {default} from './project-asset-manager.jsx';
+diff --git a/src/components/project-assets/project-asset-manager.css b/src/components/project-assets/project-asset-manager.css
+new file mode 100644
+index 0000000..e3e85f3
+--- /dev/null
++++ b/src/components/project-assets/project-asset-manager.css
+@@ -0,0 +1,358 @@
++@import "../../css/units.css";
++@import "../../css/colors.css";
++
++.manager {
++    width: min(23rem, calc(100vw - 3rem));
++    margin: 0.35rem 0.55rem 0.75rem 2.15rem;
++    padding: 0.55rem;
++    border: 1px solid rgba(77, 151, 255, 0.2);
++    border-radius: 0.55rem;
++    background: rgba(77, 151, 255, 0.035);
++    white-space: normal;
++}
++
++.manager button,
++.manager input,
++.manager select {
++    min-height: 1.9rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.38rem;
++    background: $ui-white;
++    color: $text-primary;
++    font: inherit;
++}
++
++.manager button {
++    padding: 0.25rem 0.45rem;
++    cursor: pointer;
++}
++
++.manager button:hover:not(:disabled),
++.manager button:focus-visible:not(:disabled),
++.manager input:focus-visible,
++.manager select:focus-visible {
++    border-color: $motion-primary;
++    outline: none;
++}
++
++.manager button:disabled {
++    opacity: 0.42;
++    cursor: default;
++}
++
++.toolbar,
++.history-bar,
++.filters,
++.folder-bar,
++.rename-row,
++.action-grid {
++    display: flex;
++    gap: 0.35rem;
++}
++
++.toolbar {
++    flex-wrap: wrap;
++}
++
++.primary-button {
++    border-color: rgba(77, 151, 255, 0.55) !important;
++    color: $motion-primary !important;
++    font-weight: 700 !important;
++}
++
++.hidden-input {
++    display: none;
++}
++
++.history-bar {
++    align-items: center;
++    margin-top: 0.45rem;
++}
++
++.history-bar span {
++    margin-left: auto;
++    color: $text-primary-transparent;
++    font-size: 0.62rem;
++}
++
++.filters {
++    display: grid;
++    grid-template-columns: minmax(0, 1fr) auto auto;
++    gap: 0.35rem;
++    margin-top: 0.5rem;
++}
++
++.filters input,
++.filters select,
++.folder-bar input,
++.rename-row input {
++    min-width: 0;
++    padding: 0 0.45rem;
++}
++
++.view-toggle {
++    display: flex;
++    grid-column: 1 / -1;
++    gap: 0.25rem;
++}
++
++.view-toggle button {
++    flex: 1 1 0;
++}
++
++.active-toggle {
++    border-color: $motion-primary !important;
++    background: rgba(77, 151, 255, 0.1) !important;
++    color: $motion-primary !important;
++}
++
++.folder-bar {
++    margin-top: 0.45rem;
++}
++
++.folder-bar input {
++    flex: 1 1 auto;
++}
++
++.asset-collection {
++    margin-top: 0.55rem;
++}
++
++.asset-grid {
++    display: grid;
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++    gap: 0.4rem;
++}
++
++.asset-list {
++    display: flex;
++    flex-direction: column;
++    gap: 0.3rem;
++}
++
++.asset-card {
++    display: flex;
++    min-width: 0;
++    min-height: 4.35rem !important;
++    align-items: center;
++    gap: 0.45rem;
++    padding: 0.4rem !important;
++    text-align: left;
++}
++
++.asset-grid .asset-card {
++    flex-direction: column;
++    align-items: stretch;
++}
++
++.asset-card-selected {
++    border-color: $motion-primary !important;
++    box-shadow: 0 0 0 1px rgba(77, 151, 255, 0.18);
++}
++
++.thumbnail,
++.large-preview {
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    flex: 0 0 auto;
++    overflow: hidden;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.4rem;
++    background: repeating-conic-gradient(#f1f1f1 0 25%, #fff 0 50%) 50% / 0.65rem 0.65rem;
++}
++
++.thumbnail {
++    width: 3.3rem;
++    height: 3.3rem;
++}
++
++.asset-grid .thumbnail {
++    width: 100%;
++    height: 5rem;
++}
++
++.thumbnail img,
++.large-preview img {
++    width: 100%;
++    height: 100%;
++    object-fit: contain;
++}
++
++.asset-type-icon {
++    color: $motion-primary;
++    font-size: 1.55rem;
++    font-weight: 700;
++}
++
++.card-text {
++    display: flex;
++    min-width: 0;
++    flex-direction: column;
++    gap: 0.1rem;
++}
++
++.card-text strong,
++.card-text span {
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.card-text strong {
++    font-size: 0.7rem;
++}
++
++.card-text span {
++    color: $text-primary-transparent;
++    font-size: 0.57rem;
++}
++
++.empty-state {
++    grid-column: 1 / -1;
++    padding: 0.8rem;
++    border: 1px dashed rgba(77, 151, 255, 0.35);
++    border-radius: 0.5rem;
++    color: $text-primary-transparent;
++    font-size: 0.65rem;
++    line-height: 1.4;
++}
++
++.details {
++    margin-top: 0.6rem;
++    padding: 0.5rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.5rem;
++    background: $ui-white;
++}
++
++.details-header {
++    display: flex;
++    align-items: center;
++    gap: 0.55rem;
++}
++
++.large-preview {
++    width: 3.2rem;
++    height: 3.2rem;
++}
++
++.details-title {
++    display: flex;
++    min-width: 0;
++    flex: 1 1 auto;
++    flex-direction: column;
++    gap: 0.1rem;
++}
++
++.details-title strong,
++.details-title span,
++.details-title code {
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.details-title strong {
++    font-size: 0.75rem;
++}
++
++.details-title span,
++.details-title code {
++    color: $text-primary-transparent;
++    font-size: 0.58rem;
++}
++
++.audio-preview {
++    width: 100%;
++    height: 2.2rem;
++    margin-top: 0.45rem;
++}
++
++.rename-row {
++    margin-top: 0.45rem;
++}
++
++.rename-row input {
++    flex: 1 1 auto;
++}
++
++.folder-select {
++    display: grid;
++    grid-template-columns: auto minmax(0, 1fr);
++    align-items: center;
++    gap: 0.45rem;
++    margin-top: 0.45rem;
++    color: $text-primary-transparent;
++    font-size: 0.62rem;
++}
++
++.folder-select select {
++    min-width: 0;
++    padding: 0 0.4rem;
++}
++
++.action-grid {
++    display: grid;
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++    margin-top: 0.45rem;
++}
++
++.action-grid button {
++    font-size: 0.62rem;
++}
++
++.references {
++    display: flex;
++    flex-direction: column;
++    gap: 0.3rem;
++    margin-top: 0.55rem;
++    color: $text-primary-transparent;
++    font-size: 0.61rem;
++}
++
++.references strong {
++    color: $text-primary;
++}
++
++.reference-row {
++    display: grid;
++    grid-template-columns: minmax(0, 1fr) auto;
++    gap: 0.3rem;
++}
++
++.reference-row button:first-child {
++    overflow: hidden;
++    text-align: left;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.current-status,
++.status {
++    margin-top: 0.5rem;
++    color: $text-primary-transparent;
++    font-size: 0.59rem;
++    line-height: 1.35;
++}
++
++.status {
++    padding: 0.35rem 0.4rem;
++    border-radius: 0.35rem;
++    background: rgba(77, 151, 255, 0.08);
++    color: $text-primary;
++}
++
++@media (max-width: 760px) {
++    .asset-grid {
++        grid-template-columns: 1fr;
++    }
++
++    .filters {
++        grid-template-columns: 1fr;
++    }
++
++    .view-toggle {
++        grid-column: auto;
++    }
++}
+diff --git a/src/components/project-assets/project-asset-manager.jsx b/src/components/project-assets/project-asset-manager.jsx
+new file mode 100644
+index 0000000..7ee77c1
+--- /dev/null
++++ b/src/components/project-assets/project-asset-manager.jsx
+@@ -0,0 +1,577 @@
++/* eslint-disable react/jsx-no-literals */
++import classNames from 'classnames';
++import PropTypes from 'prop-types';
++import React from 'react';
++
++import {
++    costumeUpload,
++    handleFileUpload,
++    soundUpload
++} from '../../lib/file-uploader';
++
++import styles from './project-asset-manager.css';
++
++const ALL_FOLDERS = '__all__';
++const UNFILED_FOLDER = '__unfiled__';
++
++const getFileType = (fileName, fileType) => {
++    if (fileType) return fileType;
++    const extension = String(fileName).split('.').pop().toLowerCase();
++    const byExtension = {
++        bmp: 'image/bmp',
++        flac: 'audio/flac',
++        gif: 'image/gif',
++        jpeg: 'image/jpeg',
++        jpg: 'image/jpeg',
++        m4a: 'audio/mp4',
++        mp3: 'audio/mpeg',
++        ogg: 'audio/ogg',
++        png: 'image/png',
++        svg: 'image/svg+xml',
++        wav: 'audio/wav',
++        webp: 'image/webp'
++    };
++    return byExtension[extension] || '';
++};
++
++const AssetIcon = ({kind}) => (
++    <span aria-hidden="true" className={styles.assetTypeIcon}>
++        {kind === 'sound' ? '♪' : '▧'}
++    </span>
++);
++
++AssetIcon.propTypes = {
++    kind: PropTypes.string.isRequired
++};
++
++const ProjectAssetManager = props => {
++    const {
++        assetDatabase,
++        currentTarget,
++        onSelectTarget,
++        vm
++    } = props;
++    const [revision, setRevision] = React.useState(0);
++    const [selectedAssetId, setSelectedAssetId] = React.useState(null);
++    const [search, setSearch] = React.useState('');
++    const [kindFilter, setKindFilter] = React.useState('all');
++    const [folderFilter, setFolderFilter] = React.useState(ALL_FOLDERS);
++    const [viewMode, setViewMode] = React.useState('grid');
++    const [nameDraft, setNameDraft] = React.useState('');
++    const [folderNameDraft, setFolderNameDraft] = React.useState('');
++    const [status, setStatus] = React.useState('');
++    const fileInputRef = React.useRef(null);
++
++    React.useEffect(() => {
++        if (!assetDatabase) return () => {};
++        return assetDatabase.subscribe(change => {
++            setRevision(change.revision || assetDatabase.getRevision());
++        });
++    }, [assetDatabase]);
++
++    const assets = assetDatabase ? assetDatabase.listAssets() : [];
++    const folders = assetDatabase ? assetDatabase.listFolders() : [];
++    const selectedAsset = assets.find(asset => asset.id === selectedAssetId) || null;
++    const historyState = assetDatabase ? assetDatabase.getHistoryState() : {
++        canRedo: false,
++        canUndo: false,
++        redoCount: 0,
++        undoCount: 0
++    };
++    const currentCostumes = currentTarget && typeof currentTarget.getCostumes === 'function' ?
++        currentTarget.getCostumes() : [];
++    const currentCostume = currentCostumes.length ?
++        currentCostumes[currentTarget.currentCostume || 0] : null;
++
++    const selectedAssetName = selectedAsset ? selectedAsset.name : '';
++
++    React.useEffect(() => {
++        setNameDraft(selectedAssetName);
++    }, [selectedAssetId, selectedAssetName]);
++
++    React.useEffect(() => {
++        if (selectedAssetId && !selectedAsset) setSelectedAssetId(null);
++    }, [revision, selectedAsset, selectedAssetId]);
++
++    const filteredAssets = assets.filter(asset => {
++        const query = search.trim().toLowerCase();
++        if (query && !`${asset.name} ${asset.dataFormat} ${asset.md5ext}`.toLowerCase().includes(query)) {
++            return false;
++        }
++        if (kindFilter === 'images' && asset.kind !== 'costume') return false;
++        if (kindFilter === 'sounds' && asset.kind !== 'sound') return false;
++        if (folderFilter === UNFILED_FOLDER && asset.folderId) return false;
++        if (
++            folderFilter !== ALL_FOLDERS &&
++            folderFilter !== UNFILED_FOLDER &&
++            asset.folderId !== folderFilter
++        ) return false;
++        return true;
++    });
++
++    const runAction = React.useCallback(async (label, action, successMessage) => {
++        if (!assetDatabase) return;
++        setStatus('Working…');
++        try {
++            const result = await assetDatabase.perform(label, action);
++            setStatus(successMessage);
++            return result;
++        } catch (error) {
++            setStatus(error && error.message ? error.message : String(error));
++            return null;
++        }
++    }, [assetDatabase]);
++
++    const activeFolderId = (
++        folderFilter !== ALL_FOLDERS && folderFilter !== UNFILED_FOLDER ? folderFilter : null
++    );
++
++    const handleCaptureCurrent = () => runAction(
++        'Capture current costume',
++        () => {
++            if (!currentTarget || !currentCostume) throw new Error('Select a target with a costume first.');
++            const assetId = assetDatabase.captureCurrentCostume(currentTarget, activeFolderId);
++            setSelectedAssetId(assetId);
++            return assetId;
++        },
++        'Current costume captured as a global image asset.'
++    );
++
++    const handleUseSelected = () => runAction(
++        `Use ${selectedAsset ? selectedAsset.name : 'asset'} on selected target`,
++        async () => {
++            if (!selectedAsset) throw new Error('Select an asset first.');
++            if (!currentTarget) throw new Error('Select a Stage or Sprite first.');
++            return assetDatabase.addAssetToTarget(selectedAsset.id, currentTarget.id);
++        },
++        'Asset added to the selected target.'
++    );
++
++    const handleReplaceSelected = () => runAction(
++        'Replace global image asset',
++        () => {
++            if (!selectedAsset || selectedAsset.kind !== 'costume') {
++                throw new Error('Select an image asset first.');
++            }
++            if (!currentTarget || !currentCostume) throw new Error('Select a source costume first.');
++            return assetDatabase.replaceAssetFromCurrent(selectedAsset.id, currentTarget);
++        },
++        'Global image replaced and all linked costumes updated.'
++    );
++
++    const handleDeleteSelected = () => runAction(
++        'Delete unused global asset',
++        () => {
++            if (!selectedAsset) throw new Error('Select an asset first.');
++            const result = assetDatabase.removeAsset(selectedAsset.id);
++            setSelectedAssetId(null);
++            return result;
++        },
++        'Unused asset deleted.'
++    );
++
++    const handleRenameSelected = event => {
++        event.preventDefault();
++        runAction(
++            'Rename global asset',
++            () => assetDatabase.renameAsset(selectedAsset.id, nameDraft),
++            'Asset renamed.'
++        );
++    };
++
++    const handleMoveSelected = event => runAction(
++        'Move global asset',
++        () => assetDatabase.moveAsset(
++            selectedAsset.id,
++            event.target.value === UNFILED_FOLDER ? null : event.target.value
++        ),
++        'Asset moved.'
++    );
++
++    const handleCreateFolder = event => {
++        event.preventDefault();
++        if (!folderNameDraft.trim()) return;
++        runAction(
++            'Create asset folder',
++            () => {
++                const folderId = assetDatabase.createFolder(folderNameDraft);
++                setFolderFilter(folderId);
++                setFolderNameDraft('');
++                return folderId;
++            },
++            'Folder created.'
++        );
++    };
++
++
++    const handleRenameFolder = () => runAction(
++        'Rename asset folder',
++        () => {
++            if (!activeFolderId) throw new Error('Select a folder first.');
++            if (!folderNameDraft.trim()) throw new Error('Enter a folder name first.');
++            const result = assetDatabase.renameFolder(activeFolderId, folderNameDraft);
++            setFolderNameDraft('');
++            return result;
++        },
++        'Folder renamed.'
++    );
++
++    const handleDeleteFolder = () => runAction(
++        'Delete asset folder',
++        () => {
++            if (!activeFolderId) throw new Error('Select a folder first.');
++            const result = assetDatabase.removeFolder(activeFolderId);
++            setFolderFilter(ALL_FOLDERS);
++            return result;
++        },
++        'Folder deleted; contained assets moved to Unfiled.'
++    );
++
++    const handleUnlinkReference = reference => runAction(
++        'Unlink global asset reference',
++        () => assetDatabase.unlinkReference(
++            selectedAsset.id,
++            reference.targetId,
++            reference.itemIndex
++        ),
++        'Reference converted to an independent local item.'
++    );
++
++    const handleUndo = () => {
++        if (assetDatabase && assetDatabase.undo()) setStatus('Asset change undone.');
++    };
++
++    const handleRedo = () => {
++        if (assetDatabase && assetDatabase.redo()) setStatus('Asset change redone.');
++    };
++
++    const handleImportClick = () => {
++        if (fileInputRef.current) fileInputRef.current.click();
++    };
++
++    const handleImportFiles = event => {
++        const input = event.target;
++        setStatus('Importing files…');
++        handleFileUpload(input, (buffer, fileType, fileName, fileIndex, fileCount) => {
++            const normalizedType = getFileType(`${fileName}.${String(fileType).split('/').pop()}`, fileType);
++            const finish = message => {
++                if (fileIndex === fileCount - 1) setStatus(message);
++            };
++            if (normalizedType.startsWith('image/')) {
++                costumeUpload(buffer, normalizedType, vm, costumes => {
++                    runAction(
++                        `Import image ${fileName}`,
++                        () => {
++                            let lastId = null;
++                            costumes.forEach((costume, index) => {
++                                const name = `${fileName}${index ? index + 1 : ''}`;
++                                lastId = assetDatabase.importCostume(costume, name, activeFolderId);
++                            });
++                            if (lastId) setSelectedAssetId(lastId);
++                            return lastId;
++                        },
++                        `Imported image asset: ${fileName}`
++                    ).then(() => finish('Asset import complete.'));
++                }, error => setStatus(error && error.message ? error.message : String(error)));
++                return;
++            }
++            if (normalizedType.startsWith('audio/')) {
++                soundUpload(buffer, normalizedType, vm.runtime.storage, sound => {
++                    sound.name = fileName;
++                    runAction(
++                        `Import sound ${fileName}`,
++                        () => {
++                            const assetId = assetDatabase.importSound(sound, fileName, activeFolderId);
++                            setSelectedAssetId(assetId);
++                            return assetId;
++                        },
++                        `Imported sound asset: ${fileName}`
++                    ).then(() => finish('Asset import complete.'));
++                }, error => setStatus(error && error.message ? error.message : String(error)));
++                return;
++            }
++            setStatus(`Unsupported file type: ${normalizedType || fileName}`);
++        }, error => setStatus(error && error.message ? error.message : String(error)));
++    };
++
++    const selectedReferences = selectedAsset && assetDatabase ?
++        assetDatabase.getReferences(selectedAsset.id) : [];
++    const selectedDataURL = selectedAsset && assetDatabase ?
++        assetDatabase.getDataURL(selectedAsset.id) : null;
++
++    return (
++        <div className={styles.manager}>
++            <div className={styles.toolbar}>
++                <button
++                    className={styles.primaryButton}
++                    type="button"
++                    onClick={handleImportClick}
++                >
++                    + Import files
++                </button>
++                <button
++                    disabled={!currentCostume}
++                    type="button"
++                    onClick={handleCaptureCurrent}
++                >
++                    Capture costume
++                </button>
++                <input
++                    multiple
++                    accept=".svg,.png,.bmp,.jpg,.jpeg,.webp,.gif,.wav,.mp3,.ogg,.m4a,.flac"
++                    className={styles.hiddenInput}
++                    ref={fileInputRef}
++                    type="file"
++                    onChange={handleImportFiles}
++                />
++            </div>
++
++            <div className={styles.historyBar}>
++                <button disabled={!historyState.canUndo} type="button" onClick={handleUndo}>
++                    ↶ Undo{historyState.undoCount ? ` (${historyState.undoCount})` : ''}
++                </button>
++                <button disabled={!historyState.canRedo} type="button" onClick={handleRedo}>
++                    Redo{historyState.redoCount ? ` (${historyState.redoCount})` : ''} ↷
++                </button>
++                <span>{assets.length} assets</span>
++            </div>
++
++            <div className={styles.filters}>
++                <input
++                    aria-label="Search assets"
++                    placeholder="Search assets…"
++                    type="search"
++                    value={search}
++                    onChange={event => setSearch(event.target.value)}
++                />
++                <select
++                    aria-label="Asset type"
++                    value={kindFilter}
++                    onChange={event => setKindFilter(event.target.value)}
++                >
++                    <option value="all">All types</option>
++                    <option value="images">Images</option>
++                    <option value="sounds">Sounds</option>
++                </select>
++                <select
++                    aria-label="Asset folder"
++                    value={folderFilter}
++                    onChange={event => setFolderFilter(event.target.value)}
++                >
++                    <option value={ALL_FOLDERS}>All folders</option>
++                    <option value={UNFILED_FOLDER}>Unfiled</option>
++                    {folders.map(folder => (
++                        <option key={folder.id} value={folder.id}>{folder.name}</option>
++                    ))}
++                </select>
++                <div className={styles.viewToggle}>
++                    <button
++                        aria-pressed={viewMode === 'grid'}
++                        className={classNames({[styles.activeToggle]: viewMode === 'grid'})}
++                        type="button"
++                        onClick={() => setViewMode('grid')}
++                    >
++                        Grid
++                    </button>
++                    <button
++                        aria-pressed={viewMode === 'list'}
++                        className={classNames({[styles.activeToggle]: viewMode === 'list'})}
++                        type="button"
++                        onClick={() => setViewMode('list')}
++                    >
++                        List
++                    </button>
++                </div>
++            </div>
++
++            <form className={styles.folderBar} onSubmit={handleCreateFolder}>
++                <input
++                    aria-label="New folder name"
++                    placeholder="New folder"
++                    value={folderNameDraft}
++                    onChange={event => setFolderNameDraft(event.target.value)}
++                />
++                <button type="submit">Create folder</button>
++                <button disabled={!activeFolderId} type="button" onClick={handleRenameFolder}>
++                    Rename folder
++                </button>
++                <button disabled={!activeFolderId} type="button" onClick={handleDeleteFolder}>
++                    Delete folder
++                </button>
++            </form>
++
++            <div className={classNames(styles.assetCollection, {
++                [styles.assetGrid]: viewMode === 'grid',
++                [styles.assetList]: viewMode === 'list'
++            })}>
++                {filteredAssets.length ? filteredAssets.map(asset => {
++                    const previewURL = assetDatabase.getPreviewURL(asset.id);
++                    const folder = folders.find(candidate => candidate.id === asset.folderId);
++                    return (
++                        <button
++                            className={classNames(styles.assetCard, {
++                                [styles.assetCardSelected]: asset.id === selectedAssetId
++                            })}
++                            key={asset.id}
++                            type="button"
++                            onClick={() => setSelectedAssetId(asset.id)}
++                        >
++                            <div className={styles.thumbnail}>
++                                {previewURL ? (
++                                    <img alt="" src={previewURL} />
++                                ) : (
++                                    <AssetIcon kind={asset.kind} />
++                                )}
++                            </div>
++                            <div className={styles.cardText}>
++                                <strong>{asset.name}</strong>
++                                <span>
++                                    {asset.kind === 'sound' ? 'Sound' : 'Image'} · {asset.referenceCount} refs
++                                </span>
++                                <span>{folder ? folder.name : 'Unfiled'}</span>
++                            </div>
++                        </button>
++                    );
++                }) : (
++                    <div className={styles.emptyState}>
++                        No assets match the current filters. Import a file or capture the current costume.
++                    </div>
++                )}
++            </div>
++
++            {selectedAsset ? (
++                <section className={styles.details} aria-label="Selected asset details">
++                    <div className={styles.detailsHeader}>
++                        <div className={styles.largePreview}>
++                            {selectedAsset.kind === 'sound' ? (
++                                <AssetIcon kind="sound" />
++                            ) : selectedDataURL ? (
++                                <img alt="" src={selectedDataURL} />
++                            ) : (
++                                <AssetIcon kind="costume" />
++                            )}
++                        </div>
++                        <div className={styles.detailsTitle}>
++                            <strong>{selectedAsset.name}</strong>
++                            <span>{selectedAsset.dataFormat.toUpperCase()} · {selectedReferences.length} refs</span>
++                            <code>{selectedAsset.md5ext}</code>
++                        </div>
++                    </div>
++                    {selectedAsset.kind === 'sound' && selectedDataURL ? (
++                        // eslint-disable-next-line jsx-a11y/media-has-caption
++                        <audio className={styles.audioPreview} controls src={selectedDataURL} />
++                    ) : null}
++                    <form className={styles.renameRow} onSubmit={handleRenameSelected}>
++                        <input
++                            aria-label="Asset name"
++                            value={nameDraft}
++                            onChange={event => setNameDraft(event.target.value)}
++                        />
++                        <button type="submit">Rename</button>
++                    </form>
++                    <label className={styles.folderSelect}>
++                        Folder
++                        <select
++                            value={selectedAsset.folderId || UNFILED_FOLDER}
++                            onChange={handleMoveSelected}
++                        >
++                            <option value={UNFILED_FOLDER}>Unfiled</option>
++                            {folders.map(folder => (
++                                <option key={folder.id} value={folder.id}>{folder.name}</option>
++                            ))}
++                        </select>
++                    </label>
++                    <div className={styles.actionGrid}>
++                        <button disabled={!currentTarget} type="button" onClick={handleUseSelected}>
++                            Use on selected
++                        </button>
++                        <button
++                            disabled={selectedAsset.kind !== 'costume' || !currentCostume}
++                            type="button"
++                            onClick={handleReplaceSelected}
++                        >
++                            Replace globally
++                        </button>
++                        <button
++                            disabled={selectedReferences.length > 0}
++                            type="button"
++                            onClick={handleDeleteSelected}
++                        >
++                            Delete unused
++                        </button>
++                    </div>
++                    <div className={styles.references}>
++                        <strong>References</strong>
++                        {selectedReferences.length ? selectedReferences.map(reference => (
++                            <div className={styles.referenceRow} key={`${reference.targetId}:${reference.kind}:${reference.itemIndex}`}>
++                                <button type="button" onClick={() => onSelectTarget(reference.targetId)}>
++                                    {reference.targetName} / {reference.itemName}
++                                </button>
++                                <button type="button" onClick={() => handleUnlinkReference(reference)}>
++                                    Unlink
++                                </button>
++                            </div>
++                        )) : <span>Not used by any target.</span>}
++                    </div>
++                </section>
++            ) : null}
++
++            <div className={styles.currentStatus}>
++                Target: {currentTarget && typeof currentTarget.getName === 'function' ? currentTarget.getName() : 'None'}
++                {currentCostume ? ` · Current costume: ${currentCostume.name}` : ''}
++            </div>
++            {status ? <div className={styles.status}>{status}</div> : null}
++        </div>
++    );
++};
++
++ProjectAssetManager.propTypes = {
++    assetDatabase: PropTypes.shape({
++        addAssetToTarget: PropTypes.func.isRequired,
++        captureCurrentCostume: PropTypes.func.isRequired,
++        createFolder: PropTypes.func.isRequired,
++        getAsset: PropTypes.func.isRequired,
++        getDataURL: PropTypes.func.isRequired,
++        getHistoryState: PropTypes.func.isRequired,
++        getPreviewURL: PropTypes.func.isRequired,
++        getReferences: PropTypes.func.isRequired,
++        getRevision: PropTypes.func.isRequired,
++        importCostume: PropTypes.func.isRequired,
++        importSound: PropTypes.func.isRequired,
++        listAssets: PropTypes.func.isRequired,
++        listFolders: PropTypes.func.isRequired,
++        moveAsset: PropTypes.func.isRequired,
++        perform: PropTypes.func.isRequired,
++        redo: PropTypes.func.isRequired,
++        removeAsset: PropTypes.func.isRequired,
++        removeFolder: PropTypes.func.isRequired,
++        renameAsset: PropTypes.func.isRequired,
++        renameFolder: PropTypes.func.isRequired,
++        replaceAssetFromCurrent: PropTypes.func.isRequired,
++        subscribe: PropTypes.func.isRequired,
++        undo: PropTypes.func.isRequired,
++        unlinkReference: PropTypes.func.isRequired
++    }),
++    currentTarget: PropTypes.shape({
++        currentCostume: PropTypes.number,
++        getCostumes: PropTypes.func,
++        getName: PropTypes.func,
++        id: PropTypes.string
++    }),
++    onSelectTarget: PropTypes.func,
++    vm: PropTypes.shape({
++        addCostume: PropTypes.func,
++        addSound: PropTypes.func,
++        runtime: PropTypes.shape({
++            storage: PropTypes.object
++        }).isRequired
++    }).isRequired
++};
++
++ProjectAssetManager.defaultProps = {
++    assetDatabase: null,
++    currentTarget: null,
++    onSelectTarget: () => {}
++};
++
++export default ProjectAssetManager;
+diff --git a/src/components/project-explorer/project-explorer.jsx b/src/components/project-explorer/project-explorer.jsx
+index 9f368b4..3a0de16 100644
+--- a/src/components/project-explorer/project-explorer.jsx
++++ b/src/components/project-explorer/project-explorer.jsx
+@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
+ import React from 'react';
+ import {FormattedMessage} from 'react-intl';
+ 
++import ProjectAssetManager from '../project-assets';
+ import {
+     ENTITIES_ROOT_NODE_ID,
+     createEntityProvider,
+@@ -54,11 +55,7 @@ const TreeNode = props => {
+     const nodeRef = React.useRef(null);
+ 
+     React.useEffect(() => {
+-        if (
+-            selected &&
+-            nodeRef.current &&
+-            typeof nodeRef.current.scrollIntoView === 'function'
+-        ) {
++        if (selected && nodeRef.current && typeof nodeRef.current.scrollIntoView === 'function') {
+             nodeRef.current.scrollIntoView({block: 'nearest'});
+         }
+     }, [selected]);
+@@ -159,9 +156,6 @@ const ProjectExplorer = props => {
+     const entityProvider = createEntityProvider({sprites, stage, stageLabel});
+     const entityNodes = entityProvider.getChildren(ENTITIES_ROOT_NODE_ID);
+     const [assetRevision, setAssetRevision] = React.useState(0);
+-    const [selectedAssetId, setSelectedAssetId] = React.useState(null);
+-    const [assetNameDraft, setAssetNameDraft] = React.useState('');
+-    const [actionStatus, setActionStatus] = React.useState('');
+ 
+     const assetDatabase = React.useMemo(() => {
+         if (!vm || !vm.runtime) return null;
+@@ -175,84 +169,12 @@ const ProjectExplorer = props => {
+         });
+     }, [assetDatabase]);
+ 
+-    const assetNodes = assetDatabase ? assetDatabase.listAssets() : [];
+-    const selectedAsset = assetNodes.find(asset => asset.id === selectedAssetId) || null;
++    const assetCount = React.useMemo(
++        () => assetDatabase ? assetDatabase.listAssets().length : 0,
++        [assetDatabase, assetRevision]
++    );
+     const currentTarget = vm && vm.runtime && editingTargetId ?
+         vm.runtime.getTargetById(editingTargetId) : null;
+-    const currentCostumes = currentTarget && typeof currentTarget.getCostumes === 'function' ?
+-        currentTarget.getCostumes() : [];
+-    const currentCostume = currentTarget && currentCostumes.length ?
+-        currentCostumes[currentTarget.currentCostume || 0] : null;
+-    const currentBindingId = assetDatabase && currentTarget ?
+-        assetDatabase.getCurrentBinding(currentTarget) : null;
+-    const selectedReferences = assetDatabase && selectedAsset ?
+-        assetDatabase.getReferences(selectedAsset.id) : [];
+-    const selectedPreviewURL = assetDatabase && selectedAsset ?
+-        assetDatabase.getPreviewURL(selectedAsset.id) : null;
+-
+-    const selectedAssetName = selectedAsset ? selectedAsset.name : '';
+-
+-    React.useEffect(() => {
+-        setAssetNameDraft(selectedAssetName);
+-    }, [selectedAssetId, selectedAssetName]);
+-
+-    React.useEffect(() => {
+-        if (selectedAssetId && !selectedAsset) setSelectedAssetId(null);
+-    }, [assetRevision, selectedAsset, selectedAssetId]);
+-
+-    const runAssetAction = React.useCallback(async (action, successMessage) => {
+-        setActionStatus('Working…');
+-        try {
+-            await action();
+-            setActionStatus(successMessage);
+-        } catch (error) {
+-            setActionStatus(error && error.message ? error.message : String(error));
+-        }
+-    }, []);
+-
+-    const handleCaptureCurrent = () => runAssetAction(() => {
+-        if (!assetDatabase || !currentTarget) throw new Error('Select a Stage or Sprite first.');
+-        const id = assetDatabase.captureCurrentCostume(currentTarget);
+-        setSelectedAssetId(id);
+-    }, 'Current costume added to the global asset database.');
+-
+-    const handleUseSelected = () => runAssetAction(async () => {
+-        if (!assetDatabase || !selectedAsset) throw new Error('Select a global asset first.');
+-        if (!currentTarget) throw new Error('Select a Stage or Sprite first.');
+-        await assetDatabase.addAssetToTarget(selectedAsset.id, currentTarget.id);
+-    }, 'Global asset attached to the selected target.');
+-
+-    const handleReplaceSelected = () => runAssetAction(() => {
+-        if (!assetDatabase || !selectedAsset) throw new Error('Select a global asset first.');
+-        if (!currentTarget || !currentCostume) throw new Error('Select a source costume first.');
+-        assetDatabase.replaceAssetFromCurrent(selectedAsset.id, currentTarget);
+-    }, 'Global asset replaced; all linked costumes were updated.');
+-
+-    const handleUnlinkCurrent = () => runAssetAction(() => {
+-        if (!assetDatabase || !currentTarget || !currentCostume) {
+-            throw new Error('Select a linked costume first.');
+-        }
+-        if (!assetDatabase.unlinkCostume(currentTarget, currentTarget.currentCostume || 0)) {
+-            throw new Error('The current costume is not linked to a global asset.');
+-        }
+-    }, 'Current costume is now a local independent copy.');
+-
+-    const handleRenameSelected = event => {
+-        event.preventDefault();
+-        if (!assetDatabase || !selectedAsset) return;
+-        try {
+-            assetDatabase.renameAsset(selectedAsset.id, assetNameDraft);
+-            setActionStatus('Global asset renamed.');
+-        } catch (error) {
+-            setActionStatus(error && error.message ? error.message : String(error));
+-        }
+-    };
+-
+-    const handleDeleteSelected = () => runAssetAction(() => {
+-        if (!assetDatabase || !selectedAsset) throw new Error('Select a global asset first.');
+-        assetDatabase.removeAsset(selectedAsset.id);
+-        setSelectedAssetId(null);
+-    }, 'Unused global asset deleted.');
+ 
+     return (
+         <aside
+@@ -339,121 +261,28 @@ const ProjectExplorer = props => {
+                             icon="▧"
+                             label="Assets"
+                             nodeId={ASSETS_ROOT_NODE_ID}
+-                            secondaryLabel={assetNodes.length}
++                            secondaryLabel={assetCount}
+                             onToggle={onToggleNode}
+                         >
+-                            {assetNodes.length ? assetNodes.map(asset => (
+-                                <TreeNode
+-                                    depth={2}
+-                                    icon="▣"
+-                                    key={asset.id}
+-                                    label={asset.name}
+-                                    nodeId={`${ASSET_NODE_PREFIX}${asset.id}`}
+-                                    secondaryLabel={`${asset.referenceCount} refs`}
+-                                    selected={asset.id === selectedAssetId}
+-                                    onActivate={() => setSelectedAssetId(asset.id)}
+-                                    onToggle={onToggleNode}
++                            {assetDatabase ? (
++                                <ProjectAssetManager
++                                    assetDatabase={assetDatabase}
++                                    currentTarget={currentTarget}
++                                    vm={vm}
++                                    onSelectTarget={onSelectTarget}
+                                 />
+-                            )) : (
++                            ) : (
+                                 <div className={styles.emptyState} role="note">
+-                                    Capture a current costume to create the first project-wide asset.
++                                    Global asset services are not available.
+                                 </div>
+                             )}
+-                            <div className={styles.assetWorkspace} role="group" aria-label="Global asset actions">
+-                                <button
+-                                    className={styles.assetPrimaryButton}
+-                                    disabled={!currentCostume}
+-                                    type="button"
+-                                    onClick={handleCaptureCurrent}
+-                                >
+-                                    + Capture current costume
+-                                </button>
+-                                {selectedAsset ? (
+-                                    <React.Fragment>
+-                                        <div className={styles.assetDetails}>
+-                                            {selectedPreviewURL ? (
+-                                                <img
+-                                                    alt=""
+-                                                    className={styles.assetPreview}
+-                                                    src={selectedPreviewURL}
+-                                                />
+-                                            ) : (
+-                                                <div className={styles.assetPreviewFallback}>IMAGE</div>
+-                                            )}
+-                                            <div className={styles.assetMetadata}>
+-                                                <strong>{selectedAsset.name}</strong>
+-                                                <span>{selectedAsset.dataFormat.toUpperCase()} · {selectedAsset.referenceCount} refs</span>
+-                                                <span className={styles.assetHash}>{selectedAsset.md5ext}</span>
+-                                            </div>
+-                                        </div>
+-                                        <form className={styles.assetRename} onSubmit={handleRenameSelected}>
+-                                            <input
+-                                                aria-label="Global asset name"
+-                                                value={assetNameDraft}
+-                                                onChange={event => setAssetNameDraft(event.target.value)}
+-                                            />
+-                                            <button type="submit">Rename</button>
+-                                        </form>
+-                                        <div className={styles.assetActionGrid}>
+-                                            <button
+-                                                disabled={!currentTarget}
+-                                                type="button"
+-                                                onClick={handleUseSelected}
+-                                            >
+-                                                Use on selected
+-                                            </button>
+-                                            <button
+-                                                disabled={!currentCostume}
+-                                                type="button"
+-                                                onClick={handleReplaceSelected}
+-                                            >
+-                                                Replace globally
+-                                            </button>
+-                                            <button
+-                                                disabled={!currentBindingId}
+-                                                type="button"
+-                                                onClick={handleUnlinkCurrent}
+-                                            >
+-                                                Unlink current
+-                                            </button>
+-                                            <button
+-                                                disabled={selectedReferences.length > 0}
+-                                                type="button"
+-                                                onClick={handleDeleteSelected}
+-                                            >
+-                                                Delete unused
+-                                            </button>
+-                                        </div>
+-                                        <div className={styles.assetReferences}>
+-                                            <strong>References</strong>
+-                                            {selectedReferences.length ? selectedReferences.map(reference => (
+-                                                <button
+-                                                    key={`${reference.targetId}:${reference.costumeIndex}`}
+-                                                    type="button"
+-                                                    onClick={() => onSelectTarget(reference.targetId)}
+-                                                >
+-                                                    {reference.targetName} / {reference.costumeName}
+-                                                </button>
+-                                            )) : <span>Not used by any target.</span>}
+-                                        </div>
+-                                    </React.Fragment>
+-                                ) : null}
+-                                <div className={styles.assetCurrentStatus}>
+-                                    Current: {currentTarget ? (
+-                                        `${typeof currentTarget.getName === 'function' ? currentTarget.getName() : 'Target'} / ` +
+-                                        `${currentCostume ? currentCostume.name : 'No costume'}`
+-                                    ) : 'No target selected'}
+-                                    {currentBindingId ? ' · Linked' : ''}
+-                                </div>
+-                                {actionStatus ? <div className={styles.assetStatus}>{actionStatus}</div> : null}
+-                            </div>
+                         </TreeNode>
+                     </TreeNode>
+                 </div>
+             </div>
+             <footer className={styles.footer}>
+                 <span className={styles.statusDot} />
+-                {entityNodes.length} entities · {assetNodes.length} global assets · Compatibility mode
++                {entityNodes.length} entities · {assetCount} global assets · Compatibility mode
+             </footer>
+         </aside>
+     );
+@@ -479,9 +308,11 @@ ProjectExplorer.propTypes = {
+     stageLabel: PropTypes.string,
+     vm: PropTypes.shape({
+         addCostume: PropTypes.func,
++        addSound: PropTypes.func,
+         emitTargetsUpdate: PropTypes.func,
+         runtime: PropTypes.shape({
+             getTargetById: PropTypes.func.isRequired,
++            storage: PropTypes.object,
+             targets: PropTypes.array
+         }).isRequired,
+         serializeAssets: PropTypes.func
+diff --git a/src/lib/project-assets/global-asset-database.js b/src/lib/project-assets/global-asset-database.js
+index 5f719a8..b997578 100644
+--- a/src/lib/project-assets/global-asset-database.js
++++ b/src/lib/project-assets/global-asset-database.js
+@@ -2,24 +2,27 @@ import {getInspectorRegistry} from '../project-inspector/inspector-registry';
+ 
+ const DATABASE_PROPERTY = 'ngvgeGlobalAssetDatabase';
+ const DATABASE_SECTION_ID = 'ngvge-global-assets';
+-const DATABASE_VERSION = 1;
++const DATABASE_VERSION = 2;
+ const COSTUME_BINDING_PROPERTY = '__ngvgeGlobalAssetId';
++const SOUND_BINDING_PROPERTY = '__ngvgeGlobalSoundAssetId';
++const SERIALIZATION_PROPERTY = 'ngvgeGlobalAssetSerializationVersion';
++const LOAD_RESET_PROPERTY = 'ngvgeGlobalAssetLoadResetVersion';
++const MAX_HISTORY_LENGTH = 100;
+ 
+ let fallbackId = 0;
+ 
+-const createId = () => {
++const createId = prefix => {
+     if (
+         typeof globalThis !== 'undefined' &&
+         globalThis.crypto &&
+         typeof globalThis.crypto.randomUUID === 'function'
+     ) {
+-        return `asset:${globalThis.crypto.randomUUID()}`;
++        return `${prefix}:${globalThis.crypto.randomUUID()}`;
+     }
+     fallbackId += 1;
+-    return `asset:${Date.now().toString(36)}:${fallbackId.toString(36)}`;
++    return `${prefix}:${Date.now().toString(36)}:${fallbackId.toString(36)}`;
+ };
+ 
+-
+ const getOriginalTargets = runtime => (
+     runtime && Array.isArray(runtime.targets) ?
+         runtime.targets.filter(target => target && target.isOriginal) : []
+@@ -31,37 +34,66 @@ const getCostumes = target => (
+         (target && target.sprite && Array.isArray(target.sprite.costumes) ? target.sprite.costumes : [])
+ );
+ 
++const getSounds = target => (
++    target && typeof target.getSounds === 'function' ?
++        target.getSounds() :
++        (target && target.sprite && Array.isArray(target.sprite.sounds) ? target.sprite.sounds : [])
++);
++
++const getItems = (target, kind) => kind === 'sound' ? getSounds(target) : getCostumes(target);
++
+ const getCurrentCostume = target => {
+     const costumes = getCostumes(target);
+     const index = target && Number.isInteger(target.currentCostume) ? target.currentCostume : 0;
+     return costumes[index] || null;
+ };
+ 
+-const getMd5ext = costume => {
+-    if (!costume) return '';
+-    return costume.md5 || costume.md5ext || (
+-        costume.assetId && costume.dataFormat ? `${costume.assetId}.${costume.dataFormat}` : ''
++const getMd5ext = item => {
++    if (!item) return '';
++    return item.md5 || item.md5ext || (
++        item.assetId && item.dataFormat ? `${item.assetId}.${item.dataFormat}` : ''
+     );
+ };
+ 
+-const getCostumeAsset = costume => {
+-    if (!costume) return null;
+-    if (costume.asset) return costume.asset;
+-    if (costume.broken && costume.broken.asset) return costume.broken.asset;
++const getRuntimeAsset = item => {
++    if (!item) return null;
++    if (item.asset) return item.asset;
++    if (item.broken && item.broken.asset) return item.broken.asset;
+     return null;
+ };
+ 
+-const sanitizeName = name => {
++const getBindingProperty = kind => kind === 'sound' ? SOUND_BINDING_PROPERTY : COSTUME_BINDING_PROPERTY;
++
++const sanitizeName = (name, kind = 'costume') => {
++    const value = typeof name === 'string' ? name.trim() : '';
++    if (value) return value;
++    return kind === 'sound' ? 'Global Sound' : 'Global Costume';
++};
++
++const sanitizeFolderName = name => {
+     const value = typeof name === 'string' ? name.trim() : '';
+-    return value || 'Global Costume';
++    return value || 'New Folder';
++};
++
++const makeUniqueName = (name, records, ignoreId = null, kind = 'costume') => {
++    const base = sanitizeName(name, kind);
++    const used = new Set(
++        Array.from(records.values())
++            .filter(record => record.id !== ignoreId)
++            .map(record => record.name)
++    );
++    if (!used.has(base)) return base;
++    let index = 2;
++    while (used.has(`${base} ${index}`)) index += 1;
++    return `${base} ${index}`;
+ };
+ 
+-const makeUniqueName = (name, assets, ignoreId = null) => {
+-    const base = sanitizeName(name);
++const makeUniqueFolderName = (name, folders, ignoreId = null) => {
++    const base = sanitizeFolderName(name);
+     const used = new Set(
+-        Array.from(assets.values())
+-            .filter(asset => asset.id !== ignoreId)
+-            .map(asset => asset.name)
++        Array.from(folders.values())
++            .filter(folder => folder.id !== ignoreId)
++            .map(folder => folder.name)
+     );
+     if (!used.has(base)) return base;
+     let index = 2;
+@@ -69,40 +101,75 @@ const makeUniqueName = (name, assets, ignoreId = null) => {
+     return `${base} ${index}`;
+ };
+ 
+-const createRecordFromCostume = (costume, name, id = createId()) => {
+-    const asset = getCostumeAsset(costume);
++const createRecordFromCostume = (costume, name, id = createId('asset'), folderId = null) => {
++    const asset = getRuntimeAsset(costume);
+     const dataFormat = String(costume.dataFormat || (asset && asset.dataFormat) || '').toLowerCase();
+     const assetId = costume.assetId || (asset && asset.assetId) || '';
+     const md5ext = getMd5ext(costume) || (assetId && dataFormat ? `${assetId}.${dataFormat}` : '');
+     if (!assetId || !dataFormat || !md5ext) {
+-        throw new Error('The current costume has no loaded Scratch asset.');
++        throw new Error('The costume has no loaded Scratch asset.');
+     }
+     return {
+         asset,
+         assetId,
+         bitmapResolution: Number.isFinite(costume.bitmapResolution) ? costume.bitmapResolution : 1,
+         dataFormat,
++        folderId,
+         id,
+         kind: 'costume',
+         md5ext,
+-        name: sanitizeName(name || costume.name),
++        name: sanitizeName(name || costume.name, 'costume'),
+         rotationCenterX: Number.isFinite(costume.rotationCenterX) ? costume.rotationCenterX : 0,
+         rotationCenterY: Number.isFinite(costume.rotationCenterY) ? costume.rotationCenterY : 0,
+         skinId: Number.isFinite(costume.skinId) ? costume.skinId : null
+     };
+ };
+ 
+-const serializeRecord = record => ({
+-    assetId: record.assetId,
+-    bitmapResolution: record.bitmapResolution,
+-    dataFormat: record.dataFormat,
+-    id: record.id,
+-    kind: record.kind,
+-    md5ext: record.md5ext,
+-    name: record.name,
+-    rotationCenterX: record.rotationCenterX,
+-    rotationCenterY: record.rotationCenterY
+-});
++const createRecordFromSound = (sound, name, id = createId('asset'), folderId = null) => {
++    const asset = getRuntimeAsset(sound);
++    const dataFormat = String(sound.dataFormat || sound.format || (asset && asset.dataFormat) || '').toLowerCase();
++    const assetId = sound.assetId || (asset && asset.assetId) || '';
++    const md5ext = getMd5ext(sound) || (assetId && dataFormat ? `${assetId}.${dataFormat}` : '');
++    if (!assetId || !dataFormat || !md5ext) {
++        throw new Error('The sound has no loaded Scratch asset.');
++    }
++    return {
++        asset,
++        assetId,
++        dataFormat,
++        folderId,
++        format: sound.format || '',
++        id,
++        kind: 'sound',
++        md5ext,
++        name: sanitizeName(name || sound.name, 'sound'),
++        rate: Number.isFinite(sound.rate) ? sound.rate : null,
++        sampleCount: Number.isFinite(sound.sampleCount) ? sound.sampleCount : null,
++        soundId: sound.soundId || null
++    };
++};
++
++const serializeRecord = record => {
++    const serialized = {
++        assetId: record.assetId,
++        dataFormat: record.dataFormat,
++        folderId: record.folderId || null,
++        id: record.id,
++        kind: record.kind,
++        md5ext: record.md5ext,
++        name: record.name
++    };
++    if (record.kind === 'sound') {
++        serialized.format = record.format || '';
++        serialized.rate = record.rate;
++        serialized.sampleCount = record.sampleCount;
++    } else {
++        serialized.bitmapResolution = record.bitmapResolution;
++        serialized.rotationCenterX = record.rotationCenterX;
++        serialized.rotationCenterY = record.rotationCenterY;
++    }
++    return serialized;
++};
+ 
+ const createRuntimeCostume = (record, name) => {
+     const costume = {
+@@ -111,7 +178,7 @@ const createRuntimeCostume = (record, name) => {
+         bitmapResolution: record.bitmapResolution,
+         dataFormat: record.dataFormat,
+         md5: record.md5ext,
+-        name: sanitizeName(name || record.name),
++        name: sanitizeName(name || record.name, 'costume'),
+         rotationCenterX: record.rotationCenterX,
+         rotationCenterY: record.rotationCenterY
+     };
+@@ -119,11 +186,34 @@ const createRuntimeCostume = (record, name) => {
+     return costume;
+ };
+ 
++const createRuntimeSound = (record, name) => {
++    const sound = {
++        asset: record.asset || undefined,
++        assetId: record.assetId,
++        dataFormat: record.dataFormat,
++        format: record.format || '',
++        md5: record.md5ext,
++        name: sanitizeName(name || record.name, 'sound')
++    };
++    if (Number.isFinite(record.rate)) sound.rate = record.rate;
++    if (Number.isFinite(record.sampleCount)) sound.sampleCount = record.sampleCount;
++    if (record.soundId) sound.soundId = record.soundId;
++    return sound;
++};
++
++const cloneRecord = record => Object.assign({}, record);
++const cloneItem = item => Object.assign({}, item);
++
+ const createGlobalAssetDatabase = vm => {
+     const runtime = vm.runtime;
+     const assets = new Map();
++    const folders = new Map();
+     const listeners = new Set();
++    const historyPast = [];
++    const historyFuture = [];
+     let revision = 0;
++    let performingHistory = false;
++    let operationQueue = Promise.resolve();
+ 
+     const emit = change => {
+         revision += 1;
+@@ -133,18 +223,24 @@ const createGlobalAssetDatabase = vm => {
+     const findRuntimeAsset = record => {
+         const targets = getOriginalTargets(runtime);
+         for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
+-            const costumes = getCostumes(targets[targetIndex]);
+-            for (let costumeIndex = 0; costumeIndex < costumes.length; costumeIndex++) {
+-                const costume = costumes[costumeIndex];
++            const items = getItems(targets[targetIndex], record.kind);
++            for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
++                const item = items[itemIndex];
+                 if (
+-                    costume &&
+-                    costume.assetId === record.assetId &&
+-                    String(costume.dataFormat).toLowerCase() === record.dataFormat
++                    item &&
++                    item.assetId === record.assetId &&
++                    String(item.dataFormat || item.format).toLowerCase() === record.dataFormat
+                 ) {
+-                    const asset = getCostumeAsset(costume);
++                    const asset = getRuntimeAsset(item);
+                     if (asset) {
+                         record.asset = asset;
+-                        if (Number.isFinite(costume.skinId)) record.skinId = costume.skinId;
++                        if (record.kind === 'sound') {
++                            record.soundId = item.soundId || record.soundId;
++                            record.rate = Number.isFinite(item.rate) ? item.rate : record.rate;
++                            record.sampleCount = Number.isFinite(item.sampleCount) ? item.sampleCount : record.sampleCount;
++                        } else if (Number.isFinite(item.skinId)) {
++                            record.skinId = item.skinId;
++                        }
+                         return asset;
+                     }
+                 }
+@@ -159,16 +255,17 @@ const createGlobalAssetDatabase = vm => {
+ 
+         let file = archive.file(record.md5ext);
+         if (!file) {
+-            const pattern = new RegExp(`^([^/]*/)?${record.md5ext.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
+-            const matches = archive.file(pattern);
++            const escaped = record.md5ext.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
++            const matches = archive.file(new RegExp(`^([^/]*/)?${escaped}$`));
+             file = matches && matches[0];
+         }
+         if (!file || typeof file.async !== 'function') return null;
+ 
+         const data = await file.async('uint8array');
+         const storage = runtime.storage;
+-        const assetType = record.dataFormat === 'svg' ?
+-            storage.AssetType.ImageVector : storage.AssetType.ImageBitmap;
++        const assetType = record.kind === 'sound' ?
++            storage.AssetType.Sound :
++            (record.dataFormat === 'svg' ? storage.AssetType.ImageVector : storage.AssetType.ImageBitmap);
+         record.asset = storage.createAsset(
+             assetType,
+             record.dataFormat,
+@@ -185,14 +282,107 @@ const createGlobalAssetDatabase = vm => {
+         emit(change);
+     };
+ 
++    const captureSnapshot = () => ({
++        assets: Array.from(assets.values()).map(cloneRecord),
++        folders: Array.from(folders.values()).map(folder => Object.assign({}, folder)),
++        targets: getOriginalTargets(runtime).map(target => ({
++            costumes: getCostumes(target).map(cloneItem),
++            currentCostume: target.currentCostume,
++            id: target.id,
++            sounds: getSounds(target).map(cloneItem)
++        }))
++    });
++
++    const applySnapshot = snapshot => {
++        performingHistory = true;
++        assets.clear();
++        snapshot.assets.forEach(record => assets.set(record.id, cloneRecord(record)));
++        folders.clear();
++        snapshot.folders.forEach(folder => folders.set(folder.id, Object.assign({}, folder)));
++        snapshot.targets.forEach(targetSnapshot => {
++            const target = runtime.getTargetById(targetSnapshot.id);
++            if (!target || !target.sprite) return;
++            target.sprite.costumes = targetSnapshot.costumes.map(cloneItem);
++            target.sprite.sounds = targetSnapshot.sounds.map(cloneItem);
++            if (target.sprite.costumes.length) {
++                const nextIndex = Math.max(0, Math.min(
++                    Number.isInteger(targetSnapshot.currentCostume) ? targetSnapshot.currentCostume : 0,
++                    target.sprite.costumes.length - 1
++                ));
++                target.currentCostume = nextIndex;
++                if (typeof target.setCostume === 'function') target.setCostume(nextIndex);
++            }
++            if (runtime && typeof runtime.requestTargetsUpdate === 'function') runtime.requestTargetsUpdate(target);
++        });
++        performingHistory = false;
++        markChanged({type: 'history:apply'});
++    };
++
++    const getHistoryState = () => ({
++        canRedo: historyFuture.length > 0,
++        canUndo: historyPast.length > 0,
++        nextRedoLabel: historyFuture.length ? historyFuture[historyFuture.length - 1].label : null,
++        nextUndoLabel: historyPast.length ? historyPast[historyPast.length - 1].label : null,
++        redoCount: historyFuture.length,
++        undoCount: historyPast.length
++    });
++
++    const perform = (label, action) => {
++        if (typeof action !== 'function') return Promise.resolve(null);
++        const run = async () => {
++            if (performingHistory) return action();
++            const before = captureSnapshot();
++            const result = await action();
++            const after = captureSnapshot();
++            historyPast.push({after, before, label: label || 'Asset change'});
++            if (historyPast.length > MAX_HISTORY_LENGTH) historyPast.shift();
++            historyFuture.length = 0;
++            emit({history: getHistoryState(), type: 'history:push'});
++            return result;
++        };
++        const result = operationQueue.then(run, run);
++        operationQueue = result.catch(() => null);
++        return result;
++    };
++
++    const undo = () => {
++        const command = historyPast.pop();
++        if (!command) return false;
++        historyFuture.push(command);
++        applySnapshot(command.before);
++        emit({history: getHistoryState(), label: command.label, type: 'history:undo'});
++        return true;
++    };
++
++    const redo = () => {
++        const command = historyFuture.pop();
++        if (!command) return false;
++        historyPast.push(command);
++        applySnapshot(command.after);
++        emit({history: getHistoryState(), label: command.label, type: 'history:redo'});
++        return true;
++    };
++
++    const clearHistory = () => {
++        historyPast.length = 0;
++        historyFuture.length = 0;
++        emit({history: getHistoryState(), type: 'history:clear'});
++    };
++
+     const getReferences = globalAssetId => {
++        const record = assets.get(globalAssetId);
++        if (!record) return [];
++        const bindingProperty = getBindingProperty(record.kind);
+         const references = [];
+         getOriginalTargets(runtime).forEach(target => {
+-            getCostumes(target).forEach((costume, costumeIndex) => {
+-                if (costume && costume[COSTUME_BINDING_PROPERTY] === globalAssetId) {
++            getItems(target, record.kind).forEach((item, itemIndex) => {
++                if (item && item[bindingProperty] === globalAssetId) {
+                     references.push({
+-                        costumeIndex,
+-                        costumeName: costume.name,
++                        costumeIndex: record.kind === 'costume' ? itemIndex : null,
++                        itemIndex,
++                        itemName: item.name,
++                        kind: record.kind,
++                        soundIndex: record.kind === 'sound' ? itemIndex : null,
+                         targetId: target.id,
+                         targetName: typeof target.getName === 'function' ? target.getName() : target.sprite && target.sprite.name
+                     });
+@@ -202,20 +392,28 @@ const createGlobalAssetDatabase = vm => {
+         return references;
+     };
+ 
+-    const bindCostume = (target, costumeIndex, globalAssetId, silent = false) => {
++    const bindItem = (target, itemIndex, globalAssetId, silent = false) => {
+         const record = assets.get(globalAssetId);
+-        const costume = getCostumes(target)[costumeIndex];
+-        if (!record || !costume) return false;
+-        costume[COSTUME_BINDING_PROPERTY] = globalAssetId;
++        if (!record) return false;
++        const item = getItems(target, record.kind)[itemIndex];
++        if (!item) return false;
++        item[getBindingProperty(record.kind)] = globalAssetId;
+         if (!silent) markChanged({assetId: globalAssetId, type: 'binding'});
+         return true;
+     };
+ 
+-    const captureCostume = (target, costumeIndex) => {
++    const bindCostume = (target, costumeIndex, globalAssetId, silent = false) => {
++        const record = assets.get(globalAssetId);
++        if (!record || record.kind !== 'costume') return false;
++        return bindItem(target, costumeIndex, globalAssetId, silent);
++    };
++
++    const captureCostume = (target, costumeIndex, folderId = null) => {
+         const costume = getCostumes(target)[costumeIndex];
+         if (!costume) throw new Error('Select a target with a costume first.');
+ 
+         const exactRecord = Array.from(assets.values()).find(record => (
++            record.kind === 'costume' &&
+             record.assetId === costume.assetId &&
+             record.dataFormat === String(costume.dataFormat).toLowerCase() &&
+             record.bitmapResolution === (Number.isFinite(costume.bitmapResolution) ? costume.bitmapResolution : 1) &&
+@@ -223,12 +421,12 @@ const createGlobalAssetDatabase = vm => {
+             record.rotationCenterY === (Number.isFinite(costume.rotationCenterY) ? costume.rotationCenterY : 0)
+         ));
+ 
+-        const record = exactRecord || createRecordFromCostume(costume, costume.name);
++        const record = exactRecord || createRecordFromCostume(costume, costume.name, createId('asset'), folderId);
+         if (!exactRecord) {
+-            record.name = makeUniqueName(record.name, assets);
++            record.name = makeUniqueName(record.name, assets, null, record.kind);
+             assets.set(record.id, record);
+         } else if (!record.asset) {
+-            record.asset = getCostumeAsset(costume);
++            record.asset = getRuntimeAsset(costume);
+             record.skinId = Number.isFinite(costume.skinId) ? costume.skinId : record.skinId;
+         }
+         costume[COSTUME_BINDING_PROPERTY] = record.id;
+@@ -236,11 +434,28 @@ const createGlobalAssetDatabase = vm => {
+         return record.id;
+     };
+ 
+-    const captureCurrentCostume = target => captureCostume(
++    const captureCurrentCostume = (target, folderId = null) => captureCostume(
+         target,
+-        target && Number.isInteger(target.currentCostume) ? target.currentCostume : 0
++        target && Number.isInteger(target.currentCostume) ? target.currentCostume : 0,
++        folderId
+     );
+ 
++    const importCostume = (costume, name, folderId = null) => {
++        const record = createRecordFromCostume(costume, name, createId('asset'), folderId);
++        record.name = makeUniqueName(record.name, assets, null, record.kind);
++        assets.set(record.id, record);
++        markChanged({assetId: record.id, type: 'import'});
++        return record.id;
++    };
++
++    const importSound = (sound, name, folderId = null) => {
++        const record = createRecordFromSound(sound, name, createId('asset'), folderId);
++        record.name = makeUniqueName(record.name, assets, null, record.kind);
++        assets.set(record.id, record);
++        markChanged({assetId: record.id, type: 'import'});
++        return record.id;
++    };
++
+     const addAssetToTarget = async (globalAssetId, targetId) => {
+         const record = assets.get(globalAssetId);
+         const target = runtime.getTargetById(targetId);
+@@ -249,32 +464,54 @@ const createGlobalAssetDatabase = vm => {
+         await hydrateRecord(record, null);
+         if (!record.asset) throw new Error('The global asset data is not loaded.');
+ 
+-        const beforeLength = getCostumes(target).length;
+-        if (typeof vm.addCostume !== 'function') throw new Error('The VM does not support adding costumes.');
+-        await vm.addCostume(record.md5ext, createRuntimeCostume(record, record.name), targetId);
+-        const costumes = getCostumes(target);
+-        const costumeIndex = Math.max(beforeLength, costumes.length - 1);
+-        if (costumes[costumeIndex]) costumes[costumeIndex][COSTUME_BINDING_PROPERTY] = record.id;
++        const items = getItems(target, record.kind);
++        const beforeLength = items.length;
++        if (record.kind === 'sound') {
++            if (typeof vm.addSound !== 'function') throw new Error('The VM does not support adding sounds.');
++            await vm.addSound(createRuntimeSound(record, record.name), targetId);
++        } else {
++            if (typeof vm.addCostume !== 'function') throw new Error('The VM does not support adding costumes.');
++            await vm.addCostume(record.md5ext, createRuntimeCostume(record, record.name), targetId);
++        }
++        const updatedItems = getItems(target, record.kind);
++        const itemIndex = Math.max(beforeLength, updatedItems.length - 1);
++        if (updatedItems[itemIndex]) updatedItems[itemIndex][getBindingProperty(record.kind)] = record.id;
+         markChanged({assetId: record.id, targetId, type: 'attach'});
+-        return costumeIndex;
++        return itemIndex;
++    };
++
++    const unlinkReference = (globalAssetId, targetId, itemIndex) => {
++        const record = assets.get(globalAssetId);
++        const target = runtime.getTargetById(targetId);
++        if (!record || !target) return false;
++        const item = getItems(target, record.kind)[itemIndex];
++        const bindingProperty = getBindingProperty(record.kind);
++        if (!item || item[bindingProperty] !== globalAssetId) return false;
++        delete item[bindingProperty];
++        markChanged({assetId: globalAssetId, targetId, type: 'unlink'});
++        return true;
+     };
+ 
+     const unlinkCostume = (target, costumeIndex) => {
+         const costume = getCostumes(target)[costumeIndex];
+         if (!costume || !costume[COSTUME_BINDING_PROPERTY]) return false;
+-        const globalAssetId = costume[COSTUME_BINDING_PROPERTY];
+-        delete costume[COSTUME_BINDING_PROPERTY];
+-        markChanged({assetId: globalAssetId, targetId: target.id, type: 'unlink'});
+-        return true;
++        return unlinkReference(costume[COSTUME_BINDING_PROPERTY], target.id, costumeIndex);
+     };
+ 
+     const replaceAssetFromCostume = (globalAssetId, target, costumeIndex) => {
+         const previousRecord = assets.get(globalAssetId);
+         const sourceCostume = getCostumes(target)[costumeIndex];
+-        if (!previousRecord) throw new Error('Global asset not found.');
++        if (!previousRecord || previousRecord.kind !== 'costume') {
++            throw new Error('Select an image asset first.');
++        }
+         if (!sourceCostume) throw new Error('Select a source costume first.');
+ 
+-        const replacement = createRecordFromCostume(sourceCostume, previousRecord.name, globalAssetId);
++        const replacement = createRecordFromCostume(
++            sourceCostume,
++            previousRecord.name,
++            globalAssetId,
++            previousRecord.folderId
++        );
+         replacement.name = previousRecord.name;
+         assets.set(globalAssetId, replacement);
+ 
+@@ -307,18 +544,56 @@ const createGlobalAssetDatabase = vm => {
+     const renameAsset = (globalAssetId, name) => {
+         const record = assets.get(globalAssetId);
+         if (!record) return false;
+-        const nextName = makeUniqueName(name, assets, globalAssetId);
++        const nextName = makeUniqueName(name, assets, globalAssetId, record.kind);
+         if (nextName === record.name) return false;
+         record.name = nextName;
+         markChanged({assetId: globalAssetId, type: 'rename'});
+         return true;
+     };
+ 
++    const moveAsset = (globalAssetId, folderId) => {
++        const record = assets.get(globalAssetId);
++        if (!record) return false;
++        const nextFolderId = folderId && folders.has(folderId) ? folderId : null;
++        if (record.folderId === nextFolderId) return false;
++        record.folderId = nextFolderId;
++        markChanged({assetId: globalAssetId, folderId: nextFolderId, type: 'move'});
++        return true;
++    };
++
++    const createFolder = name => {
++        const id = createId('folder');
++        const folder = {id, name: makeUniqueFolderName(name, folders)};
++        folders.set(id, folder);
++        markChanged({folderId: id, type: 'folder:create'});
++        return id;
++    };
++
++    const renameFolder = (folderId, name) => {
++        const folder = folders.get(folderId);
++        if (!folder) return false;
++        const nextName = makeUniqueFolderName(name, folders, folderId);
++        if (nextName === folder.name) return false;
++        folder.name = nextName;
++        markChanged({folderId, type: 'folder:rename'});
++        return true;
++    };
++
++    const removeFolder = folderId => {
++        if (!folders.has(folderId)) return false;
++        assets.forEach(record => {
++            if (record.folderId === folderId) record.folderId = null;
++        });
++        folders.delete(folderId);
++        markChanged({folderId, type: 'folder:delete'});
++        return true;
++    };
++
+     const removeAsset = globalAssetId => {
+         if (!assets.has(globalAssetId)) return false;
+         const references = getReferences(globalAssetId);
+         if (references.length) {
+-            throw new Error(`Unlink the asset from ${references.length} costume(s) before deleting it.`);
++            throw new Error(`Unlink the asset from ${references.length} item(s) before deleting it.`);
+         }
+         assets.delete(globalAssetId);
+         markChanged({assetId: globalAssetId, type: 'delete'});
+@@ -327,17 +602,33 @@ const createGlobalAssetDatabase = vm => {
+ 
+     const reset = ({silent = false} = {}) => {
+         assets.clear();
++        folders.clear();
++        historyPast.length = 0;
++        historyFuture.length = 0;
+         if (!silent) emit({type: 'reset'});
+     };
+ 
+     const deserializeProject = (data, context) => {
+         assets.clear();
++        folders.clear();
++        const serializedFolders = data && Array.isArray(data.folders) ? data.folders : [];
++        serializedFolders.forEach(folder => {
++            if (!folder || typeof folder.id !== 'string') return;
++            folders.set(folder.id, {
++                id: folder.id,
++                name: sanitizeFolderName(folder.name)
++            });
++        });
+         const records = data && Array.isArray(data.assets) ? data.assets : [];
+         records.forEach(serialized => {
+             if (!serialized || typeof serialized.id !== 'string') return;
++            const kind = serialized.kind === 'sound' ? 'sound' : 'costume';
+             assets.set(serialized.id, Object.assign({}, serialized, {
+                 asset: null,
+-                skinId: null
++                folderId: serialized.folderId && folders.has(serialized.folderId) ? serialized.folderId : null,
++                kind,
++                skinId: null,
++                soundId: null
+             }));
+         });
+         emit({type: 'restore-metadata'});
+@@ -354,35 +645,53 @@ const createGlobalAssetDatabase = vm => {
+     };
+ 
+     const deserializeTarget = (target, data) => {
+-        const bindings = data && Array.isArray(data.costumeBindings) ? data.costumeBindings : [];
+-        const costumes = getCostumes(target);
+-        costumes.forEach((costume, index) => {
+-            const globalAssetId = bindings[index];
+-            if (typeof globalAssetId === 'string' && assets.has(globalAssetId)) {
++        const costumeBindings = data && Array.isArray(data.costumeBindings) ? data.costumeBindings : [];
++        const soundBindings = data && Array.isArray(data.soundBindings) ? data.soundBindings : [];
++        getCostumes(target).forEach((costume, index) => {
++            const globalAssetId = costumeBindings[index];
++            if (
++                typeof globalAssetId === 'string' &&
++                assets.has(globalAssetId) &&
++                assets.get(globalAssetId).kind === 'costume'
++            ) {
+                 costume[COSTUME_BINDING_PROPERTY] = globalAssetId;
+             } else if (costume) {
+                 delete costume[COSTUME_BINDING_PROPERTY];
+             }
+         });
++        getSounds(target).forEach((sound, index) => {
++            const globalAssetId = soundBindings[index];
++            if (
++                typeof globalAssetId === 'string' &&
++                assets.has(globalAssetId) &&
++                assets.get(globalAssetId).kind === 'sound'
++            ) {
++                sound[SOUND_BINDING_PROPERTY] = globalAssetId;
++            } else if (sound) {
++                delete sound[SOUND_BINDING_PROPERTY];
++            }
++        });
+         emit({targetId: target.id, type: 'restore-bindings'});
+     };
+ 
+-    const service = {
++    return {
+         version: DATABASE_VERSION,
+         addAssetToTarget,
+         bindCostume,
++        bindItem,
+         captureCostume,
+         captureCurrentCostume,
++        clearHistory,
++        createFolder,
+         deserializeProject,
+         deserializeTarget,
+-        getAsset (id) {
+-            return assets.get(id) || null;
+-        },
++        getAsset: id => assets.get(id) || null,
+         getCurrentBinding (target) {
+             const costume = getCurrentCostume(target);
+             return costume ? costume[COSTUME_BINDING_PROPERTY] || null : null;
+         },
+-        getPreviewURL (globalAssetId) {
++        getHistoryState,
++        getDataURL (globalAssetId) {
+             const record = assets.get(globalAssetId);
+             if (!record) return null;
+             const asset = record.asset || findRuntimeAsset(record);
+@@ -393,24 +702,46 @@ const createGlobalAssetDatabase = vm => {
+                 return null;
+             }
+         },
++        getPreviewURL (globalAssetId) {
++            const record = assets.get(globalAssetId);
++            if (!record || record.kind === 'sound') return null;
++            const asset = record.asset || findRuntimeAsset(record);
++            if (!asset || typeof asset.encodeDataURI !== 'function') return null;
++            try {
++                return asset.encodeDataURI();
++            } catch {
++                return null;
++            }
++        },
+         getReferences,
+         getRevision: () => revision,
+         hydrateRecord,
++        importCostume,
++        importSound,
+         listAssets () {
+             return Array.from(assets.values()).map(record => Object.assign(
+                 serializeRecord(record),
+                 {referenceCount: getReferences(record.id).length}
+             ));
+         },
++        listFolders () {
++            return Array.from(folders.values()).map(folder => Object.assign({}, folder));
++        },
++        moveAsset,
++        perform,
++        redo,
+         removeAsset,
++        removeFolder,
+         renameAsset,
++        renameFolder,
+         replaceAssetFromCostume,
+         replaceAssetFromCurrent,
+         reset,
+         serializeProject () {
+-            if (!assets.size) return null;
++            if (!assets.size && !folders.size) return null;
+             return {
+                 assets: Array.from(assets.values()).map(serializeRecord),
++                folders: Array.from(folders.values()).map(folder => Object.assign({}, folder)),
+                 version: DATABASE_VERSION
+             };
+         },
+@@ -418,18 +749,33 @@ const createGlobalAssetDatabase = vm => {
+             const costumeBindings = getCostumes(target).map(costume => (
+                 costume && costume[COSTUME_BINDING_PROPERTY] ? costume[COSTUME_BINDING_PROPERTY] : null
+             ));
+-            if (!costumeBindings.some(Boolean)) return null;
+-            return {costumeBindings, version: DATABASE_VERSION};
++            const soundBindings = getSounds(target).map(sound => (
++                sound && sound[SOUND_BINDING_PROPERTY] ? sound[SOUND_BINDING_PROPERTY] : null
++            ));
++            if (!costumeBindings.some(Boolean) && !soundBindings.some(Boolean)) return null;
++            return {costumeBindings, soundBindings, version: DATABASE_VERSION};
+         },
+         subscribe (listener) {
+             if (typeof listener !== 'function') return () => {};
+             listeners.add(listener);
+             return () => listeners.delete(listener);
+         },
+-        unlinkCostume
++        undo,
++        unlinkCostume,
++        unlinkReference
+     };
++};
+ 
+-    return service;
++const findAssetForSerialization = (record, runtime) => {
++    const targets = getOriginalTargets(runtime);
++    for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
++        const items = getItems(targets[targetIndex], record.kind);
++        for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
++            const candidate = getRuntimeAsset(items[itemIndex]);
++            if (candidate && candidate.assetId === record.assetId) return candidate;
++        }
++    }
++    return null;
+ };
+ 
+ const installGlobalAssetDatabase = vm => {
+@@ -456,7 +802,7 @@ const installGlobalAssetDatabase = vm => {
+         setValue: () => {}
+     });
+ 
+-    if (typeof vm.serializeAssets === 'function') {
++    if (typeof vm.serializeAssets === 'function' && vm[SERIALIZATION_PROPERTY] !== DATABASE_VERSION) {
+         const originalSerializeAssets = vm.serializeAssets.bind(vm);
+         vm.serializeAssets = function (targetId) {
+             const descriptors = originalSerializeAssets(targetId);
+@@ -464,25 +810,16 @@ const installGlobalAssetDatabase = vm => {
+             let records = database.listAssets();
+             if (targetId) {
+                 const target = runtime.getTargetById(targetId);
+-                const referencedIds = new Set(
+-                    getCostumes(target).map(costume => costume && costume[COSTUME_BINDING_PROPERTY]).filter(Boolean)
+-                );
++                const referencedIds = new Set([
++                    ...getCostumes(target).map(costume => costume && costume[COSTUME_BINDING_PROPERTY]),
++                    ...getSounds(target).map(sound => sound && sound[SOUND_BINDING_PROPERTY])
++                ].filter(Boolean));
+                 records = records.filter(record => referencedIds.has(record.id));
+             }
+             records.forEach(serializedRecord => {
+                 const record = database.getAsset(serializedRecord.id);
+                 if (!record) return;
+-                let asset = record.asset;
+-                if (!asset) {
+-                    const targets = getOriginalTargets(runtime);
+-                    for (let targetIndex = 0; targetIndex < targets.length && !asset; targetIndex++) {
+-                        const costumes = getCostumes(targets[targetIndex]);
+-                        for (let costumeIndex = 0; costumeIndex < costumes.length && !asset; costumeIndex++) {
+-                            const candidate = getCostumeAsset(costumes[costumeIndex]);
+-                            if (candidate && candidate.assetId === record.assetId) asset = candidate;
+-                        }
+-                    }
+-                }
++                const asset = record.asset || findAssetForSerialization(record, runtime);
+                 if (!asset || !asset.data) return;
+                 byFileName.set(record.md5ext, {
+                     fileContent: asset.data,
+@@ -491,14 +828,16 @@ const installGlobalAssetDatabase = vm => {
+             });
+             return Array.from(byFileName.values());
+         };
++        vm[SERIALIZATION_PROPERTY] = DATABASE_VERSION;
+     }
+ 
+-    if (typeof vm.loadProject === 'function') {
++    if (typeof vm.loadProject === 'function' && vm[LOAD_RESET_PROPERTY] !== DATABASE_VERSION) {
+         const originalLoadProject = vm.loadProject.bind(vm);
+         vm.loadProject = function (...args) {
+             database.reset({silent: true});
+             return originalLoadProject(...args);
+         };
++        vm[LOAD_RESET_PROPERTY] = DATABASE_VERSION;
+     }
+ 
+     return database;
+@@ -513,6 +852,7 @@ export {
+     DATABASE_PROPERTY,
+     DATABASE_SECTION_ID,
+     DATABASE_VERSION,
++    SOUND_BINDING_PROPERTY,
+     createGlobalAssetDatabase,
+     getGlobalAssetDatabase,
+     installGlobalAssetDatabase
+diff --git a/test/unit/components/project-asset-manager.test.jsx b/test/unit/components/project-asset-manager.test.jsx
+new file mode 100644
+index 0000000..10ea905
+--- /dev/null
++++ b/test/unit/components/project-asset-manager.test.jsx
+@@ -0,0 +1,107 @@
++import React from 'react';
++import renderer from 'react-test-renderer';
++
++import ProjectAssetManager from '../../../src/components/project-assets/project-asset-manager.jsx';
++
++const createDatabase = () => {
++    const listeners = new Set();
++    const assets = [{
++        assetId: 'image-hash',
++        dataFormat: 'svg',
++        folderId: null,
++        id: 'asset:image',
++        kind: 'costume',
++        md5ext: 'image-hash.svg',
++        name: 'Hero',
++        referenceCount: 2
++    }, {
++        assetId: 'sound-hash',
++        dataFormat: 'wav',
++        folderId: 'folder:audio',
++        id: 'asset:sound',
++        kind: 'sound',
++        md5ext: 'sound-hash.wav',
++        name: 'Theme',
++        referenceCount: 0
++    }];
++    return {
++        addAssetToTarget: jest.fn(() => Promise.resolve()),
++        captureCurrentCostume: jest.fn(() => 'asset:image'),
++        createFolder: jest.fn(() => 'folder:new'),
++        getAsset: id => assets.find(asset => asset.id === id),
++        getDataURL: jest.fn(() => null),
++        getHistoryState: jest.fn(() => ({
++            canRedo: false,
++            canUndo: true,
++            redoCount: 0,
++            undoCount: 1
++        })),
++        getPreviewURL: jest.fn(() => null),
++        getReferences: jest.fn(() => []),
++        getRevision: jest.fn(() => 1),
++        importCostume: jest.fn(),
++        importSound: jest.fn(),
++        listAssets: jest.fn(() => assets),
++        listFolders: jest.fn(() => [{id: 'folder:audio', name: 'Audio'}]),
++        moveAsset: jest.fn(),
++        perform: jest.fn((label, action) => Promise.resolve(action())),
++        redo: jest.fn(),
++        removeAsset: jest.fn(),
++        removeFolder: jest.fn(),
++        renameAsset: jest.fn(),
++        renameFolder: jest.fn(),
++        replaceAssetFromCurrent: jest.fn(),
++        subscribe (listener) {
++            listeners.add(listener);
++            return () => listeners.delete(listener);
++        },
++        undo: jest.fn(),
++        unlinkReference: jest.fn()
++    };
++};
++
++const currentTarget = {
++    currentCostume: 0,
++    getCostumes: () => [{name: 'Idle'}],
++    getName: () => 'Player',
++    id: 'player'
++};
++
++const renderManager = database => renderer.create(
++    <ProjectAssetManager
++        assetDatabase={database}
++        currentTarget={currentTarget}
++        vm={{
++            runtime: {
++                storage: {}
++            }
++        }}
++    />
++);
++
++describe('ProjectAssetManager', () => {
++    test('renders image and sound assets with filters and folders', () => {
++        const component = renderManager(createDatabase());
++        const text = JSON.stringify(component.toJSON());
++
++        expect(text).toContain('Import files');
++        expect(text).toContain('Hero');
++        expect(text).toContain('Theme');
++        expect(text).toContain('All types');
++        expect(text).toContain('All folders');
++        expect(text).toContain('Audio');
++        expect(text).toContain('Undo (1)');
++    });
++
++    test('invokes asset history undo', () => {
++        const database = createDatabase();
++        const component = renderManager(database);
++        const undoButton = component.root.findAllByType('button').find(button => (
++            Array.isArray(button.children) && button.children.join('').includes('Undo')
++        ));
++
++        undoButton.props.onClick();
++
++        expect(database.undo).toHaveBeenCalledTimes(1);
++    });
++});
+diff --git a/test/unit/components/project-explorer.test.jsx b/test/unit/components/project-explorer.test.jsx
+index b6008e8..6bf10fa 100644
+--- a/test/unit/components/project-explorer.test.jsx
++++ b/test/unit/components/project-explorer.test.jsx
+@@ -55,7 +55,7 @@ describe('ProjectExplorer', () => {
+         expect(text).toContain('Project');
+         expect(text).toContain('Entities');
+         expect(text).toContain('Assets');
+-        expect(text).toContain('Capture a current costume');
++        expect(text).toContain('Global asset services are not available.');
+         expect(text).toContain('Stage');
+         expect(text).toContain('Player');
+         expect(text).toContain('Enemy');
+diff --git a/test/unit/lib/project-assets-global-database.test.js b/test/unit/lib/project-assets-global-database.test.js
+index e337b74..d79bc27 100644
+--- a/test/unit/lib/project-assets-global-database.test.js
++++ b/test/unit/lib/project-assets-global-database.test.js
+@@ -1,14 +1,15 @@
+ import {
+     COSTUME_BINDING_PROPERTY,
++    SOUND_BINDING_PROPERTY,
+     createGlobalAssetDatabase,
+     installGlobalAssetDatabase
+ } from '../../../src/lib/project-assets/global-asset-database';
+ 
+-const createAsset = (assetId, dataFormat = 'svg') => ({
++const createAsset = (assetId, dataFormat = 'svg', kind = 'image') => ({
+     assetId,
+     data: new Uint8Array([1, 2, 3]),
+     dataFormat,
+-    encodeDataURI: () => `data:image/${dataFormat};base64,AAAA`
++    encodeDataURI: () => `data:${kind}/${dataFormat};base64,AAAA`
+ });
+ 
+ const createCostume = (name, assetId, dataFormat = 'svg') => {
+@@ -26,15 +27,32 @@ const createCostume = (name, assetId, dataFormat = 'svg') => {
+     };
+ };
+ 
+-const createTarget = (id, name, costumes) => ({
++const createSound = (name, assetId, dataFormat = 'wav') => {
++    const asset = createAsset(assetId, dataFormat, 'audio');
++    return {
++        asset,
++        assetId,
++        dataFormat,
++        md5: `${assetId}.${dataFormat}`,
++        name,
++        rate: 48000,
++        sampleCount: 96000,
++        soundId: `sound-${assetId}`
++    };
++};
++
++const createTarget = (id, name, costumes, sounds = []) => ({
+     id,
+     currentCostume: 0,
+     isOriginal: true,
+     isStage: false,
+-    sprite: {costumes},
++    sprite: {costumes, sounds},
+     getCostumes () {
+         return this.sprite.costumes;
+     },
++    getSounds () {
++        return this.sprite.sounds;
++    },
+     getName: () => name,
+     setCostume: jest.fn(function (index) {
+         this.currentCostume = index;
+@@ -47,17 +65,19 @@ const createFixture = () => {
+     const runtime = {
+         emitProjectChanged: jest.fn(),
+         getTargetById: id => runtime.targets.find(target => target.id === id) || null,
++        requestTargetsUpdate: jest.fn(),
+         storage: {
+             AssetType: {
+                 ImageBitmap: 'ImageBitmap',
+-                ImageVector: 'ImageVector'
++                ImageVector: 'ImageVector',
++                Sound: 'Sound'
+             },
+             createAsset: jest.fn((assetType, dataFormat, data, assetId) => ({
+                 assetId,
+                 assetType,
+                 data,
+                 dataFormat,
+-                encodeDataURI: () => 'data:image/svg+xml;base64,AAAA'
++                encodeDataURI: () => `data:application/${dataFormat};base64,AAAA`
+             }))
+         },
+         targets: [player, enemy]
+@@ -68,6 +88,10 @@ const createFixture = () => {
+             target.sprite.costumes.push(costume);
+             target.currentCostume = target.sprite.costumes.length - 1;
+         }),
++        addSound: jest.fn(async (sound, targetId) => {
++            const target = runtime.getTargetById(targetId);
++            target.sprite.sounds.push(sound);
++        }),
+         emitTargetsUpdate: jest.fn(),
+         loadProject: jest.fn(() => Promise.resolve()),
+         runtime,
+@@ -88,6 +112,36 @@ describe('Global Asset Database', () => {
+         expect(database.serializeTarget(player).costumeBindings).toEqual([globalAssetId]);
+     });
+ 
++    test('imports and attaches a shared sound asset', async () => {
++        const {enemy, player, vm} = createFixture();
++        const database = createGlobalAssetDatabase(vm);
++        const globalAssetId = database.importSound(createSound('Theme', 'sound-a'), 'Theme');
++
++        await database.addAssetToTarget(globalAssetId, player.id);
++        await database.addAssetToTarget(globalAssetId, enemy.id);
++
++        expect(player.getSounds()[0][SOUND_BINDING_PROPERTY]).toBe(globalAssetId);
++        expect(enemy.getSounds()[0][SOUND_BINDING_PROPERTY]).toBe(globalAssetId);
++        expect(database.getReferences(globalAssetId)).toHaveLength(2);
++        expect(database.serializeTarget(player).soundBindings).toEqual([globalAssetId]);
++    });
++
++    test('organizes assets in persistent folders', () => {
++        const {player, vm} = createFixture();
++        const database = createGlobalAssetDatabase(vm);
++        const folderId = database.createFolder('Characters');
++        const globalAssetId = database.captureCurrentCostume(player, folderId);
++
++        expect(database.listFolders()).toEqual([
++            expect.objectContaining({id: folderId, name: 'Characters'})
++        ]);
++        expect(database.getAsset(globalAssetId).folderId).toBe(folderId);
++        expect(database.serializeProject().folders[0].name).toBe('Characters');
++
++        database.removeFolder(folderId);
++        expect(database.getAsset(globalAssetId).folderId).toBeNull();
++    });
++
+     test('attaches one global costume to multiple targets without duplicating the binary asset', async () => {
+         const {enemy, player, vm} = createFixture();
+         const database = createGlobalAssetDatabase(vm);
+@@ -101,6 +155,23 @@ describe('Global Asset Database', () => {
+         expect(database.getReferences(globalAssetId)).toHaveLength(2);
+     });
+ 
++    test('undoes and redoes global asset operations', async () => {
++        const {player, vm} = createFixture();
++        const database = createGlobalAssetDatabase(vm);
++
++        await database.perform('Capture costume', () => database.captureCurrentCostume(player));
++        expect(database.listAssets()).toHaveLength(1);
++        expect(database.getHistoryState().canUndo).toBe(true);
++
++        database.undo();
++        expect(database.listAssets()).toHaveLength(0);
++        expect(player.getCostumes()[0][COSTUME_BINDING_PROPERTY]).toBeUndefined();
++
++        database.redo();
++        expect(database.listAssets()).toHaveLength(1);
++        expect(player.getCostumes()[0][COSTUME_BINDING_PROPERTY]).toBeDefined();
++    });
++
+     test('replaces all linked costumes from a single source costume', async () => {
+         const {enemy, player, vm} = createFixture();
+         const database = createGlobalAssetDatabase(vm);
+@@ -119,26 +190,29 @@ describe('Global Asset Database', () => {
+         });
+     });
+ 
+-    test('keeps an unused global binary in SB3 asset serialization', () => {
++    test('keeps unused global image and sound binaries in SB3 asset serialization', () => {
+         const {player, vm} = createFixture();
+         const database = installGlobalAssetDatabase(vm);
+-        const globalAssetId = database.captureCurrentCostume(player);
++        const imageId = database.captureCurrentCostume(player);
++        const soundId = database.importSound(createSound('Theme', 'sound-a'), 'Theme');
+         database.unlinkCostume(player, 0);
+ 
+         const descriptors = vm.serializeAssets();
+-        expect(database.getReferences(globalAssetId)).toHaveLength(0);
++        expect(database.getReferences(imageId)).toHaveLength(0);
++        expect(database.getReferences(soundId)).toHaveLength(0);
+         expect(descriptors).toEqual(expect.arrayContaining([
+-            expect.objectContaining({fileName: 'hash-a.svg'})
++            expect.objectContaining({fileName: 'hash-a.svg'}),
++            expect.objectContaining({fileName: 'sound-a.wav'})
+         ]));
+     });
+ 
+-    test('hydrates an orphan global asset from the SB3 archive', async () => {
++    test('hydrates orphan image and sound assets from the SB3 archive', async () => {
+         const {runtime, vm} = createFixture();
+         const database = createGlobalAssetDatabase(vm);
+         const archive = {
+-            file: jest.fn(name => name === 'orphan.svg' ? {
+-                async: jest.fn(() => Promise.resolve(new Uint8Array([9, 8, 7])))
+-            } : null)
++            file: jest.fn(name => ({
++                async: jest.fn(() => Promise.resolve(new Uint8Array(name === 'orphan.svg' ? [9] : [8])))
++            }))
+         };
+ 
+         await database.deserializeProject({
+@@ -152,8 +226,16 @@ describe('Global Asset Database', () => {
+                 name: 'Orphan',
+                 rotationCenterX: 0,
+                 rotationCenterY: 0
++            }, {
++                assetId: 'orphan-sound',
++                dataFormat: 'wav',
++                id: 'asset:orphan-sound',
++                kind: 'sound',
++                md5ext: 'orphan-sound.wav',
++                name: 'Orphan Sound'
+             }],
+-            version: 1
++            folders: [],
++            version: 2
+         }, {archive});
+ 
+         expect(runtime.storage.createAsset).toHaveBeenCalledWith(
+@@ -163,5 +245,12 @@ describe('Global Asset Database', () => {
+             'orphan',
+             false
+         );
++        expect(runtime.storage.createAsset).toHaveBeenCalledWith(
++            'Sound',
++            'wav',
++            expect.any(Uint8Array),
++            'orphan-sound',
++            false
++        );
+     });
+ });

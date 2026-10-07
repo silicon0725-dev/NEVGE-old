@@ -1,0 +1,20 @@
+'use strict';
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const root = path.resolve(__dirname, '../../..');
+const read = rel => fs.readFileSync(path.join(root, rel), 'utf8');
+const assertScratchPassiveTargetToolboxMouseLayoutContainmentContract = () => {
+  const policy = read('src/lib/scratch-sprite-adapter/scratch-runtime-update-policy.js');
+  const hoc = read('src/lib/vm-listener-hoc.jsx');
+  const blocks = read('src/containers/blocks.jsx');
+  const stage = read('src/containers/stage.jsx');
+  assert.match(policy, /PASSIVE_SCRATCH_TARGET_LIST_REFRESH_MS/);
+  assert.match(hoc, /PASSIVE_SCRATCH_TARGET_LIST_REFRESH_MS/);
+  assert.match(blocks, /pendingRuntimeToolboxPositionSync/);
+  assert.match(blocks, /PROJECT_RUN_STOP/);
+  assert.match(stage, /refreshRectIfStale/);
+  assert.match(stage, /scratchMouseRectCacheHits/);
+  return {targetListSampling: true, toolboxRuntimeDeferral: true, mouseRectCaching: true};
+};
+module.exports = {assertScratchPassiveTargetToolboxMouseLayoutContainmentContract};

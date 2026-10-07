@@ -1,0 +1,6 @@
+id,area,current_state,owner,target,status,ws3_blocking
+LSC-D001,Credential Service,"Known secrets are page-memory-only in ngvge.legacy-credential-vault@1; no system keychain yet",Credential Platform,Final Credential Service / OS keychain,DEFERRED,false
+LSC-D002,Legacy 02Agent raw VM,"Bundled Legacy Addon receives raw VM only through LEX-G1 explicit quarantine",WS-7 + LEX,Retire raw VM from native Agent path,QUARANTINED,false
+LSC-D003,Legacy 02Agent window authority,"Legacy Agent still mounts standalone DOM host with local z-index",WS-7,Tool Registry + Window Manager migration,DEFERRED,false
+LSC-D004,Native Agent mutation,"Legacy Agent is read-only; no native ChangeSet/Review/Authority implementation yet",WS-7,ChangeSet + Review + Engine Transaction,DEFERRED,false
+LSC-D005,Bridge bearer transport,"Ephemeral CSPRNG bearer token is carried by loopback WebSocket compatibility protocol",Agent Bridge,Redesigned native Agent transport/credential handoff,LEGACY_QUARANTINE,false

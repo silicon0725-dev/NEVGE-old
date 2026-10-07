@@ -1,0 +1,10 @@
+capability,access,policy_mode,provider_state_v1,review_evidence,notes
+ngvge.workspace-capability.context-read,query,not-required,READY,none,Read-only Workspace Context projection
+ngvge.workspace-capability.workspace-state,query,not-required,READY,none,Tool-scoped Workspace state query
+ngvge.workspace-capability.workspace-state,mutate,not-required,READY,none,Tool-scoped Workspace state only; not Project authority
+ngvge.workspace-capability.project-read,query,not-required,READY,none,Portable Project lifecycle/context snapshot
+ngvge.workspace-capability.project-command,propose,not-required,READY,none,Creates Tool/Project-owned Proposal; does not mutate
+ngvge.workspace-capability.project-command,mutate,review-required,READY,fresh one-shot evidence,Commit and rollback require Tool+lease+Project+revision-bound evidence
+ngvge.workspace-capability.resource-read,query,not-required,READY,none,Canonical ResourceId portable descriptor
+ngvge.workspace-capability.resource-command,propose,not-required,READY,none,Low-level proposal metadata surface remains non-mutating
+ngvge.workspace-capability.resource-command,mutate,direct-denied,PROVIDER_UNAVAILABLE,not applicable,Workspace Tools must use reviewed Project transaction for supported Resource mutations

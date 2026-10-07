@@ -1,0 +1,47 @@
+name: Generate changelog.json from Releases
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  generate-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install workflow-local dependencies
+        run: bun add --no-save @octokit/rest dayjs
+
+      - name: Generate changelogs.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node generate-changelog.js
+
+      - name: Show generated JSON (for debug)
+        run: cat changelog/changelog.json || true
+
+      - name: 部署到 cf-page 分支 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: cf-page
+          folder: ./changelog
+          target-folder: .
+          clean: false
+          commit-message: "chore: 每日更新 changelog.json (${{ github.run_id }})"

@@ -1,0 +1,75 @@
+{
+  "stage": "WS-9G",
+  "title": "Project Command Host & Transaction Foundation",
+  "status": "COMPLETE / VERIFIED",
+  "authority": "ARC-0001",
+  "baseline": "WS-9F COMPLETE / VERIFIED",
+  "identities": {
+    "projectCommandHost": "ngvge.workspace-project-command-host@1",
+    "projectCommandAuthority": "authority:ngvge.workspace-project-command-host",
+    "projectCommandAuthorityDomain": "ngvge.project.command.transaction",
+    "projectCommandSchemaVersion": 1,
+    "projectCommandProposalSchemaVersion": 1,
+    "projectTransactionSchemaVersion": 1,
+    "projectCommandCapability": "ngvge.workspace-project-command-capability@1"
+  },
+  "transactionV1": {
+    "supportedCommands": [
+      "resource.rename",
+      "resource.move"
+    ],
+    "resourceDeleteIncluded": false,
+    "binaryReplacementIncluded": false,
+    "toolOwnedProposals": true,
+    "projectContextBoundProposals": true,
+    "serializedCommit": true,
+    "failedPartialCommitCompensation": true,
+    "explicitRollbackRequiresLatestHistoryOwnership": true,
+    "crossAuthorityAtomicityClaimed": false
+  },
+  "providerState": {
+    "projectCommandPropose": "ready when native Project Command Host transaction adapter is available",
+    "projectCommandMutate": "ready when native Project Command Host transaction adapter is available",
+    "missingHost": "provider-unavailable: NGVGE_WORKSPACE_PROJECT_COMMAND_AUTHORITY_NOT_READY",
+    "missingTransactionAdapter": "provider-unavailable: NGVGE_WORKSPACE_PROJECT_COMMAND_TRANSACTION_ADAPTER_UNAVAILABLE"
+  },
+  "authorityRules": {
+    "hostOwnsTransactionSemanticsOnly": true,
+    "projectLifecycleAuthorityPreserved": true,
+    "resourceAuthorityPreserved": true,
+    "workspaceContextNotPromotedToAuthority": true,
+    "providerRegistryNotPromotedToAuthority": true,
+    "scratchProjectPayloadAuthorityExposed": false,
+    "vmLoadProjectExposed": false,
+    "rawBackendHandlesExposed": false
+  },
+  "verification": {
+    "machineChecks": "16/16 PASS",
+    "focusedJest": "4 suites / 31 tests PASS",
+    "projectCommandWebpack": "0 errors / 0 warnings",
+    "unitNode": "135 suites / 729 tests PASS",
+    "unitDom": "3 suites / 27 tests PASS",
+    "unitTotal": "138 suites / 756 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "arcC0011Baseline": "7/7 PASS",
+    "lscG1": "19/19 machine PASS + 7/7 certification tests PASS",
+    "lrcG1": "15/15 machine PASS + certification Jest PASS",
+    "lplG1": "17/17 machine PASS + certification Jest PASS",
+    "lexG1": "19/19 machine PASS + certification Jest PASS",
+    "col0": "15/15 machine PASS + 4 suites / 12 tests PASS",
+    "ws8Focused": "27/27 machine PASS; 6 suites / 22 tests PASS",
+    "ws9aFocused": "12/12 machine PASS; 2 suites / 15 tests PASS",
+    "ws9bFocused": "12/12 machine PASS; 3 suites / 24 tests PASS",
+    "ws9cFocused": "12/12 machine PASS; runtime 3 suites / 21 tests PASS; DOM 2 suites / 24 tests PASS",
+    "ws9dFocused": "13/13 machine PASS; 7 suites / 35 tests PASS",
+    "ws9eFocused": "14/14 machine PASS; 6 suites / 36 tests PASS",
+    "ws9fFocused": "15/15 machine PASS; Node 6 suites / 51 tests PASS; DOM 1 suite / 3 tests PASS",
+    "ws9gFocused": "16/16 machine PASS; 4 suites / 31 tests PASS",
+    "fullEditorWebpack": "INCONCLUSIVE: execution environment 120s timeout; no compile error emitted before timeout; no Webpack process remained; not counted as PASS"
+  },
+  "nextRecommendedStage": "WS-9H | Project Transaction Review / Diagnostics Integration"
+}

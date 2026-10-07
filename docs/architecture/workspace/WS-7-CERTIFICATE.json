@@ -1,0 +1,96 @@
+{
+  "stage": "WS-7",
+  "title": "NGVGE Agent Workspace Integration",
+  "status": "COMPLETE / VERIFIED",
+  "baseline": {
+    "stage": "WS-6",
+    "localCommit": "0bfdddc"
+  },
+  "identities": {
+    "toolId": "ngvge.tool.agent",
+    "windowId": "agent",
+    "model": "ngvge.workspace-agent-model@1",
+    "runtime": "ngvge.workspace-agent-runtime@1",
+    "changeSetModel": "ngvge.workspace-agent-changeset-model@1",
+    "changeSetSchemaVersion": 1,
+    "transactionHost": "ngvge.workspace-agent-transaction-host@1",
+    "transactionSchemaVersion": 1
+  },
+  "mutationBoundary": {
+    "supportedChangeSetCommands": [
+      "CreateNode",
+      "DuplicateNode",
+      "PatchNode",
+      "ReparentNode"
+    ],
+    "destroyNodeProposalSupported": false,
+    "reviewIsAuthorizationGate": true,
+    "agentPublicNodeClientAllowed": false,
+    "compensationOwnedByTransactionHost": true,
+    "automaticReverseRollback": true,
+    "manualUndo": true,
+    "rollbackFailureVisible": true
+  },
+  "machineCertification": {
+    "passed": 29,
+    "total": 29,
+    "status": "PASS"
+  },
+  "focusedTests": {
+    "suites": 7,
+    "tests": 34,
+    "status": "PASS"
+  },
+  "fullTests": {
+    "unitNodeSuites": 122,
+    "unitNodeTests": 653,
+    "unitDomSuites": 3,
+    "unitDomTests": 26,
+    "unitTotalSuites": 125,
+    "unitTotalTests": 679,
+    "integrationSuites": 4,
+    "integrationTests": 5,
+    "smokeSuites": 1,
+    "smokeTests": 1
+  },
+  "webpack": {
+    "agentEntry": {
+      "exit": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "editorEntry": {
+      "exit": 0,
+      "errors": 0,
+      "warnings": 0
+    }
+  },
+  "cumulativeWorkspaceGate": "PASS",
+  "crossDomainGates": {
+    "LSC-G1": "PASS",
+    "LRC-G1": "PASS",
+    "LPL-G1": "PASS",
+    "LEX-G1": "PASS",
+    "COL-0": "PASS",
+    "0009-E": "PASS",
+    "PermanentRegression": "PASS"
+  },
+  "authorityInvariants": {
+    "legacy02AgentMutationMode": "read-only",
+    "rawVMAccess": false,
+    "rawRendererAccess": false,
+    "rawScratchTargetIdentity": false,
+    "documentBodyOwnedApp": false,
+    "agentCredentialAuthority": false,
+    "agentLocalStorageDomain": false,
+    "aiAuthoredCompensation": false,
+    "unreviewedAgentMutation": false
+  },
+  "aggregateCertification": {
+    "status": "CONSTITUENT GATES PASS / WRAPPER TIMEOUT",
+    "claimedExitZero": false,
+    "finalEditorWebpackIndependentlyVerified": true
+  },
+  "architectureFrozen": false,
+  "nextStage": "WS-8 | Post-MVP Tool Ecosystem"
+}

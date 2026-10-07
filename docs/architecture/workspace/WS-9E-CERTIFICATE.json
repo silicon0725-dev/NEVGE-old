@@ -1,0 +1,73 @@
+{
+  "stage": "WS-9E",
+  "title": "Capability Provider Binding & Diagnostics",
+  "status": "COMPLETE / VERIFIED",
+  "authority": "ARC-0001",
+  "baseline": "WS-9D COMPLETE / VERIFIED",
+  "identities": {
+    "toolCapabilityHost": "ngvge.workspace-tool-capability-host@1",
+    "providerRegistry": "ngvge.workspace-capability-provider-registry@1",
+    "providerDescriptorSchemaVersion": 1,
+    "providerBindingSchemaVersion": 1,
+    "contextConsumerAdmission": "ngvge.workspace-context-consumer-admission@1"
+  },
+  "productionProviders": [
+    "ngvge.workspace-capability.context-read#query",
+    "ngvge.workspace-capability.workspace-state#query",
+    "ngvge.workspace-capability.workspace-state#mutate"
+  ],
+  "providerRules": {
+    "oneProviderPerCapabilityAccessSurface": true,
+    "bindingRequiresAdmissionLease": true,
+    "missingProviderFailsClosed": true,
+    "unavailableProviderFailsClosed": true,
+    "dynamicAvailabilityRecheckedOnFacadeCall": true,
+    "toolLeaseRevokesBinding": true,
+    "providerUnregisterRevokesBinding": true,
+    "registryDisposeRevokesBindings": true,
+    "staleFacadeFailsClosed": true,
+    "rawAuthorityFacadeFieldsRejected": true
+  },
+  "authorityRules": {
+    "providerRegistryIsNotProjectAuthority": true,
+    "providerRegistryIsNotResourceAuthority": true,
+    "contextServiceHiddenBehindProvider": true,
+    "workspaceStateScopedToToolId": true,
+    "projectProvidersFabricated": false,
+    "resourceProvidersFabricated": false,
+    "terminalActivated": false,
+    "paintActivated": false
+  },
+  "intentionallyMissingProviders": [
+    "ngvge.workspace-capability.project-read#query",
+    "ngvge.workspace-capability.project-command#propose",
+    "ngvge.workspace-capability.project-command#mutate",
+    "ngvge.workspace-capability.resource-read#query",
+    "ngvge.workspace-capability.resource-command#propose",
+    "ngvge.workspace-capability.resource-command#mutate"
+  ],
+  "verification": {
+    "machineChecks": "14/14 PASS",
+    "focusedJest": "6 suites / 36 tests PASS",
+    "providerWebpack": "0 errors / 0 warnings",
+    "unit": "135 suites / 734 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "arcC0011Baseline": "PASS",
+    "lscG1": "PASS",
+    "lrcG1": "PASS",
+    "lplG1": "PASS",
+    "lexG1": "PASS",
+    "col0": "PASS",
+    "ws8Focused": "PASS",
+    "ws9aFocused": "PASS",
+    "ws9bFocused": "PASS",
+    "ws9cFocused": "PASS",
+    "ws9dFocused": "PASS",
+    "fullEditorWebpack": "INCONCLUSIVE: execution environment 120s timeout; no compile error emitted; not counted as PASS"
+  },
+  "nextRecommendedStage": "WS-9F | Project / Resource Capability Provider Foundation"
+}

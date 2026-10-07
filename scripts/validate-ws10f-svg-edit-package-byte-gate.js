@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+'use strict';
+const fs=require('fs');
+const path=require('path');
+const root=path.resolve(__dirname,'..');
+const dir=path.join(root,'node_modules','@svgedit','svgcanvas');
+const fail=msg=>{console.error(`WS-10F SVG-Edit PACKAGE BYTE GATE FAIL: ${msg}`);process.exit(1);};
+if(!fs.existsSync(dir)) fail('package is not installed');
+const pkgPath=path.join(dir,'package.json');
+if(!fs.existsSync(pkgPath)) fail('installed package.json missing');
+const pkg=JSON.parse(fs.readFileSync(pkgPath,'utf8'));
+if(pkg.name!=='@svgedit/svgcanvas'||pkg.version!=='7.4.2') fail(`expected @svgedit/svgcanvas@7.4.2, got ${pkg.name||'?'}@${pkg.version||'?'}`);
+if(pkg.types!=='svgcanvas.d.ts') fail('published TypeScript declaration metadata missing; verification shim or incompatible package detected');
+const typePath=path.join(dir,'svgcanvas.d.ts');
+if(!fs.existsSync(typePath)||fs.statSync(typePath).size<4000) fail('published svgcanvas.d.ts bytes missing/incomplete');
+const main=path.join(dir,pkg.main||'dist/svgcanvas.js');
+if(!fs.existsSync(main)||fs.statSync(main).size<100000) fail('published production bundle bytes missing/incomplete');
+const source=fs.readFileSync(typePath,'utf8');
+for(const api of ['setSvgString','getSvgString','setMode','getMode','undoMgr','bind(event']) if(!source.includes(api)) fail(`required v7 API declaration missing: ${api}`);
+console.log('WS-10F real @svgedit/svgcanvas@7.4.2 package byte gate: PASS');
+console.log(JSON.stringify({name:pkg.name,version:pkg.version,main:pkg.main,types:pkg.types,bundleBytes:fs.statSync(main).size,typeBytes:fs.statSync(typePath).size},null,2));

@@ -1,0 +1,148 @@
+{
+  "schema": "ngvge-arc-c001-debt-baseline/v1",
+  "updatedAt": "2026-08-11",
+  "baselinePhase": "ARC-C001.1-H",
+  "source": [
+    "docs/freeze-repair/0008.9.7-R10-KNOWN-DEBT-REGISTER.md",
+    "docs/architecture/conformance/EXISTING-GATE-INVENTORY.json",
+    "docs/architecture/LEGACY-WAIVERS.json"
+  ],
+  "summary": {
+    "acceptedTechnicalDebt": 5,
+    "conformanceGovernanceDebt": 1,
+    "architectureConformanceDebt": 0,
+    "externalEvidenceHolds": 2,
+    "activeArchitectureWaivers": 0,
+    "resolvedArchitectureConformanceDebt": 1,
+    "resolvedConformanceGovernanceDebt": 1
+  },
+  "items": [
+    {
+      "id": "TD-0001",
+      "title": "Git working-tree schema completeness",
+      "class": "technical-debt",
+      "waiver": false,
+      "blocksC0011": false,
+      "blocks0009": false
+    },
+    {
+      "id": "TD-0002",
+      "title": "Legacy ESLint maintenance/style debt",
+      "class": "technical-debt",
+      "waiver": false,
+      "blocksC0011": false,
+      "blocks0009": false,
+      "metrics": {
+        "filesScanned": 666,
+        "affectedFiles": 217,
+        "legacyErrors": 5683,
+        "correctnessErrors": 0
+      }
+    },
+    {
+      "id": "TD-0003",
+      "title": "Scoped TypeScript trust boundary",
+      "class": "technical-debt",
+      "waiver": false,
+      "blocksC0011": false,
+      "blocks0009": false
+    },
+    {
+      "id": "TD-0004",
+      "title": "Scene performance profiling",
+      "class": "performance-debt",
+      "waiver": false,
+      "blocksC0011": false,
+      "blocks0009": false
+    },
+    {
+      "id": "TD-0005",
+      "title": "Build-toolchain modernization",
+      "class": "toolchain-debt",
+      "waiver": false,
+      "blocksC0011": false,
+      "blocks0009": false
+    },
+    {
+      "id": "GOV-DEBT-0001",
+      "title": "Architecture validators are not aggregate/CI authority",
+      "class": "conformance-governance-debt",
+      "waiver": false,
+      "blocksC0011": false,
+      "blocks0009": false,
+      "resolutionPhase": "ARC-C001.6",
+      "metrics": {
+        "architectureEntrypoints": 12,
+        "uniqueValidators": 27,
+        "aggregateWiring": 0,
+        "ciWiring": 0
+      }
+    },
+    {
+      "id": "GOV-DEBT-0002",
+      "title": "Scratch Adapter boundary semantics are historical, not active",
+      "class": "conformance-activation-debt",
+      "waiver": false,
+      "blocksC0011": false,
+      "blocks0009": false,
+      "resolutionPhase": "ARC-C001.1-G",
+      "note": "Resolved: Scratch Adapter boundary semantics are now an independent active/manual ARC-C001 gate; the historical 0008.7.3 validator remains supporting corpus.",
+      "status": "resolved",
+      "resolvedPhase": "ARC-C001.1-G",
+      "resolvedAt": "2026-08-11",
+      "resolutionEvidence": [
+        "tools/conformance/check-scratch-adapter-boundary.js",
+        "tools/conformance/check-scratch-adapter-boundary.self-test.js",
+        "docs/architecture/conformance/compatibility.md",
+        "test/regression/contracts/scratch-adapter-boundary.js",
+        "test:conformance:scratch-adapter-boundary"
+      ]
+    },
+    {
+      "id": "ARC-DEBT-0001",
+      "title": "Persistent target-backed Project Node identity derives from Scratch target.id",
+      "class": "architecture-conformance-debt",
+      "waiver": false,
+      "waivable": false,
+      "blocksC0011": false,
+      "blocks0009": false,
+      "resolutionPhase": "ARC-C001.1",
+      "domains": [
+        "identity",
+        "serialization",
+        "compatibility"
+      ],
+      "scope": [
+        "src/lib/project-nodes/node-database.js"
+      ],
+      "status": "resolved",
+      "resolvedPhase": "ARC-C001.1-B",
+      "resolvedAt": "2026-08-11",
+      "resolutionEvidence": [
+        "src/core/identity/stable-identity.js",
+        "src/lib/project-nodes/node-database.js",
+        "src/lib/project-nodes/legacy-node-identity-migration.js",
+        "src/lib/project-inspector/project-persistence.js",
+        "tools/conformance/check-stable-identities.js",
+        "test/regression/contracts/project-node-stable-identity.js"
+      ],
+      "note": "Current Project Node identity is NGVGE-owned; historical target-derived ids are migration-only input and aliases are remapped across NGVGE project sections before restore."
+    }
+  ],
+  "externalEvidenceHolds": [
+    {
+      "id": "EVIDENCE-HOLD-0001",
+      "title": "Clean Bun install / Node matrix",
+      "knownDefect": false,
+      "architectureImpact": "none",
+      "releaseReproducibility": "pending-external-ci-evidence"
+    },
+    {
+      "id": "EVIDENCE-HOLD-0002",
+      "title": "Full production webpack completion",
+      "knownDefect": false,
+      "architectureImpact": "none",
+      "releaseReproducibility": "pending-external-ci-evidence"
+    }
+  ]
+}

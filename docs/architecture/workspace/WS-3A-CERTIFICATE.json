@@ -1,0 +1,75 @@
+{
+  "certificateId": "ngvge.ws-3a-dock-runtime-model-verification/v1",
+  "stage": "WS-3A",
+  "status": "COMPLETE / VERIFIED",
+  "runtimeModel": "ngvge.workspace-dock-runtime-model@1",
+  "schemaVersions": {
+    "dockRuntimeState": 1,
+    "dockItem": 1
+  },
+  "authoritySources": [
+    "ngvge.workspace-tool-registry@1",
+    "ngvge.workspace-window-manager@1"
+  ],
+  "dockOwnedState": [
+    "pinning",
+    "ordering",
+    "organization-metadata"
+  ],
+  "derivedState": [
+    "running",
+    "minimized",
+    "active",
+    "window-instances"
+  ],
+  "windowManagerAuthorityDuplicated": false,
+  "backendIdentityAllowed": false,
+  "persistenceEnabled": false,
+  "dockPresentationEnabled": false,
+  "verification": {
+    "machineChecks": {
+      "passed": 29,
+      "total": 29
+    },
+    "focusedTests": {
+      "passed": 9,
+      "total": 9
+    },
+    "unitNode": {
+      "suites": 101,
+      "tests": 546,
+      "status": "PASS"
+    },
+    "unitDom": {
+      "suites": 3,
+      "tests": 26,
+      "status": "PASS"
+    },
+    "integration": {
+      "suites": 4,
+      "tests": 5,
+      "status": "PASS"
+    },
+    "smoke": {
+      "suites": 1,
+      "tests": 1,
+      "status": "PASS"
+    },
+    "typeScript": "PASS",
+    "eslintCorrectness": "PASS",
+    "webpackEditorEntry": {
+      "entry": "src/playground/editor.jsx",
+      "config": "webpack.config.js[0]",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0,
+      "status": "PASS"
+    },
+    "aggregateCertification": {
+      "command": "npm run test:workspace-shell:ws3a-certification",
+      "status": "CONSTITUENT GATES PASS / wrapper timeout",
+      "webpackConstituentExitCode": 0
+    }
+  },
+  "nextStage": "WS-3B"
+}

@@ -1,0 +1,5 @@
+backend_id,document_source,layers,frames,cels,linked_cels,clips,markers,palette,slices,timeline
+ngvge.paint-backend.svg-edit,adapter,unsupported,unsupported,unsupported,unsupported,unsupported,unsupported,unsupported,ngvge-owned,unsupported
+ngvge.paint-backend.minipaint,adapter,adapter,ngvge-owned,adapter,ngvge-owned,ngvge-owned,ngvge-owned,ngvge-owned,ngvge-owned,ngvge-owned
+ngvge.paint-backend.piskel,adapter,adapter,adapter,adapter,adapter,ngvge-owned,ngvge-owned,adapter,ngvge-owned,ngvge-owned
+ngvge.paint-backend.scratch-paint-compat,adapter,unsupported,ngvge-owned,adapter,ngvge-owned,ngvge-owned,ngvge-owned,unsupported,ngvge-owned,ngvge-owned

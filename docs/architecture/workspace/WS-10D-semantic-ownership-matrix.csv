@@ -1,0 +1,19 @@
+Domain,Stable identity,Project semantic,Owner,Backend role,WS-10D status
+Art document,ngvge:art-document:*,Yes,NGVGE,Transient editor projection,FROZEN
+Resource,ngvge:resource:*,Yes,NGVGE Resource Authority,Content adapter only,FROZEN
+Layer,ngvge:art-layer:*,Yes,NGVGE,Map backend layer objects,FROZEN
+Frame,ngvge:animation-frame:*,Yes,NGVGE,Map backend frames,FROZEN
+Cel,ngvge:animation-cel:*,Yes,NGVGE,Render/edit one Layer x Frame slot,FROZEN
+Cel content,ngvge:cel-content:*,Yes,NGVGE,Encode/decode working content,FROZEN
+Linked cel,shared CelContentId,Yes,NGVGE,May optimize internally,FROZEN
+Animation clip,ngvge:animation-clip:*,Yes,NGVGE,Timeline projection,FROZEN
+Animation marker,ngvge:animation-marker:*,Yes,NGVGE,Timeline projection,FROZEN
+Palette,ngvge:palette:*,Yes,NGVGE,Color UI/engine,FROZEN
+Palette entry,ngvge:palette-entry:*,Yes,NGVGE,Color UI/FIFO indexing,FROZEN
+Slice,ngvge:slice:*,Yes,NGVGE,Overlay/edit geometry,FROZEN
+Onion skin,None,No,Workspace Tool Session,Render preview only,FROZEN SCOPE
+Canvas zoom/pan,None,No,Workspace Tool Session,Presentation only,FROZEN SCOPE
+Active frame/layer,None,No,Workspace Tool Session,Presentation only,FROZEN SCOPE
+Backend undo cursor,None,No,Backend Working Session,Temporary only,FROZEN SCOPE
+PNG/GIF/APNG/Sprite Sheet,None,No,Exporter,Derived output,FROZEN SCOPE
+TileSet/Tilemap,TBD,Reserved,NGVGE future contract,Must not invent permanent backend schema,DEFERRED

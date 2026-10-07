@@ -1,0 +1,701 @@
+{
+  "schema": "ngvge-arc-c001-conformance-status-matrix/v1",
+  "phase": "ARC-C001.1-H",
+  "updatedAt": "2026-08-11",
+  "sourceBaseline": "NGVGE 0008.9.7 + Scene System V2.1 + ARC-C001.1-A through G active/manual minimum gates + ARC-C001.1-H certification",
+  "authority": {
+    "parent": "ARC-0001",
+    "conformance": "ARC-C001",
+    "blockingMergePolicyActive": false,
+    "architectureEntrypointsInAggregateTest": 0,
+    "architectureEntrypointsInCI": 0,
+    "importBoundaryGate": "active-manual",
+    "persistentDTOGate": "active-manual",
+    "schemaRegistryGate": "active-manual",
+    "authorityRegistryGate": "active-manual",
+    "protocolDTOGate": "active-manual",
+    "scratchAdapterBoundaryGate": "active-manual",
+    "c0011MinimumBaselineCertification": "certified",
+    "transform0009Entry": "unlocked"
+  },
+  "statusVocabulary": {
+    "covered": "generic repository-wide conformance foundation exists, evidence is active, and no domain blocker remains",
+    "partial": "substantial executable evidence exists but generic foundation or enforcement is incomplete",
+    "missing": "required generic foundation is absent or only historical evidence exists",
+    "blocked": "a non-waivable conformance finding prevents readiness for the dependent milestone"
+  },
+  "summary": {
+    "domains": 7,
+    "covered": 0,
+    "partial": 7,
+    "missing": 0,
+    "domainsBlocking0009": 0,
+    "activeArchitectureWaivers": 0,
+    "nonWaivableFindings": 0,
+    "c0011MinimumRequirements": 7,
+    "c0011RequirementsSatisfied": 7,
+    "c0011RequirementsPartialOrHistorical": 0,
+    "c0011RequirementsMissing": 0,
+    "c0011Status": "certified-complete",
+    "transform0009Status": "ready-unlocked-for-entry",
+    "c0011RequirementsBlocked": 0,
+    "c0011MinimumCertification": "pass"
+  },
+  "domains": {
+    "identity": {
+      "status": "partial",
+      "evidenceCoverage": "substantial-domain-specific",
+      "genericFoundation": "active-foundation",
+      "enforcement": "active-manual",
+      "blocks0009": false,
+      "blockers": [],
+      "activeArchitectureEntrypoints": [
+        "test:architecture:runtime-node-boundary",
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:runtime-snapshot-contract"
+      ],
+      "directPermanentRegressions": [
+        "runtime-detached-persistence",
+        "scene-v2-scope-navigation",
+        "project-node-stable-identity"
+      ],
+      "directSupportingGates": [
+        "runtime-project-persistence.integration"
+      ],
+      "strengths": [
+        "Core canonical Stable Identity schema/kinds/format/assertion are active and backend independent.",
+        "New Project Nodes use NGVGE-owned canonical NodeIds rather than Scratch target.id.",
+        "Legacy target-derived ids are migration-only input with cross-project-section alias remapping.",
+        "Stable Runtime Node/Component persistence evidence remains protected by existing architecture gates."
+      ],
+      "gaps": [
+        "Generic Identity Registry collision/ownership tracking is not yet repository-wide.",
+        "Repository-wide compile-time TypeScript branding is deferred to preserve the frozen R9 TypeScript scope.",
+        "Scratch Adapter BindingId conformance remains C001.1-G."
+      ],
+      "promotionSources": [
+        "runtime-node persistence/restore corpus",
+        "0008.7.3 Scratch Adapter identity corpus",
+        "scene-v2-scope-navigation"
+      ],
+      "c0011Work": [
+        "C001.1-B Stable Identity Foundation",
+        "C001.1-G Scratch Adapter Boundary Gate"
+      ],
+      "c0011ExitCriteria": [
+        "Canonical backend-independent Stable Identity vocabulary exists and is executable.",
+        "New target-backed Project Nodes never derive NodeId from Scratch target.id.",
+        "Legacy target-derived records and NGVGE project-section references migrate transactionally before restore.",
+        "Stable Identity destructive/static regression evidence remains active."
+      ],
+      "activeConformanceEntrypoints": [
+        "test:conformance:stable-identity",
+        "test:conformance:c001.1-b"
+      ]
+    },
+    "schema": {
+      "status": "partial",
+      "evidenceCoverage": "substantial-domain-specific",
+      "genericFoundation": "active-foundation",
+      "enforcement": "active-manual",
+      "blocks0009": false,
+      "blockers": [],
+      "activeArchitectureEntrypoints": [
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:runtime-snapshot-contract"
+      ],
+      "directPermanentRegressions": [
+        "schema-registry-boundary"
+      ],
+      "directSupportingGates": [],
+      "strengths": [
+        "Generic src/core Schema Registry now exists independently of Runtime Component implementation.",
+        "ngvge-schema-descriptor/v1 validates type/version/property/default/nullability/range/unit/resource/persistence/validation metadata.",
+        "Schema metadata/defaults are constrained by Core Persistent DTO authority.",
+        "Duplicate type/version registration fails closed; batch registration is atomic and query snapshots are immutable.",
+        "Runtime Component schema/version/migration semantics remain strong supporting evidence without owning the generic Core contract."
+      ],
+      "gaps": [
+        "Schema Migration Graph/provider execution is deferred to C001.4 / ARC-0004.",
+        "Schema-aware validation of arbitrary persistent records is deferred to C001.2.",
+        "No gate yet requires every persistent semantic record to reference a registered versioned schema.",
+        "Final property type system and custom Inspector/Gizmo/Validator registration remain ARC-0004 work."
+      ],
+      "promotionSources": [
+        "runtime-component-type-registry.js",
+        "0008.9.3/0008.9.4 component schema and migration validators"
+      ],
+      "c0011Work": [
+        "C001.1-D Schema Registry Foundation"
+      ],
+      "c0011ExitCriteria": [
+        "Generic Core Schema Registry exists independently of Runtime Component implementation.",
+        "Version/type/default/persistence metadata can be registered and validated.",
+        "Unknown/duplicate/invalid schema registration fails closed."
+      ],
+      "c0011CompletedWork": [
+        "C001.1-D Schema Registry Foundation"
+      ],
+      "activeConformanceEntrypoints": [
+        "test:conformance:schema-registry",
+        "test:conformance:c001.1-d"
+      ]
+    },
+    "authority": {
+      "status": "partial",
+      "evidenceCoverage": "substantial-domain-specific",
+      "genericFoundation": "active-foundation",
+      "enforcement": "active-manual",
+      "blocks0009": false,
+      "blockers": [],
+      "activeArchitectureEntrypoints": [
+        "test:architecture:runtime-node-lifecycle",
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:module-deferred-authority-service-lifetime",
+        "test:architecture:cross-boundary-exception-authority",
+        "test:architecture:runtime-snapshot-contract",
+        "test:architecture:module-bootstrap-recovery",
+        "test:architecture:module-capability-publication",
+        "test:architecture:runtime-mutation-commit",
+        "test:architecture:service-facade-array-callback-locality"
+      ],
+      "directPermanentRegressions": [
+        "authority-registry-boundary",
+        "scene-v2-boundary"
+      ],
+      "directSupportingGates": [],
+      "strengths": [
+        "Generic src/core State Domain Authority Registry now exists independently of Module Capability and compatibility implementations.",
+        "Writer / projection / observer roles are explicit and projection registrations carry explicit direction.",
+        "A second active writer for the same State Domain fails closed; batch registration is atomic on conflicts.",
+        "Authority registrations and Registry snapshots are immutable and deterministic.",
+        "Capability publication/generation/revocation remains strong Runtime/Module-specific supporting evidence."
+      ],
+      "gaps": [
+        "Projection Loop Prevention and Mutation Context are deferred to C001.3 / ARC-0003.",
+        "Transactional Authority Switch is deferred to C001.3 / ARC-0003.",
+        "Transform2D Scratch Compatibility Authority is not wired until 0009.",
+        "Capability ownership has not yet been integrated as a consumer of the generic Core Authority model."
+      ],
+      "promotionSources": [
+        "capability publication/generation/revocation corpus",
+        "0008.9.4.1.3-.1.6 destructive authority tests",
+        "runtime-mutation-commit"
+      ],
+      "c0011Work": [
+        "C001.1-E Authority Registry Foundation"
+      ],
+      "c0011ExitCriteria": [
+        "Generic StateDomain Authority Registry exists.",
+        "A second active writer for the same domain is rejected.",
+        "Writer / projection / observer roles are explicit.",
+        "Capability authority remains a consumer of Core authority semantics rather than the generic model itself."
+      ],
+      "c0011CompletedWork": [
+        "C001.1-E Authority Registry Foundation"
+      ],
+      "activeConformanceEntrypoints": [
+        "test:conformance:authority-registry",
+        "test:conformance:c001.1-e"
+      ]
+    },
+    "protocol": {
+      "status": "partial",
+      "evidenceCoverage": "substantial-domain-specific",
+      "genericFoundation": "protocol-dto-foundation-active",
+      "enforcement": "active-manual-foundation-plus-legacy-evidence",
+      "blocks0009": false,
+      "blockers": [],
+      "activeArchitectureEntrypoints": [
+        "test:architecture:runtime-node-boundary",
+        "test:architecture:runtime-node-lifecycle",
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:module-deferred-authority-service-lifetime",
+        "test:architecture:cross-boundary-exception-authority",
+        "test:architecture:runtime-error-contract",
+        "test:architecture:runtime-snapshot-contract",
+        "test:architecture:module-bootstrap-recovery",
+        "test:architecture:module-capability-publication",
+        "test:architecture:runtime-mutation-commit",
+        "test:architecture:service-facade-array-callback-locality"
+      ],
+      "directPermanentRegressions": [
+        "scene-binary-asset-boundary",
+        "scene-v2-boundary",
+        "scene-v2-scope-navigation",
+        "protocol-dto-boundary"
+      ],
+      "directSupportingGates": [
+        "scene-v2-lifecycle.integration",
+        "test:conformance:protocol-dto",
+        "test:conformance:c001.1-f"
+      ],
+      "strengths": [
+        "Exact portable Runtime Node API, sanitized errors, frozen snapshots and primitive Scene controller protocol exist.",
+        "Generic ngvge.engine-protocol v1 Command/Query/Event/ProtocolError DTO foundation is active.",
+        "Core protocol values reject runtime/native object representations and Query snapshots are detached/deep-frozen."
+      ],
+      "gaps": [
+        "No repository-wide Editor mutation→Command rule.",
+        "No generic protocol version negotiation/pagination foundation.",
+        "No transaction/event-commit transport semantics."
+      ],
+      "promotionSources": [
+        "runtime-node-api-contract.js",
+        "runtime error/snapshot validators",
+        "Scene V2 JSON controller boundary"
+      ],
+      "c0011Work": [],
+      "c0011ExitCriteria": [
+        "Generic Engine Command / Query / Event / ProtocolError DTO contracts exist.",
+        "Core protocol DTOs reject backend/native handles.",
+        "Query results are plain/frozen snapshots rather than internal mutable services."
+      ],
+      "c0011CompletedWork": [
+        "C001.1-F Protocol DTO Foundation"
+      ],
+      "activeConformanceEntrypoints": [
+        "test:conformance:protocol-dto",
+        "test:conformance:c001.1-f"
+      ]
+    },
+    "lifecycle": {
+      "status": "partial",
+      "evidenceCoverage": "substantial-domain-specific",
+      "genericFoundation": "partial-foundation",
+      "enforcement": "manual-evidence-only",
+      "blocks0009": false,
+      "blockers": [],
+      "activeArchitectureEntrypoints": [
+        "test:architecture:runtime-node-lifecycle",
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:module-deferred-authority-service-lifetime",
+        "test:architecture:module-bootstrap-integrity",
+        "test:architecture:module-bootstrap-recovery",
+        "test:architecture:module-capability-publication",
+        "test:architecture:runtime-mutation-commit"
+      ],
+      "directPermanentRegressions": [
+        "scene-v2-boundary",
+        "scene-v2-scope-navigation"
+      ],
+      "directSupportingGates": [
+        "scene-v2-lifecycle.integration"
+      ],
+      "strengths": [
+        "Runtime Node/Component and module lifecycle/reentrancy/revocation plus Scene disable/re-enable are strongly tested.",
+        "C001.1-A establishes a backend-independent ownership zone in which future lifecycle contracts can live without Scratch/React/DOM dependencies."
+      ],
+      "gaps": [
+        "No unified full lifecycle harness across all systems.",
+        "No generic leak accounting for Timer/Listener/Worker/DOM/Resource.",
+        "Device Lost/Restore and Hot Reload lifecycle are not generically gated."
+      ],
+      "promotionSources": [
+        "module bootstrap/recovery/publication corpus",
+        "Scene V2 disable/re-enable corpus",
+        "runtime node/component lifecycle validators"
+      ],
+      "c0011Work": [
+        "C001.1-A Semantic Ownership Zone / Core Boundary"
+      ],
+      "c0011ExitCriteria": [
+        "Core lifecycle vocabulary/contracts can exist without Scratch/React/backend imports.",
+        "Existing lifecycle destructive corpus is mapped to stable C001 rule IDs.",
+        "Full leak accounting remains deferred to C001.4."
+      ],
+      "c0011CompletedWork": [
+        "C001.1-A ownership boundary established; lifecycle vocabulary remains deferred."
+      ]
+    },
+    "serialization": {
+      "status": "partial",
+      "evidenceCoverage": "substantial-domain-specific",
+      "genericFoundation": "active-foundation",
+      "enforcement": "active-manual",
+      "blocks0009": false,
+      "blockers": [],
+      "activeArchitectureEntrypoints": [
+        "test:architecture:runtime-node-boundary",
+        "test:architecture:runtime-node-lifecycle",
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:runtime-error-contract",
+        "test:architecture:runtime-mutation-commit"
+      ],
+      "directPermanentRegressions": [
+        "runtime-detached-persistence",
+        "git-sb3-reconstruction",
+        "scene-binary-asset-boundary",
+        "persistent-dto-boundary"
+      ],
+      "directSupportingGates": [
+        "runtime-project-persistence.integration",
+        "git-sb3-vm-load.integration",
+        "scene-v2-lifecycle.integration"
+      ],
+      "strengths": [
+        "Core ngvge-persistent-dto/v1 rejects runtime/non-plain values, cycles and lossy JSON-only structures with structured immutable issues.",
+        "Legacy persistence API delegates to Core so existing Runtime/Scene consumers share one semantic authority.",
+        "Project Persistence validates/clones section payloads through Core instead of JSON stringify/parse sanitization.",
+        "Runtime Node, Scene V2, SB3 and Project Node persistence remain protected by regression/integration evidence.",
+        "Core Schema descriptors now provide versioned metadata authority on top of the Persistent DTO substrate."
+      ],
+      "gaps": [
+        "Schema-aware validation of arbitrary persistent records is deferred to C001.2.",
+        "Repository-wide compile-time PersistentDTO<T> branding is deferred under the frozen R9 TypeScript scope.",
+        "0008.8 remains historical evidence rather than current architecture entrypoint."
+      ],
+      "promotionSources": [
+        "persistent-data.js",
+        "0008.8 historical persistence corpus",
+        "runtime detached persistence",
+        "Scene V2 portable snapshot boundary"
+      ],
+      "c0011Work": [
+        "C001.1-C Persistent DTO Foundation",
+        "C001.1-D Schema Registry Foundation"
+      ],
+      "c0011ExitCriteria": [
+        "Repository-level Persistent DTO validator foundation is active.",
+        "Persistent stable identity is backend-independent.",
+        "Existing plain-data rejection semantics are promoted without weakening fail-closed behavior.",
+        "Schema-aware PersistentDTO branding remains eligible for C001.2 extension."
+      ],
+      "c0011CompletedWork": [
+        "C001.1-B Stable Identity Foundation",
+        "C001.1-C Persistent DTO Foundation",
+        "C001.1-D Schema Registry Foundation"
+      ],
+      "activeConformanceEntrypoints": [
+        "test:conformance:persistent-dto",
+        "test:conformance:c001.1-c"
+      ]
+    },
+    "compatibility": {
+      "status": "partial",
+      "evidenceCoverage": "substantial-domain-specific",
+      "genericFoundation": "scratch-adapter-boundary-foundation-active",
+      "enforcement": "active-manual-import-boundary-plus-scratch-adapter-boundary",
+      "blocks0009": false,
+      "blockers": [],
+      "activeArchitectureEntrypoints": [
+        "test:architecture:module-bootstrap-integrity",
+        "test:architecture:runtime-node-boundary",
+        "test:architecture:runtime-node-lifecycle",
+        "test:conformance:scratch-adapter-boundary"
+      ],
+      "directPermanentRegressions": [
+        "git-sb3-reconstruction",
+        "scene-binary-asset-boundary",
+        "scene-v2-boundary",
+        "scene-v2-scope-navigation",
+        "scratch-adapter-boundary"
+      ],
+      "directSupportingGates": [
+        "git-sb3-vm-load.integration",
+        "scene-v2-lifecycle.integration"
+      ],
+      "strengths": [
+        "C001.1-A establishes an active src/core import/ambient boundary gate with default-deny external dependencies.",
+        "Legacy target-derived Project Node ids are accepted only at compatibility migration boundaries; current Project Node writes are backend-independent.",
+        "C001.1-G promotes the Scratch Adapter boundary into an active/manual ARC-C001 gate independent of the historical task entrypoint.",
+        "Stable BindingId/NodeId persistence, runtime-only targetRuntimeId, target-free immutable binding views and semantic-owner tree projection are machine enforced."
+      ],
+      "gaps": [
+        "No Scratch semantic trace/native comparison foundation."
+      ],
+      "promotionSources": [
+        "0008.7.3 historical Scratch Adapter validator",
+        "SB3 reconstruction regression",
+        "Scene binary boundary",
+        "Scene V2 boundary/scope corpus"
+      ],
+      "c0011Work": [],
+      "c0011ExitCriteria": [
+        "Core Import Boundary Gate prevents Core → Scratch/Backend/Editor leakage.",
+        "Scratch Adapter boundary is active C001 evidence, not historical-only.",
+        "Scratch target.id remains runtime-only and cannot define persistent semantic identity.",
+        "Compatibility objects terminate at adapter/host boundaries."
+      ],
+      "c0011CompletedWork": [
+        "C001.1-A Semantic Ownership Zone / Import Boundary",
+        "C001.1-G Scratch Adapter Boundary Gate"
+      ]
+    }
+  },
+  "c0011MinimumReadiness": [
+    {
+      "requirement": "Import Boundary Gate",
+      "status": "covered",
+      "targetTask": "C001.1-A",
+      "existingEvidence": [
+        "tools/conformance/check-import-boundaries.js",
+        "tools/conformance/check-import-boundaries.self-test.js",
+        "docs/architecture/conformance/import-boundaries.md",
+        "test:conformance:import-boundary"
+      ],
+      "note": "C001.1-A active manual gate: src/core is dependency-closed, bare imports default-deny, non-literal loads and configured ambient backend/editor globals fail closed.",
+      "requiredBefore0009": true
+    },
+    {
+      "requirement": "Persistent DTO Validator",
+      "status": "covered",
+      "targetTask": "C001.1-C",
+      "existingEvidence": [
+        "src/core/persistent/persistent-dto.js",
+        "src/lib/persistence/persistent-data.js",
+        "src/lib/project-inspector/project-persistence.js",
+        "tools/conformance/check-persistent-dto.js",
+        "tools/conformance/check-persistent-dto.self-test.js",
+        "test/regression/contracts/persistent-dto-boundary.js"
+      ],
+      "note": "C001.1-C establishes ngvge-persistent-dto/v1 as Core structural persistence authority; legacy callers delegate to Core and Project Persistence fails closed before cloning.",
+      "requiredBefore0009": true
+    },
+    {
+      "requirement": "Stable Identity Types",
+      "status": "covered",
+      "targetTask": "C001.1-B",
+      "existingEvidence": [
+        "src/core/identity/stable-identity.js",
+        "src/lib/identity/host-stable-id-factory.js",
+        "src/lib/project-nodes/legacy-node-identity-migration.js",
+        "src/lib/project-inspector/project-persistence.js",
+        "tools/conformance/check-stable-identities.js",
+        "test/regression/contracts/project-node-stable-identity.js"
+      ],
+      "note": "C001.1-B establishes canonical backend-independent identity semantics in Core, Host-injected entropy, Project Node v4 ownership and transactional legacy alias migration while preserving R9 TypeScript scope.",
+      "requiredBefore0009": true
+    },
+    {
+      "requirement": "Authority Registry",
+      "status": "covered",
+      "targetTask": "C001.1-E",
+      "existingEvidence": [
+        "src/core/authority/authority-contract.js",
+        "src/core/authority/authority-registry.js",
+        "tools/conformance/check-authority-registry.js",
+        "tools/conformance/check-authority-registry.self-test.js",
+        "test/unit/core/authority/authority-registry.test.js",
+        "test/regression/contracts/authority-registry-boundary.js"
+      ],
+      "note": "C001.1-E establishes ngvge-authority-registration/v1, explicit writer/projection/observer roles, immutable snapshots and fail-closed single-writer-per-StateDomain enforcement.",
+      "requiredBefore0009": true
+    },
+    {
+      "requirement": "Protocol Command foundation",
+      "status": "covered",
+      "targetTask": "C001.1-F",
+      "existingEvidence": [
+        "src/core/protocol/portable-value.js",
+        "src/core/protocol/protocol-dto.js",
+        "tools/conformance/check-protocol-dto.js",
+        "tools/conformance/check-protocol-dto.self-test.js",
+        "test/unit/core/protocol/protocol-dto.test.js",
+        "test/regression/contracts/protocol-dto-boundary.js"
+      ],
+      "note": "C001.1-F establishes ngvge.engine-protocol v1 Command/Query/Event/ProtocolError DTOs, portable value rejection and detached/deep-frozen Query snapshots.",
+      "requiredBefore0009": true
+    },
+    {
+      "requirement": "Schema Registry foundation",
+      "status": "covered",
+      "targetTask": "C001.1-D",
+      "existingEvidence": [
+        "src/core/schema/schema-contract.js",
+        "src/core/schema/schema-registry.js",
+        "tools/conformance/check-schema-registry.js",
+        "tools/conformance/check-schema-registry.self-test.js",
+        "test/unit/core/schema/schema-registry.test.js",
+        "test/regression/contracts/schema-registry-boundary.js"
+      ],
+      "note": "C001.1-D establishes generic append-only versioned Core Schema authority with Persistent DTO-constrained metadata, immutable snapshots, atomic batch registration and fail-closed duplicate/invalid registration.",
+      "requiredBefore0009": true
+    },
+    {
+      "requirement": "Scratch Adapter Boundary Test",
+      "status": "covered",
+      "targetTask": "C001.1-G",
+      "existingEvidence": [
+        "tools/conformance/check-scratch-adapter-boundary.js",
+        "tools/conformance/check-scratch-adapter-boundary.self-test.js",
+        "docs/architecture/conformance/compatibility.md",
+        "test:conformance:scratch-adapter-boundary",
+        "test/regression/contracts/scratch-adapter-boundary.js",
+        "scripts/validate-ngvge-task-0008.7.3.js"
+      ],
+      "note": "C001.1-G promotes the historical 0008.7.3 corpus into an independent active/manual compatibility gate; targetRuntimeId remains runtime-only and compatibility representation terminates at the adapter boundary.",
+      "requiredBefore0009": true
+    }
+  ],
+  "promotionPlan": [
+    {
+      "task": "C001.1-A",
+      "title": "Semantic Ownership Zone / Import Boundary",
+      "priority": 1,
+      "inputs": [
+        "ARC-0001 no-backend-leakage",
+        "compatibility domain gaps"
+      ],
+      "outputs": [
+        "src/core boundary skeleton",
+        "first import boundary gate"
+      ],
+      "status": "browser-validated-complete"
+    },
+    {
+      "task": "C001.1-B",
+      "title": "Stable Identity Foundation",
+      "priority": 2,
+      "inputs": [
+        "ARC-DEBT-0001",
+        "0008 stable Runtime Node identity corpus",
+        "0008.7.3 historical adapter corpus"
+      ],
+      "outputs": [
+        "Core Stable Identity contract",
+        "Host stable-id creation boundary",
+        "Project Node persistence v4",
+        "transactional legacy NodeId alias migration",
+        "ARC-DEBT-0001 resolved"
+      ],
+      "status": "complete"
+    },
+    {
+      "task": "C001.1-C",
+      "title": "Persistent DTO Foundation",
+      "priority": 3,
+      "inputs": [
+        "persistent-data.js",
+        "0008.8 historical persistence corpus"
+      ],
+      "outputs": [
+        "Core Persistent DTO structural validator",
+        "legacy persistence compatibility facade",
+        "Project Persistence fail-closed DTO clone boundary",
+        "persistent-dto-boundary permanent regression"
+      ],
+      "status": "complete"
+    },
+    {
+      "task": "C001.1-D",
+      "title": "Schema Registry Foundation",
+      "priority": 4,
+      "inputs": [
+        "runtime-component-type-registry.js",
+        "component schema/migration validators"
+      ],
+      "outputs": [
+        "generic Core Schema Registry foundation",
+        "ngvge-schema-descriptor/v1",
+        "schema-registry active/manual conformance gate",
+        "schema-registry-boundary permanent regression"
+      ],
+      "status": "complete"
+    },
+    {
+      "task": "C001.1-E",
+      "title": "Authority Registry Foundation",
+      "priority": 5,
+      "inputs": [
+        "capability authority destructive corpus"
+      ],
+      "outputs": [
+        "generic Core StateDomain Authority Registry foundation",
+        "ngvge-authority-registration/v1",
+        "single-writer conflict enforcement",
+        "authority-registry active/manual conformance gate",
+        "authority-registry-boundary permanent regression"
+      ],
+      "status": "complete"
+    },
+    {
+      "task": "C001.1-F",
+      "title": "Protocol DTO Foundation",
+      "priority": 6,
+      "inputs": [
+        "runtime node public API",
+        "structured error/snapshot contracts",
+        "Scene controller JSON boundary"
+      ],
+      "outputs": [
+        "ngvge.engine-protocol v1 Command/Query/Event/ProtocolError DTO foundation",
+        "portable protocol value validator",
+        "detached deep-frozen Query snapshot helper",
+        "protocol-dto active/manual conformance gate",
+        "protocol-dto-boundary permanent regression"
+      ],
+      "status": "complete"
+    },
+    {
+      "task": "C001.1-G",
+      "title": "Scratch Adapter Boundary Gate",
+      "priority": 7,
+      "inputs": [
+        "0008.7.3",
+        "Scene V2 compatibility regressions",
+        "ARC-DEBT-0001 remediation"
+      ],
+      "outputs": [
+        "active Scratch Adapter boundary gate",
+        "self-tested sensitive-zone leakage scanner",
+        "scratch-adapter-boundary permanent regression",
+        "GOV-DEBT-0002 resolved"
+      ],
+      "status": "complete"
+    },
+    {
+      "task": "C001.1-H",
+      "title": "Minimum Baseline Certification",
+      "priority": 8,
+      "inputs": [
+        "C001.1-A through G"
+      ],
+      "outputs": [
+        "machine-validated C001.1 minimum baseline certificate",
+        "cross-matrix governance consistency gate",
+        "c0011-minimum-baseline permanent regression",
+        "0009 unlocked-for-entry decision"
+      ],
+      "status": "complete"
+    }
+  ],
+  "blockingFindings": [],
+  "governanceFindings": [
+    "GOV-DEBT-0001"
+  ],
+  "nextPhase": "0009 Transform System",
+  "acceptanceHotfix": {
+    "id": "ARC-C001.1-A.1",
+    "title": "Capability Teardown Lease Acceptance Hotfix",
+    "status": "browser-validated-complete",
+    "permanentRegression": "module-capability-teardown-lease",
+    "businessCapabilityRevocationPreserved": true,
+    "consumerOwnedTeardownLease": true,
+    "blocksC0011BUntilBrowserRevalidation": false,
+    "browserRevalidatedAt": "2026-08-11"
+  },
+  "resolvedFindings": [
+    {
+      "id": "ARC-DEBT-0001",
+      "resolvedPhase": "ARC-C001.1-B",
+      "resolvedAt": "2026-08-11"
+    },
+    {
+      "id": "GOV-DEBT-0002",
+      "resolvedPhase": "ARC-C001.1-G",
+      "resolvedAt": "2026-08-11"
+    }
+  ],
+  "baselineCertification": {
+    "record": "ARC-C001.1-H",
+    "status": "certified",
+    "certificate": "docs/architecture/ARC-C001.1-H-MINIMUM-BASELINE-CERTIFICATE.json",
+    "entrypoint": "test:conformance:c001.1-h",
+    "minimumCoverage": "7/7",
+    "activeArchitectureWaivers": 0,
+    "blockingFindings": 0,
+    "transform0009Decision": "unlocked-for-entry",
+    "blockingMergePolicyActive": false
+  }
+}

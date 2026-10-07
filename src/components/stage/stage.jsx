@@ -1,0 +1,246 @@
+import PropTypes from 'prop-types';
+import React from 'react';
+import classNames from 'classnames';
+
+import Box from '../box/box.jsx';
+import DOMElementRenderer from '../../containers/dom-element-renderer.jsx';
+import Loupe from '../loupe/loupe.jsx';
+import MonitorList from '../../containers/monitor-list.jsx';
+import TargetHighlight from '../../containers/target-highlight.jsx';
+import Collider2DGizmo from './collider2d-gizmo.jsx';
+import Collider2DDebugToolbar from './collider2d-debug-toolbar.jsx';
+import PerformanceQualityToolbar from './performance-quality-toolbar.jsx';
+import FrameTimeProfilerToolbar from './frame-time-profiler-toolbar.jsx';
+import CharacterController2DDebug from './character-controller2d-debug.jsx';
+import CharacterController2DTestDrive from './character-controller2d-test-drive.jsx';
+import TileMap2DEditor from './tilemap2d-editor.jsx';
+import TileMap2DRenderer from './tilemap2d-renderer.jsx';
+import GreenFlagOverlay from '../../containers/green-flag-overlay.jsx';
+import Question from '../../containers/question.jsx';
+import MicIndicator from '../mic-indicator/mic-indicator.jsx';
+import {STAGE_DISPLAY_SIZES} from '../../lib/layout-constants.js';
+import {getStageDimensions, getMinWidth} from '../../lib/screen-utils.js';
+import {FRAME_PROFILER_CATEGORY, getFrameTimeProfiler} from '../../lib/frame-profiler';
+import styles from './stage.css';
+
+const StageComponent = props => {
+    const {
+        canvas,
+        customStageSize,
+        dragRef,
+        isColorPicking,
+        isDragging,
+        isFullScreen,
+        isPlayerOnly,
+        isStarted,
+        isRtl,
+        colorInfo,
+        micIndicator,
+        question,
+        stageSize,
+        stageDimensionsOverride,
+        selectedNodeId,
+        useEditorDragStyle,
+        vm,
+        onDeactivateColorPicker,
+        onDoubleClick,
+        onQuestionAnswered,
+        ...boxProps
+    } = props;
+
+    const stageDimensions = stageDimensionsOverride || getStageDimensions(stageSize, customStageSize, isFullScreen);
+    const minWidth = stageDimensionsOverride ? stageDimensions.width : getMinWidth(stageSize);
+    const transformStyle = !stageDimensionsOverride && stageDimensions.width < minWidth && !isFullScreen ? {
+        transform: `translateX(${(minWidth - stageDimensions.width) / (isRtl ? -2 : 2)}px)`
+    } : {};
+
+    return (
+        <React.Fragment>
+            <Box
+                className={classNames(
+                    styles.stageWrapper,
+                    {[styles.withColorPicker]: !isFullScreen && isColorPicking},
+                    {[styles.dragging]: isDragging})}
+                onDoubleClick={onDoubleClick}
+                style={isPlayerOnly || stageDimensionsOverride ? null : {
+                    // add 2 because a 1px border is shown around each side of the stage
+                    minWidth: `${minWidth + 2}px`
+                }}
+            >
+                <Box
+                    className={classNames(
+                        styles.stage,
+                        {[styles.fullScreen]: isFullScreen}
+                    )}
+                    style={{
+                        height: stageDimensions.height,
+                        width: stageDimensions.width,
+                        ...transformStyle
+                    }}
+                >
+                    <DOMElementRenderer
+                        domElement={canvas}
+                        style={{
+                            height: stageDimensions.height,
+                            width: stageDimensions.width
+                        }}
+                        {...boxProps}
+                    />
+                    <TileMap2DRenderer
+                        excludeNodeId={!isPlayerOnly && !isFullScreen ? selectedNodeId : null}
+                        stageDimensions={stageDimensions}
+                        vm={vm}
+                    />
+                    <Box className={styles.customOverlays}>
+                        <DOMElementRenderer domElement={props.overlay} />
+                    </Box>
+                    {!isPlayerOnly && !isFullScreen ? (
+                        <React.Fragment>
+                            <React.Profiler
+                                id="ngvge-stage-overlays"
+                                onRender={(id, phase, actualDuration) => {
+                                    const runtime = vm && vm.runtime;
+                                    if (!runtime) return;
+                                    try {
+                                        getFrameTimeProfiler(runtime).recordDuration(
+                                            FRAME_PROFILER_CATEGORY.REACT_OVERLAYS,
+                                            actualDuration,
+                                            1
+                                        );
+                                    } catch { /* profiler is advisory */ }
+                                }}
+                            >
+                                <React.Fragment>
+                                    <TileMap2DEditor
+                                        nodeId={selectedNodeId}
+                                        stageDimensions={stageDimensions}
+                                        vm={vm}
+                                    />
+                                    <Collider2DGizmo
+                                        nodeId={selectedNodeId}
+                                        stageDimensions={stageDimensions}
+                                        vm={vm}
+                                    />
+                                    <CharacterController2DDebug
+                                        nodeId={selectedNodeId}
+                                        stageDimensions={stageDimensions}
+                                        vm={vm}
+                                    />
+                                    <CharacterController2DTestDrive vm={vm} />
+                                    <Collider2DDebugToolbar vm={vm} />
+                                    <PerformanceQualityToolbar vm={vm} />
+                                </React.Fragment>
+                            </React.Profiler>
+                            <FrameTimeProfilerToolbar vm={vm} />
+                        </React.Fragment>
+                    ) : null}
+                    <Box className={styles.monitorWrapper}>
+                        <MonitorList
+                            draggable={useEditorDragStyle}
+                            stageSize={stageDimensions}
+                        />
+                    </Box>
+                    <Box className={styles.frameWrapper}>
+                        <TargetHighlight
+                            className={styles.frame}
+                            stageHeight={stageDimensions.height}
+                            stageWidth={stageDimensions.width}
+                        />
+                    </Box>
+                    {isColorPicking && colorInfo ? (
+                        <Loupe colorInfo={colorInfo} />
+                    ) : null}
+                </Box>
+
+                {/* `stageOverlays` is for items that should *not* have their overflow contained within the stage */}
+                <Box
+                    className={classNames(
+                        styles.stageOverlays,
+                        {[styles.fullScreen]: isFullScreen}
+                    )}
+                    style={transformStyle}
+                >
+                    <div
+                        className={styles.stageBottomWrapper}
+                        style={{
+                            width: stageDimensions.width,
+                            height: stageDimensions.height
+                        }}
+                    >
+                        {micIndicator ? (
+                            <MicIndicator
+                                className={styles.micIndicator}
+                                stageSize={stageDimensions}
+                            />
+                        ) : null}
+                        {question === null ? null : (
+                            <div
+                                className={styles.questionWrapper}
+                                style={{width: stageDimensions.width}}
+                            >
+                                <Question
+                                    question={question}
+                                    onQuestionAnswered={onQuestionAnswered}
+                                />
+                            </div>
+                        )}
+                    </div>
+                    <canvas
+                        className={styles.draggingSprite}
+                        height={0}
+                        ref={dragRef}
+                        width={0}
+                    />
+                </Box>
+                {isStarted ? null : (
+                    <GreenFlagOverlay
+                        className={styles.greenFlagOverlay}
+                        wrapperClass={styles.greenFlagOverlayWrapper}
+                    />
+                )}
+            </Box>
+            {isColorPicking ? (
+                <Box
+                    className={styles.colorPickerBackground}
+                    onClick={onDeactivateColorPicker}
+                />
+            ) : null}
+        </React.Fragment>
+    );
+};
+StageComponent.propTypes = {
+    canvas: PropTypes.instanceOf(Element).isRequired,
+    customStageSize: PropTypes.shape({
+        width: PropTypes.number,
+        height: PropTypes.number
+    }),
+    overlay: PropTypes.instanceOf(Element).isRequired,
+    colorInfo: Loupe.propTypes.colorInfo,
+    dragRef: PropTypes.func,
+    isColorPicking: PropTypes.bool,
+    isDragging: PropTypes.bool,
+    isFullScreen: PropTypes.bool.isRequired,
+    isPlayerOnly: PropTypes.bool,
+    isRtl: PropTypes.bool,
+    isStarted: PropTypes.bool,
+    micIndicator: PropTypes.bool,
+    onDeactivateColorPicker: PropTypes.func,
+    onDoubleClick: PropTypes.func,
+    onQuestionAnswered: PropTypes.func,
+    question: PropTypes.string,
+    selectedNodeId: PropTypes.string,
+    stageSize: PropTypes.oneOf(Object.keys(STAGE_DISPLAY_SIZES)).isRequired,
+    stageDimensionsOverride: PropTypes.shape({
+        width: PropTypes.number,
+        height: PropTypes.number,
+        widthDefault: PropTypes.number,
+        heightDefault: PropTypes.number,
+        scale: PropTypes.number
+    }),
+    useEditorDragStyle: PropTypes.bool,
+    vm: PropTypes.object
+};
+StageComponent.defaultProps = {
+    dragRef: () => {}
+};
+export default StageComponent;

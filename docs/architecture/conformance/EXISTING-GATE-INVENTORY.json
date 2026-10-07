@@ -1,0 +1,1035 @@
+{
+  "schema": "ngvge-arc-c001-existing-gate-inventory/v1",
+  "phase": "ARC-C001.0-B",
+  "updatedAt": "2026-08-10",
+  "sourceBaseline": "NGVGE 0008.9.7 + Scene System V2.1 + ARC-C001.0-A",
+  "scope": {
+    "productionChangesAllowed": false,
+    "gateMigrationAllowed": false,
+    "newConformanceImplementationAllowed": false
+  },
+  "summary": {
+    "architectureEntrypoints": 12,
+    "uniqueActiveArchitectureValidators": 27,
+    "historicalStandaloneValidators": 3,
+    "permanentRegressionContracts": 6,
+    "permanentRegressionDirectArcContracts": 5,
+    "ciWiredArchitectureEntrypoints": 0,
+    "aggregateWiredArchitectureEntrypoints": 0
+  },
+  "executionAuthorityFinding": {
+    "packageArchitectureEntrypointsExist": true,
+    "packageAggregateTestIncludesArchitecture": false,
+    "ciWorkflowIncludesArchitecture": false,
+    "conclusion": "Existing architecture validators are manually invokable evidence, not yet Blocking CI conformance authority."
+  },
+  "architectureEntrypoints": [
+    {
+      "id": "test:architecture:runtime-node-boundary",
+      "command": "node scripts/check-runtime-node-public-boundary.js && node scripts/validate-ngvge-task-0008.9.1.1.js",
+      "validators": [
+        "scripts/check-runtime-node-public-boundary.js",
+        "scripts/validate-ngvge-task-0008.9.1.1.js"
+      ],
+      "domains": [
+        "identity",
+        "protocol",
+        "serialization",
+        "compatibility"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    },
+    {
+      "id": "test:architecture:runtime-node-lifecycle",
+      "command": "node scripts/validate-ngvge-module-bootstrap-integrity.js && node scripts/validate-ngvge-task-0008.9.2.js && node scripts/validate-ngvge-task-0008.9.2.1.js && node scripts/validate-ngvge-task-0008.9.2.2.js && node scripts/validate-ngvge-task-0008.9.2.2.1.js",
+      "validators": [
+        "scripts/validate-ngvge-module-bootstrap-integrity.js",
+        "scripts/validate-ngvge-task-0008.9.2.js",
+        "scripts/validate-ngvge-task-0008.9.2.1.js",
+        "scripts/validate-ngvge-task-0008.9.2.2.js",
+        "scripts/validate-ngvge-task-0008.9.2.2.1.js"
+      ],
+      "domains": [
+        "authority",
+        "protocol",
+        "lifecycle",
+        "serialization",
+        "compatibility"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    },
+    {
+      "id": "test:architecture:runtime-component-boundary",
+      "command": "node scripts/validate-ngvge-task-0008.9.3.js && node scripts/validate-ngvge-task-0008.9.3.1.js && node scripts/validate-ngvge-task-0008.9.3.1.1.js && node scripts/validate-ngvge-task-0008.9.3.1.2.js && node scripts/validate-ngvge-task-0008.9.4.js && node scripts/validate-ngvge-task-0008.9.4.1.js && node scripts/validate-ngvge-task-0008.9.4.1.1.js && node scripts/validate-ngvge-task-0008.9.4.1.2.js && node scripts/validate-ngvge-task-0008.9.4.1.3.js && node scripts/validate-ngvge-task-0008.9.4.1.4.js && node scripts/validate-ngvge-task-0008.9.4.1.5.js && node scripts/validate-ngvge-task-0008.9.4.1.6.js && node scripts/validate-ngvge-service-facade-array-callback-locality.js && node scripts/validate-ngvge-task-0008.9.5.js && node scripts/validate-ngvge-task-0008.9.6.js && node scripts/validate-ngvge-task-0008.9.6.1.js && node scripts/validate-ngvge-task-0008.9.6.1.1.js && node scripts/validate-ngvge-task-0008.9.7.js",
+      "validators": [
+        "scripts/validate-ngvge-task-0008.9.3.js",
+        "scripts/validate-ngvge-task-0008.9.3.1.js",
+        "scripts/validate-ngvge-task-0008.9.3.1.1.js",
+        "scripts/validate-ngvge-task-0008.9.3.1.2.js",
+        "scripts/validate-ngvge-task-0008.9.4.js",
+        "scripts/validate-ngvge-task-0008.9.4.1.js",
+        "scripts/validate-ngvge-task-0008.9.4.1.1.js",
+        "scripts/validate-ngvge-task-0008.9.4.1.2.js",
+        "scripts/validate-ngvge-task-0008.9.4.1.3.js",
+        "scripts/validate-ngvge-task-0008.9.4.1.4.js",
+        "scripts/validate-ngvge-task-0008.9.4.1.5.js",
+        "scripts/validate-ngvge-task-0008.9.4.1.6.js",
+        "scripts/validate-ngvge-service-facade-array-callback-locality.js",
+        "scripts/validate-ngvge-task-0008.9.5.js",
+        "scripts/validate-ngvge-task-0008.9.6.js",
+        "scripts/validate-ngvge-task-0008.9.6.1.js",
+        "scripts/validate-ngvge-task-0008.9.6.1.1.js",
+        "scripts/validate-ngvge-task-0008.9.7.js"
+      ],
+      "domains": [
+        "identity",
+        "schema",
+        "authority",
+        "protocol",
+        "lifecycle",
+        "serialization"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    },
+    {
+      "id": "test:architecture:module-deferred-authority-service-lifetime",
+      "command": "node scripts/validate-ngvge-task-0008.9.4.1.5.js",
+      "validators": [
+        "scripts/validate-ngvge-task-0008.9.4.1.5.js"
+      ],
+      "domains": [
+        "authority",
+        "protocol",
+        "lifecycle"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    },
+    {
+      "id": "test:architecture:cross-boundary-exception-authority",
+      "command": "node scripts/validate-ngvge-task-0008.9.4.1.6.js",
+      "validators": [
+        "scripts/validate-ngvge-task-0008.9.4.1.6.js"
+      ],
+      "domains": [
+        "authority",
+        "protocol"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    },
+    {
+      "id": "test:architecture:runtime-error-contract",
+      "command": "node scripts/validate-ngvge-task-0008.9.5.js",
+      "validators": [
+        "scripts/validate-ngvge-task-0008.9.5.js"
+      ],
+      "domains": [
+        "protocol",
+        "serialization"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    },
+    {
+      "id": "test:architecture:runtime-snapshot-contract",
+      "command": "node scripts/validate-ngvge-task-0008.9.6.js && node scripts/validate-ngvge-task-0008.9.6.1.js && node scripts/validate-ngvge-task-0008.9.6.1.1.js",
+      "validators": [
+        "scripts/validate-ngvge-task-0008.9.6.js",
+        "scripts/validate-ngvge-task-0008.9.6.1.js",
+        "scripts/validate-ngvge-task-0008.9.6.1.1.js"
+      ],
+      "domains": [
+        "identity",
+        "schema",
+        "authority",
+        "protocol"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    },
+    {
+      "id": "test:architecture:module-bootstrap-integrity",
+      "command": "node scripts/validate-ngvge-module-bootstrap-integrity.js",
+      "validators": [
+        "scripts/validate-ngvge-module-bootstrap-integrity.js"
+      ],
+      "domains": [
+        "lifecycle",
+        "compatibility"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    },
+    {
+      "id": "test:architecture:module-bootstrap-recovery",
+      "command": "node scripts/validate-ngvge-module-bootstrap-recovery.js",
+      "validators": [
+        "scripts/validate-ngvge-module-bootstrap-recovery.js"
+      ],
+      "domains": [
+        "authority",
+        "protocol",
+        "lifecycle"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    },
+    {
+      "id": "test:architecture:module-capability-publication",
+      "command": "node scripts/validate-ngvge-module-capability-publication.js",
+      "validators": [
+        "scripts/validate-ngvge-module-capability-publication.js"
+      ],
+      "domains": [
+        "authority",
+        "protocol",
+        "lifecycle"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    },
+    {
+      "id": "test:architecture:runtime-mutation-commit",
+      "command": "node scripts/validate-ngvge-task-0008.9.7.js",
+      "validators": [
+        "scripts/validate-ngvge-task-0008.9.7.js"
+      ],
+      "domains": [
+        "authority",
+        "protocol",
+        "lifecycle",
+        "serialization"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    },
+    {
+      "id": "test:architecture:service-facade-array-callback-locality",
+      "command": "node scripts/validate-ngvge-service-facade-array-callback-locality.js",
+      "validators": [
+        "scripts/validate-ngvge-service-facade-array-callback-locality.js"
+      ],
+      "domains": [
+        "authority",
+        "protocol"
+      ],
+      "aggregateTestWired": false,
+      "ciWorkflowWired": false,
+      "blocking": false,
+      "note": "Manually invokable; not called by package `test` or `.github/workflows/node.js.yml`."
+    }
+  ],
+  "validatorAssets": [
+    {
+      "id": "check-runtime-node-public-boundary",
+      "path": "scripts/check-runtime-node-public-boundary.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-node-boundary"
+      ],
+      "primaryDomains": [
+        "protocol"
+      ],
+      "secondaryDomains": [
+        "compatibility"
+      ],
+      "summary": "Rejects legacy first-party Runtime Node aliases outside compatibility-owned surfaces."
+    },
+    {
+      "id": "validate-ngvge-module-bootstrap-integrity",
+      "path": "scripts/validate-ngvge-module-bootstrap-integrity.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-node-lifecycle",
+        "test:architecture:module-bootstrap-integrity"
+      ],
+      "primaryDomains": [
+        "lifecycle"
+      ],
+      "secondaryDomains": [
+        "compatibility"
+      ],
+      "summary": "Verifies import-safe lifecycle constants and registered/default module bootstrap state."
+    },
+    {
+      "id": "validate-ngvge-module-bootstrap-recovery",
+      "path": "scripts/validate-ngvge-module-bootstrap-recovery.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:module-bootstrap-recovery"
+      ],
+      "primaryDomains": [
+        "lifecycle",
+        "authority"
+      ],
+      "secondaryDomains": [
+        "protocol"
+      ],
+      "summary": "Verifies failed initialize/enable/registration recovery without stale capability authority."
+    },
+    {
+      "id": "validate-ngvge-module-capability-publication",
+      "path": "scripts/validate-ngvge-module-capability-publication.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:module-capability-publication"
+      ],
+      "primaryDomains": [
+        "authority",
+        "lifecycle"
+      ],
+      "secondaryDomains": [
+        "protocol"
+      ],
+      "summary": "Restricts capability publication to the authorized hook frame and current registration generation."
+    },
+    {
+      "id": "validate-ngvge-service-facade-array-callback-locality",
+      "path": "scripts/validate-ngvge-service-facade-array-callback-locality.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:service-facade-array-callback-locality"
+      ],
+      "primaryDomains": [
+        "protocol",
+        "authority"
+      ],
+      "secondaryDomains": [],
+      "summary": "Keeps consumer callbacks local while retained facade methods remain provider-generation revocable."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.1.1",
+      "path": "scripts/validate-ngvge-task-0008.9.1.1.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-node-boundary"
+      ],
+      "primaryDomains": [
+        "protocol",
+        "serialization"
+      ],
+      "secondaryDomains": [
+        "identity"
+      ],
+      "summary": "Freezes exact portable Runtime Node capability surface, portable args/results and structured mutation results."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.2",
+      "path": "scripts/validate-ngvge-task-0008.9.2.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-node-lifecycle"
+      ],
+      "primaryDomains": [
+        "lifecycle"
+      ],
+      "secondaryDomains": [
+        "protocol",
+        "serialization"
+      ],
+      "summary": "Validates Runtime Node/Component lifecycle ordering, scene activation, error isolation, portable events and restore derivation."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.2.1",
+      "path": "scripts/validate-ngvge-task-0008.9.2.1.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-node-lifecycle"
+      ],
+      "primaryDomains": [
+        "lifecycle",
+        "authority"
+      ],
+      "secondaryDomains": [
+        "protocol"
+      ],
+      "summary": "Validates lifecycle reentrancy and runtime generation closure against stale mutations."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.2.2",
+      "path": "scripts/validate-ngvge-task-0008.9.2.2.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-node-lifecycle"
+      ],
+      "primaryDomains": [
+        "lifecycle",
+        "protocol"
+      ],
+      "secondaryDomains": [
+        "authority"
+      ],
+      "summary": "Closes observation/reentrant lifecycle mutation boundaries."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.2.2.1",
+      "path": "scripts/validate-ngvge-task-0008.9.2.2.1.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-node-lifecycle"
+      ],
+      "primaryDomains": [
+        "lifecycle",
+        "authority"
+      ],
+      "secondaryDomains": [],
+      "summary": "Rejects forbidden local-host disposal before cleanup side effects."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.3",
+      "path": "scripts/validate-ngvge-task-0008.9.3.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary"
+      ],
+      "primaryDomains": [
+        "identity",
+        "schema"
+      ],
+      "secondaryDomains": [
+        "serialization",
+        "lifecycle"
+      ],
+      "summary": "Freezes component identity/schema/ownership persistence and detached snapshot rules."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.3.1",
+      "path": "scripts/validate-ngvge-task-0008.9.3.1.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary"
+      ],
+      "primaryDomains": [
+        "identity",
+        "schema",
+        "serialization"
+      ],
+      "secondaryDomains": [
+        "authority"
+      ],
+      "summary": "Closes component identity/cardinality/persistence semantics and portable references."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.3.1.1",
+      "path": "scripts/validate-ngvge-task-0008.9.3.1.1.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary"
+      ],
+      "primaryDomains": [
+        "schema",
+        "authority"
+      ],
+      "secondaryDomains": [
+        "serialization"
+      ],
+      "summary": "Validates component cardinality authority transitions before commit/persistence."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.3.1.2",
+      "path": "scripts/validate-ngvge-task-0008.9.3.1.2.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary"
+      ],
+      "primaryDomains": [
+        "schema",
+        "authority"
+      ],
+      "secondaryDomains": [],
+      "summary": "Protects component registry binding ownership from conflicts/stale bindings."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.4",
+      "path": "scripts/validate-ngvge-task-0008.9.4.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary"
+      ],
+      "primaryDomains": [
+        "schema",
+        "authority"
+      ],
+      "secondaryDomains": [
+        "serialization"
+      ],
+      "summary": "Validates component schema versions, migration graph authority and persistent representation."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.4.1",
+      "path": "scripts/validate-ngvge-task-0008.9.4.1.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary"
+      ],
+      "primaryDomains": [
+        "schema",
+        "lifecycle",
+        "authority"
+      ],
+      "secondaryDomains": [],
+      "summary": "Isolates migration bootstrap/execution to valid lifecycle and registry authority."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.4.1.1",
+      "path": "scripts/validate-ngvge-task-0008.9.4.1.1.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary"
+      ],
+      "primaryDomains": [
+        "authority",
+        "lifecycle"
+      ],
+      "secondaryDomains": [
+        "schema"
+      ],
+      "summary": "Prevents failed module enable batches from leaking partial registry/capability state."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.4.1.2",
+      "path": "scripts/validate-ngvge-task-0008.9.4.1.2.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary"
+      ],
+      "primaryDomains": [
+        "lifecycle",
+        "authority"
+      ],
+      "secondaryDomains": [
+        "protocol"
+      ],
+      "summary": "Validates completion reentrancy and observer failure isolation."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.4.1.3",
+      "path": "scripts/validate-ngvge-task-0008.9.4.1.3.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary"
+      ],
+      "primaryDomains": [
+        "lifecycle",
+        "authority"
+      ],
+      "secondaryDomains": [],
+      "summary": "Rejects module lifecycle mutation outside authorized execution phases."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.4.1.4",
+      "path": "scripts/validate-ngvge-task-0008.9.4.1.4.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary"
+      ],
+      "primaryDomains": [
+        "authority",
+        "protocol"
+      ],
+      "secondaryDomains": [
+        "lifecycle"
+      ],
+      "summary": "Separates host/client authority surfaces and blocks retained host mutable authority."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.4.1.5",
+      "path": "scripts/validate-ngvge-task-0008.9.4.1.5.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:module-deferred-authority-service-lifetime"
+      ],
+      "primaryDomains": [
+        "authority",
+        "lifecycle"
+      ],
+      "secondaryDomains": [
+        "protocol"
+      ],
+      "summary": "Revokes deferred/stale service access across module generations/provider lifetime."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.4.1.6",
+      "path": "scripts/validate-ngvge-task-0008.9.4.1.6.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:cross-boundary-exception-authority"
+      ],
+      "primaryDomains": [
+        "protocol",
+        "authority"
+      ],
+      "secondaryDomains": [],
+      "summary": "Sanitizes cross-boundary exceptions without leaking thrown objects, handles or authority tokens."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.5",
+      "path": "scripts/validate-ngvge-task-0008.9.5.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:runtime-error-contract"
+      ],
+      "primaryDomains": [
+        "protocol",
+        "serialization"
+      ],
+      "secondaryDomains": [],
+      "summary": "Freezes portable Runtime Error public records and excludes stack/cause/raw thrown values."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.6",
+      "path": "scripts/validate-ngvge-task-0008.9.6.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:runtime-snapshot-contract"
+      ],
+      "primaryDomains": [
+        "protocol",
+        "authority"
+      ],
+      "secondaryDomains": [
+        "identity"
+      ],
+      "summary": "Defines revision identity, frozen snapshot envelopes, canonical ordering and mixed-revision rejection."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.6.1",
+      "path": "scripts/validate-ngvge-task-0008.9.6.1.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:runtime-snapshot-contract"
+      ],
+      "primaryDomains": [
+        "protocol",
+        "authority"
+      ],
+      "secondaryDomains": [
+        "identity"
+      ],
+      "summary": "Protects revision authority and canonical snapshot semantics from forgery."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.6.1.1",
+      "path": "scripts/validate-ngvge-task-0008.9.6.1.1.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:runtime-snapshot-contract"
+      ],
+      "primaryDomains": [
+        "authority",
+        "protocol"
+      ],
+      "secondaryDomains": [
+        "schema"
+      ],
+      "summary": "Protects internal dispatch/provider graph and private registry/listener authority."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.7",
+      "path": "scripts/validate-ngvge-task-0008.9.7.js",
+      "executionStatus": "active-architecture-validator",
+      "referencedBy": [
+        "test:architecture:runtime-component-boundary",
+        "test:architecture:runtime-mutation-commit"
+      ],
+      "primaryDomains": [
+        "authority",
+        "protocol"
+      ],
+      "secondaryDomains": [
+        "serialization",
+        "lifecycle"
+      ],
+      "summary": "Enforces single-command prepare/commit semantics with no partial state/events on persistence failure."
+    },
+    {
+      "id": "validate-ngvge-task-0008.7.3",
+      "path": "scripts/validate-ngvge-task-0008.7.3.js",
+      "executionStatus": "historical-not-wired",
+      "referencedBy": [],
+      "primaryDomains": [
+        "compatibility",
+        "identity"
+      ],
+      "secondaryDomains": [
+        "serialization",
+        "lifecycle"
+      ],
+      "summary": "Scratch Adapter boundary: stable NodeId/BindingId vs volatile target.id, scene scope, migration and no targetRuntimeId persistence."
+    },
+    {
+      "id": "validate-ngvge-task-0008.8",
+      "path": "scripts/validate-ngvge-task-0008.8.js",
+      "executionStatus": "historical-not-wired",
+      "referencedBy": [],
+      "primaryDomains": [
+        "serialization",
+        "compatibility"
+      ],
+      "secondaryDomains": [
+        "schema",
+        "identity"
+      ],
+      "summary": "Scene Graph persistence review: plain-data validation, future-version protection and Scratch binding persistence."
+    },
+    {
+      "id": "validate-ngvge-task-0008.9.1",
+      "path": "scripts/validate-ngvge-task-0008.9.1.js",
+      "executionStatus": "historical-not-wired",
+      "referencedBy": [],
+      "primaryDomains": [
+        "protocol"
+      ],
+      "secondaryDomains": [
+        "identity",
+        "serialization"
+      ],
+      "summary": "Original Runtime Node API Freeze, superseded by 0008.9.1.1."
+    }
+  ],
+  "permanentRegressionContracts": [
+    {
+      "id": "runtime-detached-persistence",
+      "file": "test/regression/contracts/runtime-detached-persistence.js",
+      "domains": [
+        "identity",
+        "serialization"
+      ],
+      "arcValue": "direct",
+      "summary": "Detached roots/subtrees persist canonically and restore with stable IDs."
+    },
+    {
+      "id": "git-myers-diff",
+      "file": "test/regression/contracts/git-myers-diff.js",
+      "domains": [],
+      "arcValue": "supporting-correctness",
+      "summary": "Algorithm correctness regression; not itself an ARC-0001 invariant."
+    },
+    {
+      "id": "git-sb3-reconstruction",
+      "file": "test/regression/contracts/git-sb3-reconstruction.js",
+      "domains": [
+        "compatibility",
+        "serialization"
+      ],
+      "arcValue": "direct",
+      "summary": "Git working-tree reconstruction preserves Scratch graph/assets and fails closed."
+    },
+    {
+      "id": "scene-binary-asset-boundary",
+      "file": "test/regression/contracts/scene-binary-asset-boundary.js",
+      "domains": [
+        "compatibility",
+        "protocol",
+        "serialization"
+      ],
+      "arcValue": "direct",
+      "summary": "Scratch binary assets cross Scene module boundary only as Base64 strings."
+    },
+    {
+      "id": "scene-v2-boundary",
+      "file": "test/regression/contracts/scene-v2-boundary.js",
+      "domains": [
+        "protocol",
+        "lifecycle",
+        "authority",
+        "compatibility"
+      ],
+      "arcValue": "direct",
+      "summary": "Scene V2 uses primitive JSON controller protocol and safe module disable without UI-held legacy facades."
+    },
+    {
+      "id": "scene-v2-scope-navigation",
+      "file": "test/regression/contracts/scene-v2-scope-navigation.js",
+      "domains": [
+        "identity",
+        "protocol",
+        "compatibility",
+        "lifecycle"
+      ],
+      "arcValue": "direct",
+      "summary": "Protects scene scope projection, explicit Enter Scene navigation and local runtime-tree indexing."
+    }
+  ],
+  "supportingGates": [
+    {
+      "id": "test:smoke",
+      "kind": "smoke",
+      "ciBlocking": true,
+      "domains": [
+        "lifecycle",
+        "compatibility"
+      ],
+      "arcValue": "supporting",
+      "summary": "First-party module bootstrap + minimal Scratch project round-trip."
+    },
+    {
+      "id": "runtime-project-persistence.integration",
+      "kind": "integration",
+      "ciBlocking": true,
+      "domains": [
+        "identity",
+        "serialization"
+      ],
+      "arcValue": "direct-supporting",
+      "summary": "Runtime Node hierarchy persists to Project Source and restores in a new host."
+    },
+    {
+      "id": "git-sb3-vm-load.integration",
+      "kind": "integration",
+      "ciBlocking": true,
+      "domains": [
+        "compatibility",
+        "serialization"
+      ],
+      "arcValue": "direct-supporting",
+      "summary": "Reconstructed SB3 loads in real scratch-vm with block graph intact."
+    },
+    {
+      "id": "scene-v2-lifecycle.integration",
+      "kind": "integration",
+      "ciBlocking": true,
+      "domains": [
+        "lifecycle",
+        "protocol",
+        "compatibility",
+        "serialization"
+      ],
+      "arcValue": "direct-supporting",
+      "summary": "Real VM scene lifecycle and cross-scene projection through primitive controller protocol."
+    },
+    {
+      "id": "test:lint",
+      "kind": "infrastructure",
+      "ciBlocking": true,
+      "domains": [],
+      "arcValue": "supporting-correctness",
+      "summary": "Correctness lint, not semantic conformance."
+    },
+    {
+      "id": "test:typecheck",
+      "kind": "infrastructure",
+      "ciBlocking": true,
+      "domains": [],
+      "arcValue": "supporting-correctness",
+      "summary": "Scoped strict TypeScript, not semantic conformance."
+    },
+    {
+      "id": "test:ci-contract",
+      "kind": "infrastructure",
+      "ciBlocking": true,
+      "domains": [],
+      "arcValue": "governance-support",
+      "summary": "Package manager/lockfile authority."
+    },
+    {
+      "id": "test:gate-contract",
+      "kind": "infrastructure",
+      "ciBlocking": true,
+      "domains": [],
+      "arcValue": "governance-support",
+      "summary": "Smoke/Integration gate presence and CI wiring."
+    }
+  ],
+  "domainCoverage": {
+    "identity": {
+      "status": "partial",
+      "strengths": [
+        "Stable Runtime Node/Component IDs survive persistence and restore.",
+        "Detached persistence and Scene scope regressions protect semantic identity.",
+        "Historical Scratch Adapter gate separates NodeId/BindingId from target.id."
+      ],
+      "gaps": [
+        "No repository-wide branded Stable Identity types.",
+        "No generic Identity Registry conflict gate.",
+        "Scratch Adapter identity gate is historical/not active."
+      ]
+    },
+    "schema": {
+      "status": "partial",
+      "strengths": [
+        "Runtime Component schema/version/cardinality/migration semantics have strong validators."
+      ],
+      "gaps": [
+        "No generic src/core Schema Registry.",
+        "Coverage is Runtime Component-specific.",
+        "No gate requires every persistent semantic record to use a registered versioned schema."
+      ]
+    },
+    "authority": {
+      "status": "partial",
+      "strengths": [
+        "Capability publication/generation/revocation, host-client separation and single-command commit are strongly tested."
+      ],
+      "gaps": [
+        "No generic StateDomain writer/projection/observer Authority Registry.",
+        "No generic double-writer conflict gate.",
+        "No Authority Switch/projection-loop foundation."
+      ]
+    },
+    "protocol": {
+      "status": "partial",
+      "strengths": [
+        "Exact portable Runtime Node API, sanitized errors, frozen snapshots and primitive Scene controller protocol exist."
+      ],
+      "gaps": [
+        "No generic Engine Command/Query/Event DTO foundation.",
+        "No repository-wide Editor mutation→Command rule.",
+        "No generic protocol version negotiation/pagination foundation."
+      ]
+    },
+    "lifecycle": {
+      "status": "partial",
+      "strengths": [
+        "Runtime Node/Component and module lifecycle/reentrancy/revocation plus Scene disable/re-enable are strongly tested."
+      ],
+      "gaps": [
+        "No unified full lifecycle harness across all systems.",
+        "No generic leak accounting for Timer/Listener/Worker/DOM/Resource.",
+        "Device Lost/Restore and Hot Reload lifecycle are not generically gated."
+      ]
+    },
+    "serialization": {
+      "status": "partial",
+      "strengths": [
+        "Existing persistent-data utility rejects non-plain/runtime values and cycles.",
+        "Runtime Node, Scene V2 and SB3 persistence have regression/integration evidence."
+      ],
+      "gaps": [
+        "Persistent-data utility is not yet a formal repository-wide PersistentDTO conformance gate.",
+        "No schema-aware PersistentDTO brand.",
+        "0008.8 persistence validator is historical/not active."
+      ]
+    },
+    "compatibility": {
+      "status": "partial",
+      "strengths": [
+        "Scratch Adapter validator exists historically; SB3 reconstruction and Scene binary boundary are permanent regressions."
+      ],
+      "gaps": [
+        "Scratch Adapter boundary is not active architecture/CI.",
+        "No src/core Import Boundary Gate yet.",
+        "No Scratch semantic trace/native comparison foundation."
+      ]
+    }
+  },
+  "arcC001_1MinimumRequirements": [
+    {
+      "requirement": "Import Boundary Gate",
+      "status": "missing",
+      "evidence": []
+    },
+    {
+      "requirement": "Persistent DTO Validator",
+      "status": "partial-foundation",
+      "evidence": [
+        "src/lib/persistence/persistent-data.js",
+        "scripts/validate-ngvge-task-0008.8.js"
+      ]
+    },
+    {
+      "requirement": "Stable Identity Types",
+      "status": "missing",
+      "evidence": []
+    },
+    {
+      "requirement": "Authority Registry",
+      "status": "missing",
+      "evidence": [
+        "src/lib/first-party-modules/capability-registry.js"
+      ]
+    },
+    {
+      "requirement": "Protocol Command foundation",
+      "status": "missing",
+      "evidence": [
+        "src/lib/runtime-nodes/runtime-node-api-contract.js",
+        "src/lib/scene-system/scene-controller.js"
+      ]
+    },
+    {
+      "requirement": "Schema Registry foundation",
+      "status": "partial-foundation",
+      "evidence": [
+        "src/lib/runtime-nodes/runtime-component-type-registry.js"
+      ]
+    },
+    {
+      "requirement": "Scratch Adapter Boundary Test",
+      "status": "historical-not-active",
+      "evidence": [
+        "scripts/validate-ngvge-task-0008.7.3.js"
+      ]
+    }
+  ],
+  "recommendedPromotions": [
+    {
+      "source": "0008.7.3",
+      "target": "C001.1 Scratch Adapter Boundary",
+      "reason": "Strong stable-vs-volatile identity and Scene Scope corpus."
+    },
+    {
+      "source": "persistent-data.js + 0008.8",
+      "target": "C001.1/C001.2 Persistent DTO",
+      "reason": "Reusable plain-data foundation, but must become generic and active."
+    },
+    {
+      "source": "0008.9.1.1 / 0008.9.5 / 0008.9.6*",
+      "target": "C001 Protocol",
+      "reason": "Portable API/error/snapshot invariants are already mature."
+    },
+    {
+      "source": "0008.9.4.1.3-.1.6 + capability validators",
+      "target": "C001 Authority/Lifecycle",
+      "reason": "Generation/revocation/lifecycle authority semantics are mature destructive corpus."
+    },
+    {
+      "source": "Scene V2 regressions",
+      "target": "C001 Backend Leakage / Capability Boundary",
+      "reason": "Real failures are ideal destructive conformance corpus."
+    }
+  ],
+  "nonConformanceAssets": [
+    {
+      "id": "git-myers-diff",
+      "reason": "Keep as product correctness regression; do not relabel as architecture conformance."
+    },
+    {
+      "id": "lint/typecheck/general smoke",
+      "reason": "Support quality, but do not define ARC semantic conformance."
+    }
+  ]
+}

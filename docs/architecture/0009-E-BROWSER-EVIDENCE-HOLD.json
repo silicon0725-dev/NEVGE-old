@@ -1,0 +1,30 @@
+{
+  "schema": "ngvge-browser-evidence-hold/v1",
+  "id": "EVIDENCE-HOLD-0009-E-BROWSER-POLICY",
+  "date": "2026-08-12",
+  "milestone": "0009 Transform System",
+  "stage": "0009-E",
+  "status": "resolved",
+  "classification": "external-execution-environment",
+  "entrypoint": "test:browser:0009-e",
+  "server": {
+    "url": "http://0.0.0.0:8601/",
+    "startup": "PASS"
+  },
+  "browser": {
+    "requestedUrl": "http://127.0.0.1:8601",
+    "observedLocation": "chrome-error://chromewebdata/",
+    "result": "NGVGE_BROWSER_POLICY_BLOCKED",
+    "message": "Your organization doesn’t allow you to view this site"
+  },
+  "application": {
+    "javascriptReached": false,
+    "applicationErrorObserved": false
+  },
+  "closureRequirement": "Run test:browser:0009-e in a Chromium environment permitted to navigate to the NGVGE editor and obtain PASS evidence.",
+  "architectureWaiver": false,
+  "blocks0009FinalClosure": false,
+  "resolvedAt": "2026-08-12",
+  "resolution": "Browser verification passed in user-local Windows Chrome environment.",
+  "resolutionEvidence": "docs/architecture/0009-E-BROWSER-VERIFICATION-PASS.json"
+}

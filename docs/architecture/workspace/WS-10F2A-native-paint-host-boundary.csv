@@ -1,0 +1,12 @@
+surface,owner,role,status
+Costume/Backdrop host,NGVGE Native Editor,presentation,PRIMARY
+PaintSession,NGVGE,working-copy coordination,STABLE
+ResourceId,NGVGE Resource authority,semantic identity,STABLE
+SVG authoring source,NGVGE Vector document,authoring semantics,STABLE
+SVG-Edit,OSS backend,vector execution,ADAPTER
+Global Asset asset:* id,Resource backend,internal compatibility identity,PRIVATE
+Native costume adoption,Global Asset Resource authority,compatibility normalization,CONTROLLED
+Raster PaintEditorWrapper,Scratch Paint compatibility,raster editing,LEGACY UNTIL WS-10G
+Standalone Better Paint window,Workspace presentation,development/compatibility,NON-PRIMARY
+Project mutation,Project Command Host,reviewed transaction,STABLE
+Renderer/VM raw mutation,Scratch compatibility backend,backend-only,FORBIDDEN FROM VECTOR HOST

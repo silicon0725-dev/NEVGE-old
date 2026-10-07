@@ -1,0 +1,152 @@
+{
+  "task": "Task-0006 — Global Asset Database",
+  "base": "scratch-gui-main-task-0005-with-launcher",
+  "changed_file_count": 15,
+  "checks": [
+    {
+      "name": "JavaScript syntax validation",
+      "status": "PASS"
+    },
+    {
+      "name": "JSX parser validation with TypeScript transpileModule",
+      "status": "PASS"
+    },
+    {
+      "name": "relative import resolution",
+      "status": "PASS"
+    },
+    {
+      "name": "CSS module class coverage",
+      "status": "PASS"
+    },
+    {
+      "name": "global asset capture behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "shared costume attachment behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "global replacement propagation",
+      "status": "PASS"
+    },
+    {
+      "name": "zero-reference asset serialization",
+      "status": "PASS"
+    },
+    {
+      "name": "project and target metadata persistence",
+      "status": "PASS"
+    },
+    {
+      "name": "SB3 archive hydration context",
+      "status": "PASS"
+    },
+    {
+      "name": "git apply --check against Task-0005 baseline",
+      "status": "PASS"
+    },
+    {
+      "name": "patched result byte comparison",
+      "status": "PASS"
+    },
+    {
+      "name": "Jest unit suite",
+      "status": "NOT_RUN",
+      "detail": "The uploaded source archive does not contain node_modules."
+    },
+    {
+      "name": "ESLint and production Webpack build",
+      "status": "NOT_RUN",
+      "detail": "Bun and the GUI dependency tree are unavailable in this runtime."
+    },
+    {
+      "name": "02Engine compiled-project export",
+      "status": "NOT_COVERED",
+      "detail": "Task-0006 targets normal SB3 save/load."
+    },
+    {
+      "name": "Asset operation Undo/Redo",
+      "status": "DEFERRED",
+      "detail": "Task-0005 property history does not yet record global asset database mutations."
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/TASK-0006-GLOBAL-ASSET-DATABASE.md",
+      "bytes": 3109,
+      "sha256": "eaee9d078164488d46ddd9019e97a0d70e6900c5b605433b8461c3d871258df9"
+    },
+    {
+      "path": "src/components/gui/gui.jsx",
+      "bytes": 93071,
+      "sha256": "01bdf66c0a9a647380e5908e7316a4143e665faacf1f574cfaead66379b332bf"
+    },
+    {
+      "path": "src/components/project-explorer/index.js",
+      "bytes": 190,
+      "sha256": "b2e2cbde67080bbaae1b3035db4b3a26641f4d3fe883b15786336884dacc57ec"
+    },
+    {
+      "path": "src/components/project-explorer/project-explorer.css",
+      "bytes": 7539,
+      "sha256": "8fbb0c28fd48ed25fdb54cc50c8a95ccf03510d058408c34561c3f2c30c5e4b1"
+    },
+    {
+      "path": "src/components/project-explorer/project-explorer.jsx",
+      "bytes": 22475,
+      "sha256": "2043e8f55ba938c0457434e18b3dd38b75f623054658f918dd03b000235ccdb3"
+    },
+    {
+      "path": "src/components/project-inspector/project-inspector.jsx",
+      "bytes": 31921,
+      "sha256": "8bf092b8f0d127ae478a908e83a59d1cba1f1509f00a026e1bc9890788d6713b"
+    },
+    {
+      "path": "src/lib/project-assets/global-asset-database.js",
+      "bytes": 20564,
+      "sha256": "18ccb0cd6a832d4e358d00a6287a14bd853d61d71f11a26520ece94eae178372"
+    },
+    {
+      "path": "src/lib/project-assets/index.js",
+      "bytes": 41,
+      "sha256": "bd8378fffcec94d2dbbc77dd64e6ede3e0121e834d13b3732519e24989971aa6"
+    },
+    {
+      "path": "src/lib/project-inspector/project-persistence.js",
+      "bytes": 11394,
+      "sha256": "21b66927d84a82b070343f6fe1387fbb521a6ef6ea2b0c5bd0a92d8e33150d35"
+    },
+    {
+      "path": "src/lib/vm-listener-hoc.jsx",
+      "bytes": 16382,
+      "sha256": "d59841d86dd88e99ed6ab2dd0ea34df3ad142dd243dcba80dbc11114b7c426bd"
+    },
+    {
+      "path": "src/reducers/project-explorer.js",
+      "bytes": 2553,
+      "sha256": "175676737a55471bad03549b0ddec558f0af59991af82200c9cea274c50240ae"
+    },
+    {
+      "path": "test/unit/components/project-explorer.test.jsx",
+      "bytes": 4577,
+      "sha256": "1e7ab4292633660e896afd94a22c90c7a1e951c3fb674724ce3ec65e7599c3b0"
+    },
+    {
+      "path": "test/unit/lib/project-assets-global-database.test.js",
+      "bytes": 5992,
+      "sha256": "0f1eb3bdc7adaca92733cfe50e8858d4a3e221fdc7d280ae4e350b6246ff7917"
+    },
+    {
+      "path": "test/unit/lib/project-inspector-persistence.test.js",
+      "bytes": 3894,
+      "sha256": "42c7a0706abcfb975ed5ea81b11a721409b2dfa9eb90ccf1347c6b9fffa336c0"
+    },
+    {
+      "path": "test/unit/reducers/project-explorer-reducer.test.js",
+      "bytes": 3555,
+      "sha256": "86d3a29eeb4d637ce8be2ca192e014ba2d0554d124ee199ad7d6877fd2016b0b"
+    }
+  ]
+}

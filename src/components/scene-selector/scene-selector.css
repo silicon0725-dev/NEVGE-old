@@ -1,0 +1,599 @@
+@import "../../css/colors.css";
+@import "../../css/units.css";
+@import "../../css/z-index.css";
+
+.root {
+    position: relative;
+    width: clamp(10rem, 18vw, 14rem);
+    min-width: 10rem;
+    color: $menu-bar-foreground;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 500;
+}
+
+.selector-button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 2.15rem;
+    min-width: 0;
+    padding: 0.22rem 0.55rem 0.22rem 0.28rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 0.62rem;
+    background: rgba(0, 0, 0, 0.14);
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.selector-button:hover,
+.selector-button:focus-visible,
+.selector-button-open {
+    border-color: rgba(255, 255, 255, 0.32);
+    background: rgba(0, 0, 0, 0.22);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.selector-button:disabled {
+    cursor: default;
+    opacity: 0.65;
+}
+
+.selector-button-busy {
+    cursor: progress;
+}
+
+.selector-icon-frame {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: 0.48rem;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.selector-icon,
+.scene-thumbnail-icon {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.25;
+}
+
+.selector-text {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 0 0.45rem;
+    line-height: 1.05;
+}
+
+.selector-eyebrow {
+    margin-bottom: 0.14rem;
+    color: rgba(255, 255, 255, 0.66);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+}
+
+.selector-name {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+[dir="rtl"] .selector-name {
+    text-align: right;
+}
+
+.caret {
+    flex: 0 0 auto;
+    width: 0;
+    height: 0;
+    border-top: 0.34rem solid currentColor;
+    border-right: 0.28rem solid transparent;
+    border-left: 0.28rem solid transparent;
+    opacity: 0.78;
+}
+
+.spinner,
+.spinner-dark {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 2px solid rgba(255, 255, 255, 0.32);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: scene-selector-spin 0.8s linear infinite;
+}
+
+.spinner-dark {
+    width: 0.9rem;
+    height: 0.9rem;
+    border-color: rgba(77, 151, 255, 0.24);
+    border-top-color: $motion-primary;
+}
+
+@keyframes scene-selector-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.panel {
+    position: absolute;
+    top: calc(100% + 0.48rem);
+    left: 0;
+    z-index: 530;
+    width: 22rem;
+    max-width: calc(100vw - 2rem);
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 0.88rem;
+    background: rgba(255, 255, 255, 0.985);
+    color: $text-primary;
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.24), 0 4px 12px rgba(0, 0, 0, 0.12);
+    font-weight: 500;
+}
+
+[dir="rtl"] .panel {
+    right: 0;
+    left: auto;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.8rem 0.85rem 0.72rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(247, 248, 251, 0.96);
+}
+
+.panel-title {
+    color: $text-primary;
+    font-size: 0.88rem;
+    font-weight: 750;
+}
+
+.panel-subtitle {
+    margin-top: 0.12rem;
+    color: $text-primary-transparent;
+    font-size: 0.66rem;
+    font-weight: 600;
+}
+
+.create-button,
+.secondary-button,
+.danger-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.32rem;
+    min-height: 1.9rem;
+    padding: 0 0.65rem;
+    border: 1px solid rgba(77, 151, 255, 0.35);
+    border-radius: 0.5rem;
+    background: rgba(77, 151, 255, 0.1);
+    color: $motion-primary;
+    font-size: 0.68rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.create-button:hover,
+.create-button:focus-visible {
+    border-color: rgba(77, 151, 255, 0.58);
+    background: rgba(77, 151, 255, 0.16);
+    outline: none;
+}
+
+.create-button:disabled,
+.secondary-button:disabled,
+.danger-button:disabled,
+.scene-action-button:disabled,
+.inline-action-button:disabled,
+.scene-main-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.46;
+}
+
+.button-icon {
+    width: 0.82rem;
+    height: 0.82rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-width: 1.7;
+}
+
+.error-banner,
+.busy-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0.65rem 0.75rem 0;
+    padding: 0.55rem 0.62rem;
+    border-radius: 0.52rem;
+    font-size: 0.68rem;
+    line-height: 1.35;
+}
+
+.error-banner {
+    border: 1px solid rgba(212, 65, 74, 0.24);
+    background: rgba(212, 65, 74, 0.08);
+    color: #a72b34;
+}
+
+.busy-banner {
+    border: 1px solid rgba(77, 151, 255, 0.2);
+    background: rgba(77, 151, 255, 0.07);
+    color: $text-primary;
+}
+
+.error-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.error-close-button,
+.inline-action-button,
+.scene-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 1.65rem;
+    height: 1.65rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.42rem;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.error-close-button:hover,
+.inline-action-button:hover,
+.scene-action-button:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.07);
+}
+
+.scene-list {
+    max-height: min(23rem, calc(100vh - 10rem));
+    padding: 0.5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.scene-item {
+    display: flex;
+    position: relative;
+    align-items: center;
+    min-height: 3.15rem;
+    margin-bottom: 0.26rem;
+    border: 1px solid transparent;
+    border-radius: 0.62rem;
+    background: transparent;
+    transition: border-color 0.14s ease, background 0.14s ease, opacity 0.14s ease, transform 0.14s ease;
+}
+
+.scene-item:last-child {
+    margin-bottom: 0;
+}
+
+.scene-item:hover {
+    border-color: rgba(0, 0, 0, 0.08);
+    background: rgba(0, 0, 0, 0.035);
+}
+
+.scene-item-active {
+    border-color: rgba(77, 151, 255, 0.3);
+    background: rgba(77, 151, 255, 0.09);
+}
+
+.scene-item-dragging {
+    opacity: 0.38;
+    transform: scale(0.985);
+}
+
+.scene-item-drag-over {
+    border-color: $motion-primary;
+    box-shadow: inset 0 2px 0 $motion-primary;
+}
+
+.drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 1.35rem;
+    height: 2.4rem;
+    color: rgba(87, 94, 117, 0.48);
+    cursor: grab;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.drag-icon {
+    width: 0.85rem;
+    height: 0.85rem;
+    fill: currentColor;
+}
+
+.scene-main-button {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-self: stretch;
+    padding: 0.3rem 0.2rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+[dir="rtl"] .scene-main-button {
+    text-align: right;
+}
+
+.scene-thumbnail {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2.15rem;
+    height: 2.15rem;
+    border: 1px solid rgba(77, 151, 255, 0.16);
+    border-radius: 0.52rem;
+    background: linear-gradient(145deg, rgba(77, 151, 255, 0.11), rgba(153, 102, 255, 0.08));
+    color: $motion-primary;
+}
+
+.scene-details {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 0.55rem;
+}
+
+[dir="rtl"] .scene-details {
+    margin-right: 0.55rem;
+    margin-left: 0;
+}
+
+.scene-name {
+    overflow: hidden;
+    color: $text-primary;
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.scene-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.28rem;
+    min-height: 0.9rem;
+    margin-top: 0.22rem;
+}
+
+.active-badge,
+.startup-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.18rem;
+    padding: 0.08rem 0.32rem;
+    border-radius: 999px;
+    font-size: 0.54rem;
+    font-weight: 750;
+    line-height: 1.35;
+}
+
+.active-badge {
+    background: rgba(77, 151, 255, 0.13);
+    color: #276bc8;
+}
+
+.startup-badge {
+    background: rgba(242, 174, 32, 0.15);
+    color: #9a6500;
+}
+
+.badge-icon {
+    width: 0.58rem;
+    height: 0.58rem;
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-linejoin: round;
+    stroke-width: 0.8;
+}
+
+.scene-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.05rem;
+    margin-right: 0.25rem;
+    opacity: 0.58;
+    transition: opacity 0.12s ease;
+}
+
+[dir="rtl"] .scene-actions {
+    margin-right: 0;
+    margin-left: 0.25rem;
+}
+
+.scene-item:hover .scene-actions,
+.scene-item-active .scene-actions,
+.scene-actions:focus-within {
+    opacity: 1;
+}
+
+.scene-action-button {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: rgba(64, 71, 95, 0.78);
+}
+
+.scene-action-button-active {
+    background: rgba(242, 174, 32, 0.13);
+    color: #9a6500;
+}
+
+.scene-action-button-danger:hover:not(:disabled) {
+    background: rgba(212, 65, 74, 0.11);
+    color: #b12f38;
+}
+
+.small-icon {
+    width: 0.82rem;
+    height: 0.82rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.4;
+}
+
+.rename-editor {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 0.25rem;
+    padding: 0.38rem 0.38rem 0.38rem 0.2rem;
+}
+
+.rename-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 1.9rem;
+    padding: 0 0.55rem;
+    border: 1px solid rgba(77, 151, 255, 0.55);
+    border-radius: 0.42rem;
+    background: $ui-white;
+    color: $text-primary;
+    font-family: inherit;
+    font-size: 0.74rem;
+    font-weight: 650;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(77, 151, 255, 0.1);
+}
+
+.delete-confirmation {
+    display: flex;
+    gap: 0.68rem;
+    margin: 0 0.75rem 0.75rem;
+    padding: 0.72rem;
+    border: 1px solid rgba(212, 65, 74, 0.22);
+    border-radius: 0.62rem;
+    background: rgba(212, 65, 74, 0.065);
+}
+
+.delete-confirmation-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.52rem;
+    background: rgba(212, 65, 74, 0.12);
+    color: #b12f38;
+}
+
+.delete-icon {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.35;
+}
+
+.delete-confirmation-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.delete-confirmation-text {
+    color: #71353a;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.42;
+}
+
+.delete-confirmation-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    margin-top: 0.58rem;
+}
+
+.secondary-button,
+.danger-button {
+    min-height: 1.75rem;
+    padding: 0 0.58rem;
+}
+
+.secondary-button {
+    border-color: rgba(0, 0, 0, 0.13);
+    background: rgba(255, 255, 255, 0.72);
+    color: $text-primary;
+}
+
+.danger-button {
+    border-color: #c83a45;
+    background: #c83a45;
+    color: $ui-white;
+}
+
+.secondary-button:hover:not(:disabled),
+.secondary-button:focus-visible {
+    background: $ui-white;
+    outline: none;
+}
+
+.danger-button:hover:not(:disabled),
+.danger-button:focus-visible {
+    border-color: #a92933;
+    background: #a92933;
+    outline: none;
+}
+
+@media (max-width: 1120px) {
+    .root {
+        width: 10.5rem;
+    }
+
+    .selector-eyebrow {
+        display: none;
+    }
+}

@@ -1,0 +1,90 @@
+{
+  "task": "0008.9.2.2",
+  "title": "Lifecycle Observation Boundary Closure",
+  "base": "scratch-gui-main-task-0008.9.2.1-runtime-lifecycle-reentrancy-generation-closure.zip",
+  "sceneSystemVersion": "0.8.9.2.2",
+  "runtimeNodeCapability": "ngvge.runtime-node-model@1.2",
+  "lifecycleContract": "ngvge.runtime-node-lifecycle@1",
+  "persistentFormat": 1,
+  "added": [
+    {
+      "path": "docs/TASK-0008.9.2.2-LIFECYCLE-OBSERVATION-BOUNDARY-CLOSURE.md",
+      "sha256": "92a3564ab2cbcef4ab6149c5742cac9f31873a121e1b9bd37669e59e1dfde8aa"
+    },
+    {
+      "path": "scripts/validate-ngvge-task-0008.9.2.2.js",
+      "sha256": "fb4453eaee8848fa4c055d89a0b6d0afc8c348cfdd5bb968e246f8f84c0ae98c"
+    },
+    {
+      "path": "src/lib/runtime-nodes/runtime-node-lifecycle-observation.js",
+      "sha256": "70dc12a0a1fe222336ae99e19dba4a75707dc9a912c3f97b5ad0886746e1d0f6"
+    },
+    {
+      "path": "test/unit/lib/runtime-nodes/runtime-node-lifecycle-observation-boundary.test.js",
+      "sha256": "9d356ce09ac894282374e9dcdaaedb372f2a604ab582aceb88f351418f190757"
+    }
+  ],
+  "modified": [
+    {
+      "path": "docs/TASK-0008.9.2-RUNTIME-NODE-LIFECYCLE-CONFORMANCE.md",
+      "sha256": "b841d15af66b90e5a523bf1a2063013134b4dcbf59d0d5be68017b1fde2cf6c2"
+    },
+    {
+      "path": "docs/ngvge/runtime-node-model.md",
+      "sha256": "f66b68a47af38e5be21ba25ab20f2be91ffcff7459b1fea253ae36fc9dc97f32"
+    },
+    {
+      "path": "docs/ngvge/scene-system-first-party-module.md",
+      "sha256": "bfa7fd0ce08dbb22545a4e13f52fd3906cdac3d0ecffdc3c388d005c9e474f28"
+    },
+    {
+      "path": "docs/ngvge/scratch-sprite-node-adapter.md",
+      "sha256": "d9f987efeeb794a0d37e8377b76a3debeb5a537766c9ef6fd753c9bc3713f28d"
+    },
+    {
+      "path": "package.json",
+      "sha256": "8a3b48506203ccea2da36433861a6ce7ea4d5f8744ea7d1779fa7ca63a030d58"
+    },
+    {
+      "path": "scripts/validate-ngvge-task-0008.9.2.1.js",
+      "sha256": "378578756d1a4805606a50287a112eb3fa6edc9e32abaf98680d034767df4306"
+    },
+    {
+      "path": "scripts/validate-ngvge-task-0008.9.2.js",
+      "sha256": "ac685f8b2e7a2b189169ddfe3fefbd0a0226eb0e82a4d7d7e1b15134da67d66f"
+    },
+    {
+      "path": "src/lib/runtime-nodes/component-container.js",
+      "sha256": "6dbd241e7eae11599f1be0037ce8b24a96cab0176d25a1aead46b359e5a6d492"
+    },
+    {
+      "path": "src/lib/runtime-nodes/index.js",
+      "sha256": "cd32cfdd595bc111288a144bbb02b4842d566c20f4fc2dec2ae0162331f68a5b"
+    },
+    {
+      "path": "src/lib/runtime-nodes/runtime-node-graph.js",
+      "sha256": "d4f0a707f23bbf7525550ed1c2c458b3cc0580bf512a4ceef31fa4fb0f61496b"
+    },
+    {
+      "path": "src/lib/runtime-nodes/runtime-node-lifecycle.js",
+      "sha256": "96e423015e5c6867049bc367197bd7ae0cb559ad94b946eb454497c54d7c64a5"
+    },
+    {
+      "path": "src/lib/runtime-nodes/runtime-node-model-service.js",
+      "sha256": "a98c9fec10de20900fe6045579c0a7c1fbf79e450e6a9a94f62e17f054d78a6c"
+    },
+    {
+      "path": "src/lib/runtime-nodes/runtime-node.js",
+      "sha256": "d10af43709e17ee2ac100e6363b69906b56fbe04b140b259b0da6603c3cf89af"
+    },
+    {
+      "path": "src/lib/scene-system/module-definition.js",
+      "sha256": "816513b8e8eb00c30a2e2ca50a78d95ad1fd92a9c35c67cdca6613e3ba086382"
+    },
+    {
+      "path": "test/unit/lib/runtime-nodes/runtime-node-lifecycle-reentrancy-generation.test.js",
+      "sha256": "9b25b1adc738ff0160f6c38e0281a86567e97fddd9f60f1603c69b47cfcb50cb"
+    }
+  ],
+  "removed": []
+}

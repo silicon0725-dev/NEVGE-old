@@ -1,0 +1,1448 @@
+diff --git a/docs/TASK-0007.2.3-NODE-WORKFLOW-REFINEMENT.md b/docs/TASK-0007.2.3-NODE-WORKFLOW-REFINEMENT.md
+new file mode 100644
+index 0000000..d6e608d
+--- /dev/null
++++ b/docs/TASK-0007.2.3-NODE-WORKFLOW-REFINEMENT.md
+@@ -0,0 +1,59 @@
++# Task-0007.2.3 — Node Workflow Refinement
++
++## User-visible goal
++
++Refine the NES Studio node workflow around a Godot-style scene tree:
++
++- The Create New Node dialog is rendered above every floating editor window.
++- A blank project starts with only the required Scratch Stage backend and no demo sprites or scripts.
++- The empty scene tree offers three root presets: 2D Node, User Interface Node, and a disabled 3D Node placeholder.
++- Right-click creation uses one Add Node / Add Child Node command and opens a searchable node picker containing every registered node type.
++- Node context menus provide common tree operations such as rename, duplicate, enable/disable, reparent, expand/collapse, and delete.
++
++## Non-goals
++
++- No 3D runtime or Node3D implementation.
++- No physical collision solving or physics simulation.
++- No replacement of Scratch VM's mandatory Stage target.
++- No online node marketplace.
++
++## Data model
++
++The node persistence schema remains compatible with Task-0007.2. The only database capability added is deep subtree duplication. No stored project migration is required.
++
++## Editor integration
++
++- Node dialogs and context menus use a document-body portal to escape floating-window stacking contexts.
++- The Create New Node dialog can browse all node families when no family filter is supplied.
++- Empty root presets are shown only when there are no custom NGVGE nodes and no Scratch sprite targets.
++- Existing Stage/Sprite target nodes remain protected from rename, duplicate, disable, reparent, and delete operations.
++
++## Blank project behavior
++
++The built-in default project now contains:
++
++- one Stage target;
++- one blank backdrop required by Scratch VM;
++- zero sprites;
++- zero scripts;
++- zero variables, lists, broadcasts, and sounds.
++
++The legacy `override-default-project.sb3` and `02engine.svg` demo assets are no longer loaded.
++
++## Compatibility
++
++- Existing SB3 projects still load normally.
++- Existing NGVGE node metadata remains unchanged.
++- The blank built-in project affects only newly opened default sessions.
++- User-defined custom default projects are not modified.
++
++## Acceptance checklist
++
++1. Start NES Studio with no project loaded and confirm there are no demo sprites.
++2. Confirm the empty node area shows 2D, User Interface, and disabled 3D root presets.
++3. Create a 2D root and confirm the presets disappear.
++4. Right-click a node and choose Add Child Node.
++5. Confirm the node picker is above Stage, Asset Workspace, Inspector, and other floating windows.
++6. Search for Collider2D and create it as a child.
++7. Test Rename, Duplicate, Enable/Disable, Reparent to Scene Root, Expand/Collapse, and Delete.
++8. Save and reload the project and confirm the hierarchy remains intact.
+diff --git a/src/components/project-explorer/project-explorer.css b/src/components/project-explorer/project-explorer.css
+index afc5ff4..5715930 100644
+--- a/src/components/project-explorer/project-explorer.css
++++ b/src/components/project-explorer/project-explorer.css
+@@ -580,7 +580,7 @@
+ 
+ .node-dialog-backdrop {
+     position: fixed;
+-    z-index: 10000;
++    z-index: 2147483000;
+     inset: 0;
+     display: flex;
+     align-items: center;
+@@ -826,10 +826,107 @@
+     cursor: default;
+ }
+ 
++.node-type-group {
++    margin-bottom: 0.75rem;
++}
++
++.node-type-group-title {
++    display: flex;
++    align-items: baseline;
++    justify-content: space-between;
++    gap: 0.5rem;
++    padding: 0.15rem 0.35rem 0.4rem;
++    color: $text-primary-transparent;
++    font-size: 0.54rem;
++    letter-spacing: 0.04em;
++    text-transform: uppercase;
++}
++
++.node-type-group-title strong {
++    overflow: hidden;
++    color: $text-primary;
++    font-size: 0.58rem;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.node-type-badges {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 0.35rem;
++    margin-top: 0.75rem;
++}
++
++.node-type-badges span {
++    padding: 0.22rem 0.42rem;
++    border-radius: 999px;
++    background: rgba(77, 151, 255, 0.1);
++    color: $motion-primary;
++    font-size: 0.55rem;
++    font-weight: 700;
++}
++
++.rename-node-dialog {
++    display: flex;
++    width: min(28rem, calc(100vw - 3rem));
++    flex-direction: column;
++    overflow: hidden;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.75rem;
++    background: $ui-white;
++    box-shadow: 0 1.2rem 3.5rem rgba(0, 0, 0, 0.32);
++}
++
++.rename-node-body {
++    padding: 1rem;
++}
++
++.rename-node-body label {
++    display: flex;
++    flex-direction: column;
++    gap: 0.4rem;
++    color: $text-primary;
++    font-size: 0.65rem;
++    font-weight: 700;
++}
++
++.rename-node-body input {
++    width: 100%;
++    height: 2.15rem;
++    padding: 0 0.65rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.45rem;
++    background: $ui-white;
++    color: $text-primary;
++    font: inherit;
++}
++
++.rename-node-body input:focus {
++    border-color: $motion-primary;
++    outline: none;
++    box-shadow: 0 0 0 2px rgba(77, 151, 255, 0.12);
++}
++
++.node-context-separator {
++    height: 1px;
++    margin: 0.3rem 0.35rem;
++    background: $ui-black-transparent;
++}
++
++.node-context-menu .node-context-danger {
++    color: #d43c3c;
++}
++
++.node-context-menu .node-context-danger:hover:not(:disabled),
++.node-context-menu .node-context-danger:focus-visible:not(:disabled) {
++    background: rgba(212, 60, 60, 0.1);
++    color: #d43c3c;
++}
++
+ .node-context-menu {
+     position: fixed;
+-    z-index: 10020;
+-    width: 14rem;
++    z-index: 2147482900;
++    width: 15rem;
+     padding: 0.35rem;
+     border: 1px solid $ui-black-transparent;
+     border-radius: 0.5rem;
+diff --git a/src/components/project-explorer/project-explorer.jsx b/src/components/project-explorer/project-explorer.jsx
+index f12d667..07e96ff 100644
+--- a/src/components/project-explorer/project-explorer.jsx
++++ b/src/components/project-explorer/project-explorer.jsx
+@@ -2,6 +2,7 @@
+ import classNames from 'classnames';
+ import PropTypes from 'prop-types';
+ import React from 'react';
++import ReactDOM from 'react-dom';
+ import {FormattedMessage} from 'react-intl';
+ 
+ import {
+@@ -149,6 +150,15 @@ const NODE_FAMILY_LABELS = {
+     '3d': '3D Nodes'
+ };
+ 
++const Portal = ({children}) => (
++    typeof document !== 'undefined' && document.body ?
++        ReactDOM.createPortal(children, document.body) : children
++);
++
++Portal.propTypes = {
++    children: PropTypes.node.isRequired
++};
++
+ const CreateNodeDialog = props => {
+     const {
+         family,
+@@ -162,15 +172,30 @@ const CreateNodeDialog = props => {
+     const [name, setName] = React.useState('');
+     const searchRef = React.useRef(null);
+     const allTypes = nodeDatabase ? nodeDatabase.listNodeTypes() : [];
+-    const nodeTypes = allTypes.filter(nodeType => (nodeType.family || '2d') === family);
++    const nodeTypes = family ?
++        allTypes.filter(nodeType => (nodeType.family || '2d') === family) : allTypes;
+     const normalizedQuery = query.trim().toLowerCase();
+     const filteredTypes = nodeTypes.filter(nodeType => (
+         !normalizedQuery ||
+         nodeType.label.toLowerCase().includes(normalizedQuery) ||
+         nodeType.category.toLowerCase().includes(normalizedQuery) ||
+-        nodeType.id.toLowerCase().includes(normalizedQuery)
++        nodeType.id.toLowerCase().includes(normalizedQuery) ||
++        (nodeType.pluginId || '').toLowerCase().includes(normalizedQuery)
+     ));
+     const selectedType = filteredTypes.find(nodeType => nodeType.id === selectedTypeId) || filteredTypes[0] || null;
++    const groupedTypes = filteredTypes.reduce((groups, nodeType) => {
++        const groupId = `${nodeType.family || '2d'}:${nodeType.category}`;
++        if (!groups.some(group => group.id === groupId)) {
++            groups.push({
++                category: nodeType.category,
++                family: nodeType.family || '2d',
++                id: groupId,
++                nodeTypes: []
++            });
++        }
++        groups.find(group => group.id === groupId).nodeTypes.push(nodeType);
++        return groups;
++    }, []);
+ 
+     React.useEffect(() => {
+         if (searchRef.current) searchRef.current.focus();
+@@ -194,102 +219,116 @@ const CreateNodeDialog = props => {
+     };
+ 
+     return (
+-        <div className={styles.nodeDialogBackdrop} role="presentation" onMouseDown={onCancel}>
+-            <section
+-                aria-label="Create Node"
+-                aria-modal="true"
+-                className={styles.nodeDialog}
+-                role="dialog"
+-                onMouseDown={event => event.stopPropagation()}
+-            >
+-                <header className={styles.nodeDialogHeader}>
+-                    <div>
+-                        <span>Create Node</span>
+-                        <strong>{NODE_FAMILY_LABELS[family] || family}</strong>
++        <Portal>
++            <div className={styles.nodeDialogBackdrop} role="presentation" onMouseDown={onCancel}>
++                <section
++                    aria-label="Create Node"
++                    aria-modal="true"
++                    className={styles.nodeDialog}
++                    role="dialog"
++                    onMouseDown={event => event.stopPropagation()}
++                >
++                    <header className={styles.nodeDialogHeader}>
++                        <div>
++                            <span>Create New Node</span>
++                            <strong>{NODE_FAMILY_LABELS[family] || 'All Node Types'}</strong>
++                        </div>
++                        <button aria-label="Close" type="button" onClick={onCancel}>×</button>
++                    </header>
++                    <div className={styles.nodeDialogParent}>
++                        {parentNode ? `Add as a child of: ${parentNode.name}` : 'Create as the scene root'}
+                     </div>
+-                    <button aria-label="Close" type="button" onClick={onCancel}>×</button>
+-                </header>
+-                <div className={styles.nodeDialogParent}>
+-                    {parentNode ? `Parent: ${parentNode.name}` : 'Create as a root node'}
+-                </div>
+-                <div className={styles.nodeDialogSearch}>
+-                    <input
+-                        aria-label="Search nodes"
+-                        placeholder="Search nodes..."
+-                        ref={searchRef}
+-                        value={query}
+-                        onChange={event => setQuery(event.target.value)}
+-                    />
+-                </div>
+-                <div className={styles.nodeDialogBody}>
+-                    <nav className={styles.nodeTypeList}>
+-                        {filteredTypes.length ? filteredTypes.map(nodeType => (
+-                            <button
+-                                className={classNames(styles.nodeTypeItem, {
+-                                    [styles.nodeTypeItemSelected]: selectedType && selectedType.id === nodeType.id
+-                                })}
+-                                key={nodeType.id}
+-                                type="button"
+-                                onClick={() => setSelectedTypeId(nodeType.id)}
+-                                onDoubleClick={() => {
+-                                    setSelectedTypeId(nodeType.id);
+-                                    onCreate(nodeType.id, name);
+-                                }}
+-                            >
+-                                <span>{nodeType.icon}</span>
+-                                <div>
+-                                    <strong>{nodeType.label}</strong>
+-                                    <small>{nodeType.category}</small>
+-                                </div>
+-                            </button>
+-                        )) : (
+-                            <div className={styles.nodeTypeEmpty}>No matching nodes.</div>
+-                        )}
+-                    </nav>
+-                    <div className={styles.nodeTypeDetails}>
+-                        {selectedType ? (
+-                            <React.Fragment>
+-                                <div className={styles.nodeTypeHero}>
+-                                    <span>{selectedType.icon}</span>
+-                                    <div>
+-                                        <strong>{selectedType.label}</strong>
+-                                        <small>{selectedType.id}</small>
++                    <div className={styles.nodeDialogSearch}>
++                        <input
++                            aria-label="Search nodes"
++                            placeholder="Search all nodes..."
++                            ref={searchRef}
++                            value={query}
++                            onChange={event => setQuery(event.target.value)}
++                        />
++                    </div>
++                    <div className={styles.nodeDialogBody}>
++                        <nav className={styles.nodeTypeList}>
++                            {groupedTypes.length ? groupedTypes.map(group => (
++                                <section className={styles.nodeTypeGroup} key={group.id}>
++                                    <div className={styles.nodeTypeGroupTitle}>
++                                        <span>{NODE_FAMILY_LABELS[group.family] || group.family}</span>
++                                        <strong>{group.category}</strong>
+                                     </div>
+-                                </div>
+-                                <p>{selectedType.description || `${selectedType.label} node provided by ${selectedType.pluginId || 'NES Studio'}.`}</p>
+-                                <label>
+-                                    Node name
+-                                    <input
+-                                        placeholder={selectedType.label}
+-                                        value={name}
+-                                        onChange={event => setName(event.target.value)}
+-                                        onKeyDown={event => {
+-                                            if (event.key === 'Enter') submit();
+-                                        }}
+-                                    />
+-                                </label>
+-                            </React.Fragment>
+-                        ) : null}
++                                    {group.nodeTypes.map(nodeType => (
++                                        <button
++                                            className={classNames(styles.nodeTypeItem, {
++                                                [styles.nodeTypeItemSelected]: selectedType && selectedType.id === nodeType.id
++                                            })}
++                                            key={nodeType.id}
++                                            type="button"
++                                            onClick={() => setSelectedTypeId(nodeType.id)}
++                                            onDoubleClick={() => {
++                                                setSelectedTypeId(nodeType.id);
++                                                onCreate(nodeType.id, name);
++                                            }}
++                                        >
++                                            <span>{nodeType.icon}</span>
++                                            <div>
++                                                <strong>{nodeType.label}</strong>
++                                                <small>{nodeType.pluginId || 'NES Studio'}</small>
++                                            </div>
++                                        </button>
++                                    ))}
++                                </section>
++                            )) : (
++                                <div className={styles.nodeTypeEmpty}>No matching nodes.</div>
++                            )}
++                        </nav>
++                        <div className={styles.nodeTypeDetails}>
++                            {selectedType ? (
++                                <React.Fragment>
++                                    <div className={styles.nodeTypeHero}>
++                                        <span>{selectedType.icon}</span>
++                                        <div>
++                                            <strong>{selectedType.label}</strong>
++                                            <small>{selectedType.id}</small>
++                                        </div>
++                                    </div>
++                                    <div className={styles.nodeTypeBadges}>
++                                        <span>{NODE_FAMILY_LABELS[selectedType.family || '2d'] || selectedType.family}</span>
++                                        <span>{selectedType.category}</span>
++                                    </div>
++                                    <p>{selectedType.description || `${selectedType.label} node provided by ${selectedType.pluginId || 'NES Studio'}.`}</p>
++                                    <label>
++                                        Node name
++                                        <input
++                                            placeholder={selectedType.label}
++                                            value={name}
++                                            onChange={event => setName(event.target.value)}
++                                            onKeyDown={event => {
++                                                if (event.key === 'Enter') submit();
++                                            }}
++                                        />
++                                    </label>
++                                </React.Fragment>
++                            ) : null}
++                        </div>
+                     </div>
+-                </div>
+-                <footer className={styles.nodeDialogFooter}>
+-                    <button type="button" onClick={onCancel}>Cancel</button>
+-                    <button
+-                        className={styles.nodeDialogCreateButton}
+-                        disabled={!selectedType}
+-                        type="button"
+-                        onClick={submit}
+-                    >
+-                        Create
+-                    </button>
+-                </footer>
+-            </section>
+-        </div>
++                    <footer className={styles.nodeDialogFooter}>
++                        <button type="button" onClick={onCancel}>Cancel</button>
++                        <button
++                            className={styles.nodeDialogCreateButton}
++                            disabled={!selectedType}
++                            type="button"
++                            onClick={submit}
++                        >
++                            Create
++                        </button>
++                    </footer>
++                </section>
++            </div>
++        </Portal>
+     );
+ };
+ 
+ CreateNodeDialog.propTypes = {
+-    family: PropTypes.oneOf(['2d', 'ui', '3d']).isRequired,
++    family: PropTypes.oneOf(['2d', 'ui', '3d']),
+     nodeDatabase: PropTypes.shape({
+         listNodeTypes: PropTypes.func.isRequired
+     }),
+@@ -302,15 +341,100 @@ CreateNodeDialog.propTypes = {
+ };
+ 
+ CreateNodeDialog.defaultProps = {
++    family: null,
+     nodeDatabase: null,
+     parentNode: null
+ };
+ 
+-const EmptyNodeActions = ({onOpen}) => (
++const RenameNodeDialog = ({node, onCancel, onRename}) => {
++    const [name, setName] = React.useState(node.name);
++    const inputRef = React.useRef(null);
++
++    React.useEffect(() => {
++        if (inputRef.current) {
++            inputRef.current.focus();
++            inputRef.current.select();
++        }
++    }, []);
++
++    React.useEffect(() => {
++        const handleKeyDown = event => {
++            if (event.key === 'Escape') onCancel();
++        };
++        document.addEventListener('keydown', handleKeyDown);
++        return () => document.removeEventListener('keydown', handleKeyDown);
++    }, [onCancel]);
++
++    const submit = () => {
++        const nextName = name.trim();
++        if (nextName) onRename(nextName);
++    };
++
++    return (
++        <Portal>
++            <div className={styles.nodeDialogBackdrop} role="presentation" onMouseDown={onCancel}>
++                <section
++                    aria-label="Rename Node"
++                    aria-modal="true"
++                    className={styles.renameNodeDialog}
++                    role="dialog"
++                    onMouseDown={event => event.stopPropagation()}
++                >
++                    <header className={styles.nodeDialogHeader}>
++                        <div>
++                            <span>Node</span>
++                            <strong>Rename Node</strong>
++                        </div>
++                        <button aria-label="Close" type="button" onClick={onCancel}>×</button>
++                    </header>
++                    <div className={styles.renameNodeBody}>
++                        <label>
++                            Node name
++                            <input
++                                ref={inputRef}
++                                value={name}
++                                onChange={event => setName(event.target.value)}
++                                onKeyDown={event => {
++                                    if (event.key === 'Enter') submit();
++                                }}
++                            />
++                        </label>
++                    </div>
++                    <footer className={styles.nodeDialogFooter}>
++                        <button type="button" onClick={onCancel}>Cancel</button>
++                        <button
++                            className={styles.nodeDialogCreateButton}
++                            disabled={!name.trim()}
++                            type="button"
++                            onClick={submit}
++                        >
++                            Rename
++                        </button>
++                    </footer>
++                </section>
++            </div>
++        </Portal>
++    );
++};
++
++RenameNodeDialog.propTypes = {
++    node: PropTypes.shape({
++        id: PropTypes.string.isRequired,
++        name: PropTypes.string.isRequired
++    }).isRequired,
++    onCancel: PropTypes.func.isRequired,
++    onRename: PropTypes.func.isRequired
++};
++
++const EmptyNodeActions = ({onCreatePreset}) => (
+     <div className={styles.emptyNodeActions}>
+-        <p>Create the first NES node for this project.</p>
+-        <button type="button" onClick={() => onOpen('2d')}>◇ <span>2D Node</span></button>
+-        <button type="button" onClick={() => onOpen('ui')}>▤ <span>User Interface Node</span></button>
++        <p>Create the first scene root.</p>
++        <button type="button" onClick={() => onCreatePreset('ngvge.node2d')}>
++            ◇ <span>2D Node</span>
++        </button>
++        <button type="button" onClick={() => onCreatePreset('ngvge.control')}>
++            ▤ <span>User Interface Node</span>
++        </button>
+         <button disabled title="3D node support will be added with the 3D runtime." type="button">
+             ◈ <span>3D Node</span><small>Coming later</small>
+         </button>
+@@ -318,61 +442,119 @@ const EmptyNodeActions = ({onOpen}) => (
+ );
+ 
+ EmptyNodeActions.propTypes = {
+-    onOpen: PropTypes.func.isRequired
++    onCreatePreset: PropTypes.func.isRequired
+ };
+ 
+ const NodeContextMenu = props => {
+-    const {node, nodeType, onClose, onCreateChild, position} = props;
++    const {
++        node,
++        nodeType,
++        onClose,
++        onCollapseBranch,
++        onCreateChild,
++        onDelete,
++        onDuplicate,
++        onExpandBranch,
++        onMakeRoot,
++        onRename,
++        onToggleEnabled,
++        position
++    } = props;
++    const isTargetNode = Boolean(node.targetId);
++    const runAction = action => event => {
++        event.preventDefault();
++        event.stopPropagation();
++        onClose();
++        action();
++    };
++
+     React.useEffect(() => {
+         const close = () => onClose();
+         window.addEventListener('blur', close);
+-        document.addEventListener('mousedown', close);
++        document.addEventListener('pointerdown', close);
+         document.addEventListener('scroll', close, true);
+         return () => {
+             window.removeEventListener('blur', close);
+-            document.removeEventListener('mousedown', close);
++            document.removeEventListener('pointerdown', close);
+             document.removeEventListener('scroll', close, true);
+         };
+     }, [onClose]);
++
+     return (
+-        <div
+-            className={styles.nodeContextMenu}
+-            role="menu"
+-            style={{left: position.x, top: position.y}}
+-            onMouseDown={event => event.stopPropagation()}
+-        >
+-            <div className={styles.nodeContextTitle}>{node.name}</div>
+-            <button
+-                disabled={nodeType && nodeType.allowChildren === false}
+-                role="menuitem"
+-                type="button"
+-                onClick={() => onCreateChild('2d')}
+-            >
+-                + Add 2D Child Node
+-            </button>
+-            <button
+-                disabled={nodeType && nodeType.allowChildren === false}
+-                role="menuitem"
+-                type="button"
+-                onClick={() => onCreateChild('ui')}
++        <Portal>
++            <div
++                className={styles.nodeContextMenu}
++                role="menu"
++                style={{left: position.x, top: position.y}}
++                onPointerDown={event => event.stopPropagation()}
+             >
+-                + Add User Interface Child
+-            </button>
+-            <button disabled role="menuitem" title="3D support is not available yet" type="button">
+-                + Add 3D Child Node
+-            </button>
+-        </div>
++                <div className={styles.nodeContextTitle}>{node.name}</div>
++                <button
++                    disabled={nodeType && nodeType.allowChildren === false}
++                    role="menuitem"
++                    type="button"
++                    onClick={runAction(onCreateChild)}
++                >
++                    + Add Child Node
++                </button>
++                <div className={styles.nodeContextSeparator} />
++                <button disabled={isTargetNode} role="menuitem" type="button" onClick={runAction(onRename)}>
++                    Rename
++                </button>
++                <button disabled={isTargetNode} role="menuitem" type="button" onClick={runAction(onDuplicate)}>
++                    Duplicate
++                </button>
++                <button disabled={isTargetNode} role="menuitem" type="button" onClick={runAction(onToggleEnabled)}>
++                    {node.enabled === false ? 'Enable Node' : 'Disable Node'}
++                </button>
++                <button
++                    disabled={isTargetNode || !node.parentId}
++                    role="menuitem"
++                    type="button"
++                    onClick={runAction(onMakeRoot)}
++                >
++                    Reparent to Scene Root
++                </button>
++                <div className={styles.nodeContextSeparator} />
++                <button role="menuitem" type="button" onClick={runAction(onExpandBranch)}>
++                    Expand Branch
++                </button>
++                <button role="menuitem" type="button" onClick={runAction(onCollapseBranch)}>
++                    Collapse Branch
++                </button>
++                <div className={styles.nodeContextSeparator} />
++                <button
++                    className={styles.nodeContextDanger}
++                    disabled={isTargetNode}
++                    role="menuitem"
++                    type="button"
++                    onClick={runAction(onDelete)}
++                >
++                    Delete Node
++                </button>
++            </div>
++        </Portal>
+     );
+ };
+ 
+ NodeContextMenu.propTypes = {
+     node: PropTypes.shape({
++        enabled: PropTypes.bool,
+         id: PropTypes.string.isRequired,
+-        name: PropTypes.string.isRequired
++        name: PropTypes.string.isRequired,
++        parentId: PropTypes.string,
++        targetId: PropTypes.string
+     }).isRequired,
+     nodeType: PropTypes.shape({allowChildren: PropTypes.bool}),
+     onClose: PropTypes.func.isRequired,
++    onCollapseBranch: PropTypes.func.isRequired,
+     onCreateChild: PropTypes.func.isRequired,
++    onDelete: PropTypes.func.isRequired,
++    onDuplicate: PropTypes.func.isRequired,
++    onExpandBranch: PropTypes.func.isRequired,
++    onMakeRoot: PropTypes.func.isRequired,
++    onRename: PropTypes.func.isRequired,
++    onToggleEnabled: PropTypes.func.isRequired,
+     position: PropTypes.shape({x: PropTypes.number, y: PropTypes.number}).isRequired
+ };
+ 
+@@ -381,42 +563,55 @@ NodeContextMenu.defaultProps = {
+ };
+ 
+ const RootNodeContextMenu = props => {
+-    const {onClose, onCreateRoot, position} = props;
++    const {onClose, onCollapseAll, onCreateRoot, onExpandAll, position} = props;
++    const runAction = action => event => {
++        event.preventDefault();
++        event.stopPropagation();
++        onClose();
++        action();
++    };
++
+     React.useEffect(() => {
+         const close = () => onClose();
+         window.addEventListener('blur', close);
+-        document.addEventListener('mousedown', close);
++        document.addEventListener('pointerdown', close);
+         document.addEventListener('scroll', close, true);
+         return () => {
+             window.removeEventListener('blur', close);
+-            document.removeEventListener('mousedown', close);
++            document.removeEventListener('pointerdown', close);
+             document.removeEventListener('scroll', close, true);
+         };
+     }, [onClose]);
++
+     return (
+-        <div
+-            className={styles.nodeContextMenu}
+-            role="menu"
+-            style={{left: position.x, top: position.y}}
+-            onMouseDown={event => event.stopPropagation()}
+-        >
+-            <div className={styles.nodeContextTitle}>Entities</div>
+-            <button role="menuitem" type="button" onClick={() => onCreateRoot('2d')}>
+-                + Add 2D Root Node
+-            </button>
+-            <button role="menuitem" type="button" onClick={() => onCreateRoot('ui')}>
+-                + Add User Interface Root
+-            </button>
+-            <button disabled role="menuitem" title="3D support is not available yet" type="button">
+-                + Add 3D Root Node
+-            </button>
+-        </div>
++        <Portal>
++            <div
++                className={styles.nodeContextMenu}
++                role="menu"
++                style={{left: position.x, top: position.y}}
++                onPointerDown={event => event.stopPropagation()}
++            >
++                <div className={styles.nodeContextTitle}>Entities</div>
++                <button role="menuitem" type="button" onClick={runAction(onCreateRoot)}>
++                    + Add Node
++                </button>
++                <div className={styles.nodeContextSeparator} />
++                <button role="menuitem" type="button" onClick={runAction(onExpandAll)}>
++                    Expand All
++                </button>
++                <button role="menuitem" type="button" onClick={runAction(onCollapseAll)}>
++                    Collapse All
++                </button>
++            </div>
++        </Portal>
+     );
+ };
+ 
+ RootNodeContextMenu.propTypes = {
+     onClose: PropTypes.func.isRequired,
++    onCollapseAll: PropTypes.func.isRequired,
+     onCreateRoot: PropTypes.func.isRequired,
++    onExpandAll: PropTypes.func.isRequired,
+     position: PropTypes.shape({x: PropTypes.number, y: PropTypes.number}).isRequired
+ };
+ 
+@@ -447,6 +642,7 @@ const ProjectExplorer = props => {
+     const previousEditingTargetIdRef = React.useRef(editingTargetId);
+     const [createNodeRequest, setCreateNodeRequest] = React.useState(null);
+     const [nodeContextMenu, setNodeContextMenu] = React.useState(null);
++    const [renameNodeRequest, setRenameNodeRequest] = React.useState(null);
+ 
+     const assetDatabase = React.useMemo(() => {
+         if (!vm || !vm.runtime) return null;
+@@ -503,17 +699,31 @@ const ProjectExplorer = props => {
+         [nodeDatabase, nodeRevision]
+     );
+     const customNodeCount = allNodes.filter(node => !node.targetId).length;
+-    const openCreateNodeDialog = (family, parentNode = null) => {
+-        if (family === '3d') return;
++    const nonStageEntityCount = entityNodes.filter(node => node.kind !== 'stage').length;
++    const sceneNodeTreeEmpty = customNodeCount === 0 && nonStageEntityCount === 0;
++
++    const openCreateNodeDialog = (parentNode = null, family = null) => {
+         setNodeContextMenu(null);
+-        setCreateNodeRequest({family, parentNode});
++        setCreateNodeRequest({
++            family,
++            parentNodeId: parentNode ? parentNode.id : null
++        });
++    };
++
++    const createPresetRoot = nodeTypeId => {
++        if (!nodeDatabase) return;
++        const node = nodeDatabase.createNode(nodeTypeId, null);
++        onToggleNode(PROJECT_ROOT_NODE_ID, true);
++        onToggleNode(ENTITIES_ROOT_NODE_ID, true);
++        onSelectNode(node.id);
+     };
+ 
+     const createNodeFromDialog = (nodeTypeId, name) => {
+         if (!nodeDatabase || !createNodeRequest) return;
+-        const parentId = createNodeRequest.parentNode ? createNodeRequest.parentNode.id : null;
++        const parentId = createNodeRequest.parentNodeId || null;
+         const node = nodeDatabase.createNode(nodeTypeId, parentId, {name});
+         if (parentId) onToggleNode(parentId, true);
++        onToggleNode(PROJECT_ROOT_NODE_ID, true);
+         onToggleNode(ENTITIES_ROOT_NODE_ID, true);
+         onSelectNode(node.id);
+         setCreateNodeRequest(null);
+@@ -526,14 +736,97 @@ const ProjectExplorer = props => {
+         if (targetNode && targetNode.targetId) onSelectTarget(targetNode.targetId);
+     };
+ 
++    const getBranchIds = nodeId => {
++        if (!nodeDatabase || !nodeId) return [];
++        const ids = [];
++        const visit = currentId => {
++            if (ids.indexOf(currentId) !== -1) return;
++            ids.push(currentId);
++            nodeDatabase.getChildren(currentId).forEach(child => visit(child.id));
++        };
++        visit(nodeId);
++        return ids;
++    };
++
++    const handleExpandBranch = node => {
++        getBranchIds(node.id).forEach(nodeId => onToggleNode(nodeId, true));
++    };
++
++    const handleCollapseBranch = node => {
++        getBranchIds(node.id).reverse().forEach(nodeId => onToggleNode(nodeId, false));
++    };
++
++    const handleExpandAll = () => {
++        if (!nodeDatabase) return;
++        onToggleNode(PROJECT_ROOT_NODE_ID, true);
++        onToggleNode(ENTITIES_ROOT_NODE_ID, true);
++        allNodes.forEach(node => {
++            if (nodeDatabase.getChildren(node.id).length) onToggleNode(node.id, true);
++        });
++    };
++
++    const handleCollapseAll = () => {
++        if (!nodeDatabase) return;
++        allNodes.forEach(node => onToggleNode(node.id, false));
++    };
++
++    const handleDuplicateNode = node => {
++        if (!nodeDatabase || !node || node.targetId) return;
++        const duplicate = nodeDatabase.duplicateNode(node.id);
++        if (!duplicate) return;
++        if (duplicate.parentId) onToggleNode(duplicate.parentId, true);
++        onSelectNode(duplicate.id);
++    };
++
++    const handleToggleNodeEnabled = node => {
++        if (!nodeDatabase || !node || node.targetId) return;
++        nodeDatabase.setNodeEnabled(node.id, node.enabled === false);
++    };
++
++    const handleMakeNodeRoot = node => {
++        if (!nodeDatabase || !node || node.targetId || !node.parentId) return;
++        nodeDatabase.reparentNode(node.id, null);
++        onToggleNode(ENTITIES_ROOT_NODE_ID, true);
++        onSelectNode(node.id);
++    };
++
++    const handleDeleteNode = node => {
++        if (!nodeDatabase || !node || node.targetId) return;
++        const childCount = nodeDatabase.getChildren(node.id).length;
++        const message = childCount ?
++            `Delete "${node.name}" and all of its child nodes?` :
++            `Delete "${node.name}"?`;
++        if (typeof window !== 'undefined' && !window.confirm(message)) return;
++        const parent = node.parentId ? nodeDatabase.getNode(node.parentId) : null;
++        nodeDatabase.deleteNode(node.id);
++        if (parent) {
++            onSelectNode(parent.id);
++        } else if (editingTargetId) {
++            const targetNode = nodeDatabase.getNodeForTarget(editingTargetId);
++            if (targetNode) onSelectNode(targetNode.id);
++        }
++    };
++
++    const handleRenameNode = node => {
++        if (!node || node.targetId) return;
++        setRenameNodeRequest(node);
++    };
++
++    const submitRenameNode = name => {
++        if (!nodeDatabase || !renameNodeRequest) return;
++        const renamed = nodeDatabase.renameNode(renameNodeRequest.id, name);
++        setRenameNodeRequest(null);
++        if (renamed) onSelectNode(renamed.id);
++    };
++
+     const openNodeContextMenu = (event, node) => {
+         event.preventDefault();
+         event.stopPropagation();
+         activateNode(node);
+         setNodeContextMenu({
+             nodeId: node.id,
+-            x: Math.min(event.clientX, window.innerWidth - 230),
+-            y: Math.min(event.clientY, window.innerHeight - 170)
++            x: Math.min(event.clientX, window.innerWidth - 245),
++            y: Math.min(event.clientY, window.innerHeight - 340)
+         });
+     };
+ 
+@@ -563,6 +856,8 @@ const ProjectExplorer = props => {
+ 
+     const contextNode = nodeContextMenu && !nodeContextMenu.root && nodeDatabase ? nodeDatabase.getNode(nodeContextMenu.nodeId) : null;
+     const contextNodeType = contextNode && nodeDatabase ? nodeDatabase.getNodeType(contextNode.typeId) : null;
++    const createNodeParent = createNodeRequest && createNodeRequest.parentNodeId && nodeDatabase ?
++        nodeDatabase.getNode(createNodeRequest.parentNodeId) : null;
+ 
+     return (
+         <React.Fragment>
+@@ -665,8 +960,8 @@ const ProjectExplorer = props => {
+                                 );
+                             }) : null}
+                             {rootCustomNodes.map(node => renderCustomNode(node, 2))}
+-                            {!customNodeCount ? (
+-                                <EmptyNodeActions onOpen={family => openCreateNodeDialog(family, null)} />
++                            {sceneNodeTreeEmpty ? (
++                                <EmptyNodeActions onCreatePreset={createPresetRoot} />
+                             ) : null}
+                         </TreeNode>
+                         <TreeNode
+@@ -712,16 +1007,25 @@ const ProjectExplorer = props => {
+             <CreateNodeDialog
+                 family={createNodeRequest.family}
+                 nodeDatabase={nodeDatabase}
+-                parentNode={createNodeRequest.parentNode}
++                parentNode={createNodeParent}
+                 onCancel={() => setCreateNodeRequest(null)}
+                 onCreate={createNodeFromDialog}
+             />
+         ) : null}
++        {renameNodeRequest ? (
++            <RenameNodeDialog
++                node={renameNodeRequest}
++                onCancel={() => setRenameNodeRequest(null)}
++                onRename={submitRenameNode}
++            />
++        ) : null}
+         {nodeContextMenu && nodeContextMenu.root ? (
+             <RootNodeContextMenu
+                 position={nodeContextMenu}
+                 onClose={() => setNodeContextMenu(null)}
+-                onCreateRoot={family => openCreateNodeDialog(family, null)}
++                onCollapseAll={handleCollapseAll}
++                onCreateRoot={() => openCreateNodeDialog(null, null)}
++                onExpandAll={handleExpandAll}
+             />
+         ) : null}
+         {nodeContextMenu && contextNode ? (
+@@ -730,7 +1034,14 @@ const ProjectExplorer = props => {
+                 nodeType={contextNodeType}
+                 position={nodeContextMenu}
+                 onClose={() => setNodeContextMenu(null)}
+-                onCreateChild={family => openCreateNodeDialog(family, contextNode)}
++                onCollapseBranch={() => handleCollapseBranch(contextNode)}
++                onCreateChild={() => openCreateNodeDialog(contextNode, null)}
++                onDelete={() => handleDeleteNode(contextNode)}
++                onDuplicate={() => handleDuplicateNode(contextNode)}
++                onExpandBranch={() => handleExpandBranch(contextNode)}
++                onMakeRoot={() => handleMakeNodeRoot(contextNode)}
++                onRename={() => handleRenameNode(contextNode)}
++                onToggleEnabled={() => handleToggleNodeEnabled(contextNode)}
+             />
+         ) : null}
+         </React.Fragment>
+diff --git a/src/lib/default-project/02engine.svg b/src/lib/default-project/02engine.svg
+deleted file mode 100644
+index 79df452ad1eb1bb0ba94b68253ef6b45405853ae..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 759
+zcmbV~O>cuR42JLh6_I<{4kHQB52{kB)ubJFn0iK42@s7XRg#wO-_HRyQI%d638dI>
+zp1iTWwwIDzziMSusGK{kC~cZ1Xre%yl7@^iiVEl?t7|RQ=a`TuNkZE!kVfXNN`W&5
+zq!O~MT)(+U(d_g!1x6UbwEut<vaVB5S_#-p)<zs1AzlOIyZt}J8B|3v5L_K&%2+&$
+z@gQ=j2Mu}imdE*@KQH{Xx5Ti=g%}&+cH8aiIBtd)qrV5dIdcBR^Vt5uLx0h-<MCwR
+z?`-O)DK<nLOy&!av5d2fJ>MA4MPacFo$SpVaw(J}GEd?DBzBpnu!sV_h$C!hzwn_L
+zPC`tF<7o`fdBFHALHlKY$zDl^Lv^;oe4GwP@vio^ZLxLwM08PDfrEjC^81&guC+-4
+kTiDf{P;`Bx#1@Sz+n~l9r0WL8pQN`B_L064ew;UxAFOlN!vFvP
+
+diff --git a/src/lib/default-project/README.md b/src/lib/default-project/README.md
+index ee60a72..0eafede 100644
+--- a/src/lib/default-project/README.md
++++ b/src/lib/default-project/README.md
+@@ -1,3 +1,4 @@
+-`dango-cat.svg` was created by https://scratch.mit.edu/users/littlebunny06/ 🍡🐱
++NES Studio starts with a blank Scratch-compatible project.
+ 
+-If `default-project.sb3` is replaced with a non-empty file, it will be used instead of the costumes.
++The built-in project contains only the Stage and the standard blank backdrop asset.
++No demo sprites, scripts, variables, or 02Engine starter content are loaded.
+diff --git a/src/lib/default-project/index.js b/src/lib/default-project/index.js
+index e208ef2..8146e6e 100644
+--- a/src/lib/default-project/index.js
++++ b/src/lib/default-project/index.js
+@@ -1,22 +1,11 @@
+ import projectData from './project-data';
+ 
+ /* eslint-disable import/no-unresolved */
+-import overrideDefaultProject from '!arraybuffer-loader!./override-default-project.sb3';
+ import backdrop from '!raw-loader!./cd21514d0531fdffb22204e0ec5ed84a.svg';
+-import costume1 from '!raw-loader!./02engine.svg';
+ /* eslint-enable import/no-unresolved */
+ import {TextEncoder} from '../tw-text-encoder';
+ 
+ const defaultProject = translator => {
+-    if (overrideDefaultProject.byteLength > 0) {
+-        return [{
+-            id: 0,
+-            assetType: 'Project',
+-            dataFormat: 'JSON',
+-            data: overrideDefaultProject
+-        }];
+-    }
+-
+     let _TextEncoder;
+     if (typeof TextEncoder === 'undefined') {
+         _TextEncoder = require('text-encoding').TextEncoder;
+@@ -36,11 +25,6 @@ const defaultProject = translator => {
+         assetType: 'ImageVector',
+         dataFormat: 'SVG',
+         data: encoder.encode(backdrop)
+-    }, {
+-        id: '927d672925e7b99f7813735c484c6922',
+-        assetType: 'ImageVector',
+-        dataFormat: 'SVG',
+-        data: encoder.encode(costume1)
+     }];
+ };
+ 
+diff --git a/src/lib/default-project/override-default-project.sb3 b/src/lib/default-project/override-default-project.sb3
+deleted file mode 100644
+index 77f086e418b4c6a20a49d6e31f2cdaca5daa5252..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 4854
+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
+NEs6&K)KLF*`XAk}{7L`-
+
+diff --git a/src/lib/default-project/project-data.js b/src/lib/default-project/project-data.js
+index 12dc593..4fb812b 100644
+--- a/src/lib/default-project/project-data.js
++++ b/src/lib/default-project/project-data.js
+@@ -1,23 +1,14 @@
+-import {defineMessages} from 'react-intl';
+ import sharedMessages from '../shared-messages';
+ 
+-let messages = defineMessages({
+-    variable: {
+-        defaultMessage: 'my variable',
+-        description: 'Name for the default variable',
+-        id: 'gui.defaultProject.variable'
+-    }
+-});
+-
+-messages = {...messages, ...sharedMessages};
+-
+-// use the default message if a translation function is not passed
++// Use the default message if a translation function is not passed.
+ const defaultTranslator = msgObj => msgObj.defaultMessage;
+ 
+ /**
+- * Generate a localized version of the default project
+- * @param {function} translateFunction a function to use for translating the default names
+- * @return {object} the project data json for the default project
++ * Generate a localized blank project.
++ * Scratch VM still requires a Stage target and one backdrop asset, but NES Studio
++ * intentionally starts without sprites, scripts, variables, or demo content.
++ * @param {function} translateFunction a function to use for translating default names
++ * @return {object} the project data JSON for the blank project
+  */
+ const projectData = translateFunction => {
+     const translator = translateFunction || defaultTranslator;
+@@ -26,20 +17,16 @@ const projectData = translateFunction => {
+             {
+                 isStage: true,
+                 name: 'Stage',
+-                variables: {
+-                    '`jEk@4|i[#Fk?(8x)AV.-my variable': [
+-                        translator(messages.variable),
+-                        0
+-                    ]
+-                },
++                variables: {},
+                 lists: {},
+                 broadcasts: {},
+                 blocks: {},
++                comments: {},
+                 currentCostume: 0,
+                 costumes: [
+                     {
+                         assetId: 'cd21514d0531fdffb22204e0ec5ed84a',
+-                        name: translator(messages.backdrop, {index: 1}),
++                        name: translator(sharedMessages.backdrop, {index: 1}),
+                         md5ext: 'cd21514d0531fdffb22204e0ec5ed84a.svg',
+                         dataFormat: 'svg',
+                         rotationCenterX: 240,
+@@ -48,45 +35,14 @@ const projectData = translateFunction => {
+                 ],
+                 sounds: [],
+                 volume: 100
+-            },
+-            {
+-                isStage: false,
+-                name: translator(messages.sprite, {index: 1}),
+-                variables: {},
+-                lists: {},
+-                broadcasts: {},
+-                blocks: {},
+-                comments: {},
+-                currentCostume: 0,
+-                costumes: [
+-                    {
+-                        assetId: '927d672925e7b99f7813735c484c6922',
+-                        name: translator(messages.costume, {index: 1}),
+-                        bitmapResolution: 1,
+-                        md5ext: '927d672925e7b99f7813735c484c6922.svg',
+-                        dataFormat: 'svg',
+-                        rotationCenterX: 30.74937882782359,
+-                        rotationCenterY: 58.864768144346826
+-                    }
+-                ],
+-                sounds: [],
+-                volume: 100,
+-                visible: true,
+-                x: 0,
+-                y: 0,
+-                size: 100,
+-                direction: 90,
+-                draggable: false,
+-                rotationStyle: 'all around'
+             }
+         ],
+         meta: {
+             semver: '3.0.0',
+             vm: '0.1.0',
+-            agent: ''
++            agent: 'NES Studio'
+         }
+     });
+ };
+ 
+-
+ export default projectData;
+diff --git a/src/lib/project-nodes/node-database.js b/src/lib/project-nodes/node-database.js
+index fab3448..90e1ad5 100644
+--- a/src/lib/project-nodes/node-database.js
++++ b/src/lib/project-nodes/node-database.js
+@@ -254,6 +254,40 @@ const createNodeDatabase = vm => {
+         });
+     };
+ 
++    const duplicateNode = nodeId => {
++        const sourceNode = nodes.get(nodeId);
++        if (!sourceNode || sourceNode.targetId) return null;
++
++        return mutate(`Duplicate ${sourceNode.name}`, () => {
++            const cloneSubtree = (sourceId, parentId, isRoot = false) => {
++                const source = nodes.get(sourceId);
++                if (!source) return null;
++                const id = createId('node');
++                const clone = {
++                    childIds: [],
++                    enabled: source.enabled !== false,
++                    id,
++                    name: ensureUniqueName(isRoot ? `${source.name} Copy` : source.name, parentId),
++                    parentId,
++                    pluginId: source.pluginId || null,
++                    properties: cloneSerializable(source.properties || {}),
++                    targetId: null,
++                    typeId: source.typeId
++                };
++                nodes.set(id, clone);
++                if (parentId) {
++                    const parent = nodes.get(parentId);
++                    if (parent) parent.childIds.push(id);
++                }
++                source.childIds.forEach(childId => cloneSubtree(childId, id));
++                return clone;
++            };
++
++            const duplicate = cloneSubtree(sourceNode.id, sourceNode.parentId, true);
++            return duplicate ? cloneSerializable(duplicate) : null;
++        });
++    };
++
+     const renameNode = (nodeId, name) => {
+         const node = nodes.get(nodeId);
+         if (!node || node.targetId) return null;
+@@ -417,6 +451,7 @@ const createNodeDatabase = vm => {
+         version: DATABASE_VERSION,
+         createNode,
+         deleteNode,
++        duplicateNode,
+         deserializeProject,
+         getChildren,
+         getNearestTargetNode,
+diff --git a/src/lib/project-nodes/node-type-registry.js b/src/lib/project-nodes/node-type-registry.js
+index 77a4f2f..b05d68b 100644
+--- a/src/lib/project-nodes/node-type-registry.js
++++ b/src/lib/project-nodes/node-type-registry.js
+@@ -241,33 +241,6 @@ const registerBuiltinNodeTypes = registry => {
+             label: 'Stage',
+             order: -100
+         },
+-        {
+-            allowChildren: true,
+-            category: 'User Interface',
+-            defaults: {
+-                anchorX: 0,
+-                anchorY: 0,
+-                height: 100,
+-                visible: true,
+-                width: 200,
+-                x: 0,
+-                y: 0
+-            },
+-            family: 'ui',
+-            fields: [
+-                {id: 'x', label: 'X', step: 1, type: 'number'},
+-                {id: 'y', label: 'Y', step: 1, type: 'number'},
+-                {id: 'width', label: 'Width', min: 0, step: 1, type: 'number'},
+-                {id: 'height', label: 'Height', min: 0, step: 1, type: 'number'},
+-                {id: 'anchorX', label: 'Anchor X', min: 0, max: 1, step: 0.01, type: 'number'},
+-                {id: 'anchorY', label: 'Anchor Y', min: 0, max: 1, step: 0.01, type: 'number'},
+-                {id: 'visible', label: 'Visible', type: 'boolean'}
+-            ],
+-            icon: '▤',
+-            id: 'ngvge.control',
+-            label: 'Control',
+-            order: 10
+-        },
+         {
+             allowChildren: true,
+             category: 'Internal',
+diff --git a/test/unit/components/project-explorer.test.jsx b/test/unit/components/project-explorer.test.jsx
+index 8df953a..a20e813 100644
+--- a/test/unit/components/project-explorer.test.jsx
++++ b/test/unit/components/project-explorer.test.jsx
+@@ -136,7 +136,24 @@ describe('ProjectExplorer', () => {
+         expect(onOpenAssetManager).toHaveBeenCalledTimes(1);
+     });
+ 
+-    test('renders an empty state before targets are available', () => {
++    test('shows root node presets only for a blank stage-only project', () => {
++        const blankComponent = renderExplorer({
++            editingTargetId: 'stage-id',
++            sprites: {}
++        });
++        const blankText = JSON.stringify(blankComponent.toJSON());
++
++        expect(blankText).toContain('Create the first scene root.');
++        expect(blankText).toContain('2D Node');
++        expect(blankText).toContain('User Interface Node');
++        expect(blankText).toContain('3D Node');
++
++        const populatedComponent = renderExplorer();
++        const populatedText = JSON.stringify(populatedComponent.toJSON());
++        expect(populatedText).not.toContain('Create the first scene root.');
++    });
++
++    test('shows root node presets before targets are available', () => {
+         const component = renderExplorer({
+             editingTargetId: null,
+             sprites: {},
+@@ -144,6 +161,6 @@ describe('ProjectExplorer', () => {
+         });
+         const text = JSON.stringify(component.toJSON());
+ 
+-        expect(text).toContain('No Stage, Sprite, or NGVGE nodes are available yet.');
++        expect(text).toContain('Create the first scene root.');
+     });
+ });
+diff --git a/test/unit/lib/default-project.test.js b/test/unit/lib/default-project.test.js
+new file mode 100644
+index 0000000..1f8742b
+--- /dev/null
++++ b/test/unit/lib/default-project.test.js
+@@ -0,0 +1,14 @@
++import projectData from '../../../src/lib/default-project/project-data';
++
++describe('NES Studio blank default project', () => {
++    test('contains only the Stage and no demo sprites or scripts', () => {
++        const project = projectData(message => message.defaultMessage);
++
++        expect(project.targets).toHaveLength(1);
++        expect(project.targets[0].isStage).toBe(true);
++        expect(project.targets[0].blocks).toEqual({});
++        expect(project.targets[0].variables).toEqual({});
++        expect(project.targets.filter(target => !target.isStage)).toHaveLength(0);
++        expect(project.meta.agent).toBe('NES Studio');
++    });
++});
+diff --git a/test/unit/lib/project-nodes-node-database.test.js b/test/unit/lib/project-nodes-node-database.test.js
+index f4b29b5..36c386d 100644
+--- a/test/unit/lib/project-nodes-node-database.test.js
++++ b/test/unit/lib/project-nodes-node-database.test.js
+@@ -56,6 +56,29 @@ describe('NGVGE node database', () => {
+         expect(database.getNearestTargetNode(collider.id).targetId).toBe(player.id);
+     });
+ 
++
++    test('duplicates a custom node and its subtree', () => {
++        const {player, vm} = createVM();
++        const database = installNodeDatabase(vm);
++        const playerNode = database.getNodeForTarget(player.id);
++        const body = database.createNode('ngvge.physics-body2d', playerNode.id, {
++            name: 'Player Body'
++        });
++        const collider = database.createNode('ngvge.collider2d', body.id, {
++            name: 'Hitbox'
++        });
++
++        const duplicate = database.duplicateNode(body.id);
++        const duplicateChildren = database.getChildren(duplicate.id);
++
++        expect(duplicate.name).toBe('Player Body Copy');
++        expect(duplicate.parentId).toBe(playerNode.id);
++        expect(duplicate.id).not.toBe(body.id);
++        expect(duplicateChildren).toHaveLength(1);
++        expect(duplicateChildren[0].name).toBe('Hitbox');
++        expect(duplicateChildren[0].id).not.toBe(collider.id);
++    });
++
+     test('updates node metadata and supports shared Undo/Redo history', () => {
+         const {player, runtime, vm} = createVM();
+         const database = installNodeDatabase(vm);

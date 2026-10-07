@@ -1,0 +1,10 @@
+capability_id,access,state,provider_id,notes
+ngvge.workspace-capability.context-read,query,ready,ngvge.workspace-capability-provider.context-read,Portable Workspace Context query facade
+ngvge.workspace-capability.workspace-state,query,ready,ngvge.workspace-capability-provider.workspace-state.query,ToolId-scoped Workspace state query
+ngvge.workspace-capability.workspace-state,mutate,ready,ngvge.workspace-capability-provider.workspace-state.mutate,ToolId-scoped Workspace state mutation
+ngvge.workspace-capability.project-read,query,provider-missing,,No stable Project semantic Provider is fabricated in WS-9E
+ngvge.workspace-capability.project-command,propose,provider-missing,,Deferred until Project command Provider contract exists
+ngvge.workspace-capability.project-command,mutate,provider-missing,,Deferred until Project command Provider contract exists
+ngvge.workspace-capability.resource-read,query,provider-missing,,No stable ResourceId query Provider is fabricated in WS-9E
+ngvge.workspace-capability.resource-command,propose,provider-missing,,Deferred until Resource authority facade exists
+ngvge.workspace-capability.resource-command,mutate,provider-missing,,Deferred until Resource authority facade exists

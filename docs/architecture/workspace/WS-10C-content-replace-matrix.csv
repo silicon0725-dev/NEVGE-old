@@ -1,0 +1,14 @@
+domain,surface_or_state,owner,ws10c_behavior,mutation_authority
+image_content_working_copy,workingCopyId,Paint Tool Session,transient local SVG/PNG edit,none
+content_read,resource-content-read#query,Resource Authority,portable bounded source snapshot,read-only
+content_command,resource.content.replace,Project Command schema,portable canonical-ResourceId content replacement intent,none
+content_precondition,expectedSourceAuthorityRevision,Resource Authority runtime contentRevision,optimistic stale-write protection,Resource Authority validates
+content_review,resource.content,Project Transaction Review,portable before/after summary plus diagnostics,read-only
+content_review_evidence,project-command#mutate,WS-9I Review Policy,fresh one-shot evidence required,admission only
+content_commit,Project Command Host,WS-9G transaction coordinator,reviewed commit through Resource adapter,transaction coordination
+content_replace_adapter,replaceImageResourceContent,Global Asset Resource Authority,sanitize/decode/create backend asset/synchronize bindings,Resource writer
+content_rollback,Project Command Host + Resource history,WS-9G transaction coordinator,reviewed rollback if history ownership still valid,transaction coordination
+svg_sanitize,commit boundary,Global Asset Resource Authority,sanitize before backend asset creation,Resource writer boundary
+raw_vm_renderer,not exposed,Compatibility Backend only,forbidden to Better Paint,none
+resource_direct_mutate,resource-command#mutate,WS-9I policy,direct Tool mutation denied,denied
+content_revision_persistence,runtime-only,Global Asset Resource Authority,not persisted in Global Asset DB v3,none

@@ -1,0 +1,62 @@
+name: Update versions.json
+
+on:
+  schedule:
+    - cron: '0 0 * * *'          # 每天 UTC 00:00
+  workflow_dispatch:             # 支持手动触发测试
+
+jobs:
+  update-versions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write            # 必须，用于推送内容
+
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      # 获取仓库中版本号最大的 tag（作为 latest）
+      - name: 获取 latest tag
+        id: latest
+        uses: oprypin/find-latest-tag@v1
+        with:
+          repository: 02engine/desktop
+          releases-only: false
+          regex: '^v\d+\.\d+\.\d+$'
+          sort-tags: true
+
+      # 生成 versions.json
+      - name: 生成 versions.json
+        run: |
+          mkdir -p ver
+
+          # latest 来自 action 输出
+          LATEST="${{ steps.latest.outputs.tag }}"
+
+          # latest_unstable 永远为空
+          UNSTABLE=""
+
+          OLDEST_SAFE="v1.1.0-239378be"
+
+          jq -n \
+            --arg latest "$LATEST" \
+            --arg unstable "$UNSTABLE" \
+            --arg oldest "$OLDEST_SAFE" \
+            '{
+              latest: $latest,
+              latest_unstable: ($unstable | if . == "" then null else . end),
+              oldest_safe: $oldest
+            }' > ./ver/versions.json
+
+          echo "生成的 JSON 内容："
+          cat ./ver/versions.json
+
+      # 部署到 cf-page 分支
+      - name: 部署到 cf-page 分支 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: cf-page
+          folder: ./ver
+          target-folder: .
+          clean: false
+          commit-message: "chore: 更新 versions.json 为 ${{ steps.latest.outputs.tag }}"

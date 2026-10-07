@@ -1,0 +1,60 @@
+{
+  "stage": "WS-9",
+  "title": "Workspace Tool Capability Host & Reviewed Mutation Foundation",
+  "status": "COMPLETE / CERTIFIED",
+  "authority": "ARC-0001",
+  "constituentStages": [
+    "WS-9A",
+    "WS-9B",
+    "WS-9C",
+    "WS-9D",
+    "WS-9E",
+    "WS-9F",
+    "WS-9G",
+    "WS-9H",
+    "WS-9I"
+  ],
+  "certifiedIdentities": {
+    "capabilityHost": "ngvge.workspace-tool-capability-host@1",
+    "workspaceContext": "ngvge.workspace-context@1",
+    "contextRuntimeBinding": "ngvge.workspace-context-runtime-binding@1",
+    "contextConsumerAdmission": "ngvge.workspace-context-consumer-admission@1",
+    "providerRegistry": "ngvge.workspace-capability-provider-registry@1",
+    "projectCommandHost": "ngvge.workspace-project-command-host@1",
+    "transactionReview": "ngvge.workspace-project-transaction-review@1",
+    "privilegedMutationReviewPolicy": "ngvge.workspace-privileged-mutation-review-policy@1"
+  },
+  "certifiedRules": {
+    "capabilityAdmissionFailClosed": true,
+    "leaseRevocable": true,
+    "contextProjectionOnly": true,
+    "providerRegistryNotAuthority": true,
+    "canonicalResourceId": "ngvge:resource:*",
+    "projectTransactionHostOwnedByNgvge": true,
+    "reviewServiceReadOnly": true,
+    "projectMutationRequiresFreshEvidence": true,
+    "resourceDirectToolMutationDenied": true,
+    "rawScratchBackendAuthorityExposed": false,
+    "terminalActivated": false,
+    "paintActivated": false
+  },
+  "verification": {
+    "ws9iMachine": "18/18 PASS",
+    "ws9iFocused": "6 suites / 53 tests PASS",
+    "fullUnit": "140 suites / 778 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "fullEditorWebpack": "0 errors / 0 warnings PASS",
+    "arcC0011Baseline": "7/7 PASS",
+    "lscG1": "19/19 machine PASS",
+    "lrcG1": "15/15 machine PASS",
+    "lplG1": "17/17 machine PASS",
+    "lexG1": "19/19 machine PASS",
+    "col0": "15/15 machine PASS",
+    "workspaceFocusedChain": "WS-8 through WS-9I PASS"
+  },
+  "nextRecommendedStage": "WS-10 | High-Capability Tool Integration"
+}

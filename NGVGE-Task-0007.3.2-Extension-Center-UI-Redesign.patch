@@ -1,0 +1,2076 @@
+diff --git a/docs/TASK-0007.3.2-EXTENSION-CENTER-UI.md b/docs/TASK-0007.3.2-EXTENSION-CENTER-UI.md
+new file mode 100644
+index 0000000..4e259d3
+--- /dev/null
++++ b/docs/TASK-0007.3.2-EXTENSION-CENTER-UI.md
+@@ -0,0 +1,52 @@
++# Task-0007.3.2 — Extension Center UI Redesign
++
++## Goal
++
++Replace the legacy source-list presentation with a first-class NGVGE Extension Center while keeping every pre-existing online marketplace and loading path available.
++
++## Information architecture
++
++- Discover
++  - Home
++  - Installed
++- NGVGE Ecosystem
++  - NGVGE Official
++  - Community (reserved)
++- Compatibility
++  - All compatibility
++  - Official Scratch
++  - 02Engine Legacy
++  - Other
++- Online Markets
++  - All online sources
++  - TurboWarp
++  - PenguinMod
++  - AstraEditor
++  - Mist
++  - SharkPool
++  - CCW
++- Load custom extension
++
++## UI changes
++
++- Dedicated Extension Center component and CSS module.
++- Product header with global search, sorting and batch actions.
++- NGVGE overview panel on the Home page.
++- Grouped ecosystem navigation instead of one flat `Sources` list.
++- New extension cards showing source, native/compatible status, installed state, author and explicit action.
++- Favorites and batch selection remain available.
++- CCW recommendation and pagination controls remain available when CCW is selected.
++- Disabled entries cannot be opened, and author links no longer trigger card installation.
++- The custom extension loader remains a dedicated sidebar action instead of a duplicate gallery card.
++
++## Compatibility
++
++No remote URL or extension loading path was removed. The UI continues to use the Task-0007.3.1 Manifest v2 and Source Registry adapters.
++
++## Deferred
++
++- Plugin detail page.
++- Permission approval dialog.
++- Community repository connection.
++- Update discovery and version comparison.
++- Source enable/disable management.
+diff --git a/src/components/extension-center/extension-center.css b/src/components/extension-center/extension-center.css
+new file mode 100644
+index 0000000..eef0989
+--- /dev/null
++++ b/src/components/extension-center/extension-center.css
+@@ -0,0 +1,715 @@
++@import "../../css/units.css";
++@import "../../css/colors.css";
++
++.extension-center-modal {
++    overflow: hidden;
++}
++
++.extension-center-modal > div {
++    width: 100%;
++    height: 100%;
++}
++
++.extension-center {
++    display: flex;
++    flex-direction: column;
++    width: 100%;
++    height: 100%;
++    min-height: 0;
++    color: $text-primary;
++    background: $ui-secondary;
++}
++
++.center-header {
++    min-height: 5.4rem;
++    flex: 0 0 auto;
++    display: flex;
++    align-items: center;
++    gap: 1.5rem;
++    padding: 0.85rem 1.25rem;
++    background: $ui-white;
++    border-bottom: 1px solid $ui-black-transparent;
++}
++
++.header-identity {
++    display: flex;
++    align-items: center;
++    gap: 0.85rem;
++    min-width: 19rem;
++}
++
++.header-mark {
++    width: 3rem;
++    height: 3rem;
++    border-radius: 0.9rem;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    color: $ui-white;
++    font-size: 1.25rem;
++    font-weight: 900;
++    background: linear-gradient(145deg, #42d6bd, #2b74df);
++    box-shadow: 0 0.35rem 0.9rem rgba(31, 111, 190, 0.2);
++}
++
++.header-title {
++    margin: 0;
++    font-size: 1.2rem;
++    line-height: 1.25;
++}
++
++.header-subtitle {
++    margin-top: 0.18rem;
++    font-size: 0.75rem;
++    opacity: 0.65;
++}
++
++.header-tools {
++    min-width: 0;
++    flex: 1;
++    display: flex;
++    align-items: center;
++    justify-content: flex-end;
++    gap: 0.7rem;
++}
++
++.search-box {
++    flex: 1;
++    max-width: 34rem;
++    min-width: 14rem;
++    height: 2.75rem;
++    display: flex;
++    align-items: center;
++    gap: 0.55rem;
++    padding: 0 0.8rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.85rem;
++    background: $ui-tertiary;
++}
++
++.search-box:focus-within {
++    border-color: $motion-primary;
++    background: $ui-white;
++    box-shadow: 0 0 0 3px rgba(76, 151, 255, 0.12);
++}
++
++.search-icon {
++    font-size: 1.2rem;
++    opacity: 0.55;
++}
++
++.search-box input {
++    min-width: 0;
++    flex: 1;
++    border: none;
++    outline: none;
++    color: $text-primary;
++    background: transparent;
++    font-size: 0.9rem;
++}
++
++.search-clear {
++    width: 1.65rem;
++    height: 1.65rem;
++    border: none;
++    border-radius: 50%;
++    background: $ui-black-transparent;
++    cursor: pointer;
++}
++
++.sort-control {
++    height: 2.75rem;
++    display: flex;
++    align-items: center;
++    gap: 0.45rem;
++    padding: 0 0.65rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.85rem;
++    background: $ui-white;
++    font-size: 0.75rem;
++    font-weight: bold;
++}
++
++.sort-control select {
++    max-width: 9rem;
++    border: none;
++    outline: none;
++    color: $text-primary;
++    background: transparent;
++    font-weight: bold;
++}
++
++.header-actions {
++    display: flex;
++    align-items: center;
++    gap: 0.45rem;
++}
++
++.center-body {
++    min-height: 0;
++    flex: 1;
++    display: flex;
++}
++
++.center-sidebar {
++    width: 15.5rem;
++    flex: 0 0 auto;
++    overflow-y: auto;
++    padding: 1rem 0.75rem;
++    border-right: 1px solid $ui-black-transparent;
++    background: $ui-tertiary;
++}
++
++.sidebar-group {
++    margin-bottom: 1.25rem;
++}
++
++.sidebar-group-title {
++    margin: 0 0.55rem 0.45rem;
++    color: $text-primary;
++    font-size: 0.68rem;
++    font-weight: 800;
++    letter-spacing: 0.08em;
++    opacity: 0.52;
++    text-transform: uppercase;
++}
++
++.sidebar-items {
++    display: flex;
++    flex-direction: column;
++    gap: 0.22rem;
++}
++
++.sidebar-item {
++    width: 100%;
++    min-height: 2.55rem;
++    display: flex;
++    align-items: center;
++    gap: 0.65rem;
++    padding: 0.4rem 0.6rem;
++    border: 1px solid transparent;
++    border-radius: 0.72rem;
++    color: $text-primary;
++    background: transparent;
++    text-align: left;
++    cursor: pointer;
++}
++
++.sidebar-item:hover:not(:disabled) {
++    background: rgba(255, 255, 255, 0.72);
++}
++
++.sidebar-item-active {
++    border-color: rgba(76, 151, 255, 0.18);
++    background: $ui-white;
++    box-shadow: 0 1px 5px rgba(22, 32, 54, 0.07);
++}
++
++.sidebar-item-disabled {
++    opacity: 0.48;
++    cursor: not-allowed;
++}
++
++.sidebar-item-icon {
++    width: 1.8rem;
++    height: 1.8rem;
++    flex: 0 0 auto;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    border-radius: 0.55rem;
++    background: $ui-white;
++    font-size: 0.65rem;
++    font-weight: 900;
++    box-shadow: inset 0 0 0 1px $ui-black-transparent;
++}
++
++.sidebar-item-label {
++    min-width: 0;
++    flex: 1;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++    font-size: 0.82rem;
++    font-weight: 700;
++}
++
++.sidebar-item-count {
++    min-width: 1.6rem;
++    height: 1.45rem;
++    display: inline-flex;
++    align-items: center;
++    justify-content: center;
++    padding: 0 0.35rem;
++    border-radius: 999px;
++    background: $ui-black-transparent;
++    font-size: 0.68rem;
++    font-weight: 800;
++}
++
++.sidebar-item-status {
++    color: $motion-primary;
++    font-size: 0.62rem;
++    font-weight: 800;
++    text-transform: uppercase;
++}
++
++
++.sidebar-extra {
++    margin: 0.35rem 0 0.9rem;
++    padding: 0.75rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.8rem;
++    background: rgba(255, 255, 255, 0.55);
++}
++
++.custom-extension-button {
++    width: 100%;
++    min-height: 2.7rem;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    gap: 0.5rem;
++    margin-top: 0.25rem;
++    border: 1px dashed rgba(76, 151, 255, 0.5);
++    border-radius: 0.8rem;
++    color: $motion-primary;
++    background: rgba(76, 151, 255, 0.06);
++    font-size: 0.8rem;
++    font-weight: 800;
++    cursor: pointer;
++}
++
++.center-main {
++    min-width: 0;
++    min-height: 0;
++    flex: 1;
++    display: flex;
++    flex-direction: column;
++    background: $ui-secondary;
++}
++
++.overview-panel {
++    flex: 0 0 auto;
++    display: flex;
++    align-items: center;
++    justify-content: space-between;
++    gap: 2rem;
++    margin: 1rem 1.15rem 0;
++    padding: 1.25rem 1.4rem;
++    border: 1px solid rgba(55, 160, 180, 0.18);
++    border-radius: 1rem;
++    background:
++        radial-gradient(circle at 85% 20%, rgba(75, 105, 230, 0.16), transparent 34%),
++        linear-gradient(135deg, rgba(62, 211, 184, 0.12), rgba(45, 111, 220, 0.08)),
++        $ui-white;
++    overflow: hidden;
++}
++
++.overview-copy {
++    max-width: 37rem;
++}
++
++.overview-eyebrow {
++    color: #248d90;
++    font-size: 0.65rem;
++    font-weight: 900;
++    letter-spacing: 0.12em;
++}
++
++.overview-copy h2 {
++    margin: 0.35rem 0 0.45rem;
++    font-size: 1.35rem;
++}
++
++.overview-copy p {
++    margin: 0;
++    line-height: 1.45;
++    opacity: 0.7;
++}
++
++.overview-stats {
++    display: flex;
++    gap: 0.65rem;
++}
++
++.overview-stat {
++    min-width: 6.2rem;
++    display: flex;
++    flex-direction: column;
++    align-items: center;
++    padding: 0.7rem 0.75rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.8rem;
++    background: rgba(255, 255, 255, 0.78);
++}
++
++.overview-stat strong {
++    font-size: 1.15rem;
++}
++
++.overview-stat span {
++    margin-top: 0.15rem;
++    font-size: 0.65rem;
++    font-weight: 700;
++    opacity: 0.65;
++}
++
++.filter-strip {
++    min-height: 3.6rem;
++    flex: 0 0 auto;
++    display: flex;
++    align-items: center;
++    gap: 0.75rem;
++    padding: 0.7rem 1.15rem;
++}
++
++.filter-chips {
++    min-width: 0;
++    flex: 1;
++    display: flex;
++    flex-wrap: wrap;
++    gap: 0.4rem;
++}
++
++.filter-chip {
++    height: 2rem;
++    padding: 0 0.75rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 999px;
++    color: $text-primary;
++    background: $ui-white;
++    font-size: 0.72rem;
++    font-weight: 800;
++    cursor: pointer;
++}
++
++.filter-chip-active {
++    border-color: $motion-primary;
++    color: $ui-white;
++    background: $motion-primary;
++}
++
++.result-count {
++    flex: 0 0 auto;
++    font-size: 0.75rem;
++    font-weight: 700;
++    opacity: 0.58;
++}
++
++.extension-scroll-area {
++    min-height: 0;
++    flex: 1;
++    overflow-y: auto;
++    padding: 0 1.15rem 1.4rem;
++}
++
++.extension-section {
++    margin-bottom: 1.45rem;
++}
++
++.section-heading {
++    display: flex;
++    align-items: flex-end;
++    justify-content: space-between;
++    gap: 1rem;
++    margin-bottom: 0.7rem;
++}
++
++.section-heading h2 {
++    margin: 0;
++    font-size: 1rem;
++}
++
++.section-heading p {
++    margin: 0.22rem 0 0;
++    font-size: 0.72rem;
++    opacity: 0.63;
++}
++
++.section-heading > span {
++    min-width: 1.8rem;
++    height: 1.65rem;
++    display: inline-flex;
++    align-items: center;
++    justify-content: center;
++    padding: 0 0.4rem;
++    border-radius: 999px;
++    background: $ui-tertiary;
++    font-size: 0.72rem;
++    font-weight: 800;
++}
++
++.extension-grid {
++    display: grid;
++    grid-template-columns: repeat(auto-fill, minmax(15.2rem, 1fr));
++    gap: 0.85rem;
++}
++
++.extension-card {
++    min-width: 0;
++    display: flex;
++    flex-direction: column;
++    overflow: hidden;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.9rem;
++    background: $ui-white;
++    box-shadow: 0 2px 8px rgba(23, 31, 50, 0.04);
++    cursor: pointer;
++    transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
++}
++
++.extension-card:hover,
++.extension-card:focus {
++    outline: none;
++    border-color: rgba(76, 151, 255, 0.55);
++    box-shadow: 0 8px 20px rgba(23, 31, 50, 0.09);
++    transform: translateY(-2px);
++}
++
++.extension-card-installed {
++    border-color: rgba(57, 180, 140, 0.35);
++}
++
++.extension-card-selected {
++    box-shadow: 0 0 0 3px rgba(76, 151, 255, 0.18);
++}
++
++.card-visual {
++    height: 7.4rem;
++    position: relative;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    overflow: hidden;
++    background: linear-gradient(145deg, $ui-tertiary, $ui-secondary);
++}
++
++.card-icon-fallback {
++    width: 4.4rem;
++    height: 4.4rem;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    border-radius: 1rem;
++    color: $ui-white;
++    background: linear-gradient(145deg, #40cdb5, #3e68dd);
++    font-size: 1.2rem;
++    font-weight: 900;
++}
++
++.card-icon {
++    position: absolute;
++    max-width: 100%;
++    max-height: 100%;
++    width: 100%;
++    height: 100%;
++    object-fit: cover;
++}
++
++.card-source-badge {
++    position: absolute;
++    left: 0.6rem;
++    bottom: 0.55rem;
++    max-width: calc(100% - 3.6rem);
++    overflow: hidden;
++    padding: 0.28rem 0.48rem;
++    border-radius: 0.48rem;
++    color: $ui-white;
++    background: rgba(22, 31, 49, 0.72);
++    backdrop-filter: blur(6px);
++    font-size: 0.62rem;
++    font-weight: 800;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.card-source-badge[data-source="ngvge"] {
++    background: rgba(31, 132, 135, 0.88);
++}
++
++.favorite-button {
++    position: absolute;
++    top: 0.55rem;
++    right: 0.55rem;
++    width: 2rem;
++    height: 2rem;
++    border: 1px solid rgba(0, 0, 0, 0.08);
++    border-radius: 50%;
++    color: #6b7280;
++    background: rgba(255, 255, 255, 0.9);
++    font-size: 1rem;
++    cursor: pointer;
++}
++
++.favorite-button-active {
++    color: #e2a620;
++}
++
++.card-body {
++    min-height: 8.2rem;
++    flex: 1;
++    display: flex;
++    flex-direction: column;
++    padding: 0.85rem 0.9rem 0.55rem;
++}
++
++.card-title-row {
++    display: flex;
++    align-items: center;
++    gap: 0.45rem;
++}
++
++.card-title {
++    min-width: 0;
++    flex: 1;
++    margin: 0;
++    overflow: hidden;
++    color: $text-primary;
++    font-size: 0.92rem;
++    font-weight: 850;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.installed-mark {
++    width: 1.35rem;
++    height: 1.35rem;
++    display: inline-flex;
++    align-items: center;
++    justify-content: center;
++    border-radius: 50%;
++    color: #248f72;
++    background: rgba(57, 180, 140, 0.13);
++    font-size: 0.72rem;
++    font-weight: 900;
++}
++
++.card-description {
++    height: 2.55rem;
++    margin-top: 0.4rem;
++    overflow: hidden;
++    line-height: 1.28rem;
++    font-size: 0.74rem;
++    opacity: 0.72;
++}
++
++.card-badge-row {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 0.3rem;
++    margin-top: 0.55rem;
++}
++
++.card-badge-row span {
++    height: 1.35rem;
++    display: inline-flex;
++    align-items: center;
++    padding: 0 0.42rem;
++    border-radius: 999px;
++    font-size: 0.58rem;
++    font-weight: 850;
++}
++
++.official-badge {
++    color: #167b78;
++    background: rgba(55, 195, 171, 0.13);
++}
++
++.kind-badge {
++    color: #365fa6;
++    background: rgba(75, 119, 215, 0.12);
++}
++
++.warning-badge {
++    color: #a56b13;
++    background: rgba(230, 165, 51, 0.14);
++}
++
++.card-credits {
++    margin-top: auto;
++    padding-top: 0.55rem;
++    overflow: hidden;
++    font-size: 0.65rem;
++    opacity: 0.58;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.card-credits a {
++    color: inherit;
++}
++
++.card-footer {
++    min-height: 3rem;
++    display: flex;
++    align-items: center;
++    gap: 0.45rem;
++    padding: 0.55rem 0.75rem;
++    border-top: 1px solid $ui-black-transparent;
++    background: rgba(247, 248, 251, 0.72);
++}
++
++.card-action-button {
++    min-width: 0;
++    flex: 1;
++    height: 2rem;
++    border: none;
++    border-radius: 0.58rem;
++    color: $ui-white;
++    background: $motion-primary;
++    overflow: hidden;
++    font-size: 0.72rem;
++    font-weight: 850;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++    cursor: pointer;
++}
++
++.card-action-button-installed {
++    color: #23765f;
++    background: rgba(57, 180, 140, 0.13);
++}
++
++.selection-button {
++    width: 2rem;
++    height: 2rem;
++    border: 1px solid rgba(76, 151, 255, 0.35);
++    border-radius: 0.58rem;
++    color: $motion-primary;
++    background: $ui-white;
++    font-size: 0.9rem;
++    font-weight: 900;
++    cursor: pointer;
++}
++
++.selection-button-active {
++    color: $ui-white;
++    background: $motion-primary;
++}
++
++@media (max-width: 900px) {
++    .center-sidebar {
++        width: 13rem;
++    }
++
++    .overview-stats {
++        display: none;
++    }
++
++    .sort-control span {
++        display: none;
++    }
++}
++
++.extension-card-disabled {
++    opacity: 0.55;
++    cursor: not-allowed;
++}
++
++.extension-card-disabled:hover,
++.extension-card-disabled:focus {
++    border-color: $ui-black-transparent;
++    box-shadow: 0 2px 8px rgba(23, 31, 50, 0.04);
++    transform: none;
++}
+diff --git a/src/components/extension-center/extension-center.jsx b/src/components/extension-center/extension-center.jsx
+new file mode 100644
+index 0000000..1334e6b
+--- /dev/null
++++ b/src/components/extension-center/extension-center.jsx
+@@ -0,0 +1,371 @@
++import classNames from 'classnames';
++import PropTypes from 'prop-types';
++import React from 'react';
++
++import Modal from '../../containers/modal.jsx';
++
++import styles from './extension-center.css';
++
++const activateOnKeyboard = callback => event => {
++    if (event.currentTarget !== event.target) return;
++    if (event.key === 'Enter' || event.key === ' ') {
++        event.preventDefault();
++        callback();
++    }
++};
++
++class ExtensionCard extends React.PureComponent {
++    constructor (props) {
++        super(props);
++        this.state = {imageFailed: false};
++    }
++    render () {
++        const {
++            actionLabel,
++            favorite,
++            item,
++            onFavorite,
++            onSelect,
++            onSelectionToggle,
++            selectable,
++            selected
++        } = this.props;
++        const sourceId = item.ngvgeManifest?.source?.id || item.source || 'other';
++        const kind = item.ngvgeManifest?.kind || 'legacy-extension';
++        const fallbackText = typeof item.name === 'string' && item.name ? item.name.slice(0, 2).toUpperCase() : 'EX';
++        const credits = Array.isArray(item.credits) ? item.credits.slice(0, 2) : [];
++        const selectItem = () => {
++            if (!item.disabled) onSelect(item);
++        };
++        const handleCardClick = event => {
++            if (event.target.closest && event.target.closest('a')) return;
++            selectItem();
++        };
++
++        return (
++            <article
++                aria-disabled={item.disabled}
++                className={classNames(styles.extensionCard, {
++                    [styles.extensionCardDisabled]: item.disabled,
++                    [styles.extensionCardInstalled]: item.isInstalled,
++                    [styles.extensionCardSelected]: selected
++                })}
++                role="button"
++                tabIndex={item.disabled ? -1 : 0}
++                onClick={handleCardClick}
++                onKeyDown={activateOnKeyboard(selectItem)}
++            >
++                <div className={styles.cardVisual}>
++                    <div className={styles.cardIconFallback}>{fallbackText}</div>
++                    {!this.state.imageFailed && item.rawURL ? (
++                        <img
++                            alt=""
++                            className={styles.cardIcon}
++                            draggable={false}
++                            src={item.rawURL}
++                            onError={() => this.setState({imageFailed: true})}
++                        />
++                    ) : null}
++                    <div className={styles.cardSourceBadge} data-source={sourceId}>
++                        {item.sourceLabel}
++                    </div>
++                    <button
++                        aria-label="Favorite extension"
++                        className={classNames(styles.favoriteButton, {
++                            [styles.favoriteButtonActive]: favorite
++                        })}
++                        type="button"
++                        onClick={event => {
++                            event.stopPropagation();
++                            onFavorite(item);
++                        }}
++                    >
++                        {favorite ? '★' : '☆'}
++                    </button>
++                </div>
++                <div className={styles.cardBody}>
++                    <div className={styles.cardTitleRow}>
++                        <h3 className={styles.cardTitle}>{item.name}</h3>
++                        {item.isInstalled ? <span className={styles.installedMark}>✓</span> : null}
++                    </div>
++                    <div className={styles.cardDescription}>{item.description}</div>
++                    <div className={styles.cardBadgeRow}>
++                        {sourceId === 'ngvge' ? <span className={styles.officialBadge}>NGVGE Official</span> : null}
++                        <span className={styles.kindBadge}>{kind === 'ngvge-native' ? 'Native' : 'Compatible'}</span>
++                        {!item.isCompatible ? <span className={styles.warningBadge}>NGVGE only</span> : null}
++                    </div>
++                    {credits.length ? (
++                        <div className={styles.cardCredits}>
++                            <span>By </span>
++                            {credits.map((credit, index) => (
++                                <React.Fragment key={index}>
++                                    {credit}
++                                    {index < credits.length - 1 ? ', ' : null}
++                                </React.Fragment>
++                            ))}
++                        </div>
++                    ) : null}
++                </div>
++                <div className={styles.cardFooter}>
++                    <button
++                        className={classNames(styles.cardActionButton, {
++                            [styles.cardActionButtonInstalled]: item.isInstalled
++                        })}
++                        disabled={item.disabled}
++                        type="button"
++                        onClick={event => {
++                            event.stopPropagation();
++                            selectItem();
++                        }}
++                    >
++                        {actionLabel}
++                    </button>
++                    {selectable ? (
++                        <button
++                            aria-label="Select extension for batch import"
++                            className={classNames(styles.selectionButton, {
++                                [styles.selectionButtonActive]: selected
++                            })}
++                            type="button"
++                            onClick={event => {
++                                event.stopPropagation();
++                                onSelectionToggle(item);
++                            }}
++                        >
++                            {selected ? '✓' : '+'}
++                        </button>
++                    ) : null}
++                </div>
++            </article>
++        );
++    }
++}
++
++ExtensionCard.propTypes = {
++    actionLabel: PropTypes.node,
++    favorite: PropTypes.bool,
++    item: PropTypes.object.isRequired,
++    onFavorite: PropTypes.func.isRequired,
++    onSelect: PropTypes.func.isRequired,
++    onSelectionToggle: PropTypes.func.isRequired,
++    selectable: PropTypes.bool,
++    selected: PropTypes.bool
++};
++
++const ExtensionCenter = props => {
++    const selectItem = item => {
++        props.onRequestClose();
++        props.onItemSelected(item);
++    };
++
++    return (
++        <Modal
++            className={styles.extensionCenterModal}
++            contentLabel={props.title}
++            fullScreen
++            id="extensionLibrary"
++            onRequestClose={props.onRequestClose}
++        >
++            <div className={styles.extensionCenter}>
++                <header className={styles.centerHeader}>
++                    <div className={styles.headerIdentity}>
++                        <div className={styles.headerMark}>N</div>
++                        <div>
++                            <h1 className={styles.headerTitle}>{props.title}</h1>
++                            <div className={styles.headerSubtitle}>{props.subtitle}</div>
++                        </div>
++                    </div>
++                    <div className={styles.headerTools}>
++                        <label className={styles.searchBox}>
++                            <span className={styles.searchIcon}>⌕</span>
++                            <input
++                                aria-label="Search extensions"
++                                placeholder={props.searchPlaceholder}
++                                type="search"
++                                value={props.query}
++                                onChange={event => props.onQueryChange(event.target.value)}
++                            />
++                            {props.query ? (
++                                <button
++                                    aria-label="Clear search"
++                                    className={styles.searchClear}
++                                    type="button"
++                                    onClick={props.onQueryClear}
++                                >
++                                    ×
++                                </button>
++                            ) : null}
++                        </label>
++                        <label className={styles.sortControl}>
++                            <span>{props.sortLabel}</span>
++                            <select value={props.sortMode} onChange={props.onSortChange}>
++                                {props.sortOptions.map(option => (
++                                    <option key={option.value} value={option.value}>{option.label}</option>
++                                ))}
++                            </select>
++                        </label>
++                        {props.headerAction ? <div className={styles.headerActions}>{props.headerAction}</div> : null}
++                    </div>
++                </header>
++
++                <div className={styles.centerBody}>
++                    <aside className={styles.centerSidebar}>
++                        {props.sidebarGroups.map(group => (
++                            <section className={styles.sidebarGroup} key={group.key}>
++                                <div className={styles.sidebarGroupTitle}>{group.title}</div>
++                                <div className={styles.sidebarItems}>
++                                    {group.items.map(item => (
++                                        <button
++                                            className={classNames(styles.sidebarItem, {
++                                                [styles.sidebarItemActive]: item.active,
++                                                [styles.sidebarItemDisabled]: item.disabled
++                                            })}
++                                            disabled={item.disabled}
++                                            key={item.key}
++                                            title={item.description || item.label}
++                                            type="button"
++                                            onClick={item.onClick}
++                                        >
++                                            <span className={styles.sidebarItemIcon}>{item.icon}</span>
++                                            <span className={styles.sidebarItemLabel}>{item.label}</span>
++                                            {typeof item.count === 'number' ? (
++                                                <span className={styles.sidebarItemCount}>{item.count}</span>
++                                            ) : null}
++                                            {item.status ? <span className={styles.sidebarItemStatus}>{item.status}</span> : null}
++                                        </button>
++                                    ))}
++                                </div>
++                            </section>
++                        ))}
++                        {props.sidebarExtra ? <div className={styles.sidebarExtra}>{props.sidebarExtra}</div> : null}
++                        <button
++                            className={styles.customExtensionButton}
++                            type="button"
++                            onClick={props.onOpenCustomExtension}
++                        >
++                            <span>＋</span>
++                            <span>{props.customExtensionLabel}</span>
++                        </button>
++                    </aside>
++
++                    <main className={styles.centerMain}>
++                        {props.showOverview ? (
++                            <section className={styles.overviewPanel}>
++                                <div className={styles.overviewCopy}>
++                                    <div className={styles.overviewEyebrow}>NGVGE ECOSYSTEM</div>
++                                    <h2>Build the editor and runtime you need.</h2>
++                                    <p>
++                                        Discover NGVGE-native modules while keeping access to the Scratch,
++                                        TurboWarp and community extension ecosystems.
++                                    </p>
++                                </div>
++                                <div className={styles.overviewStats}>
++                                    {props.summary.map(stat => (
++                                        <div className={styles.overviewStat} key={stat.key}>
++                                            <strong>{stat.value}</strong>
++                                            <span>{stat.label}</span>
++                                        </div>
++                                    ))}
++                                </div>
++                            </section>
++                        ) : null}
++
++                        <div className={styles.filterStrip}>
++                            <div className={styles.filterChips}>
++                                {props.filterChips.map(chip => (
++                                    <button
++                                        className={classNames(styles.filterChip, {
++                                            [styles.filterChipActive]: chip.active
++                                        })}
++                                        key={chip.key}
++                                        type="button"
++                                        onClick={chip.onClick}
++                                    >
++                                        {chip.label}
++                                    </button>
++                                ))}
++                            </div>
++                            <div className={styles.resultCount}>{props.resultLabel}</div>
++                        </div>
++
++                        <div className={styles.extensionScrollArea}>
++                            {props.sections.length ? props.sections.map(section => (
++                                <section className={styles.extensionSection} key={section.key}>
++                                    <div className={styles.sectionHeading}>
++                                        <div>
++                                            <h2>{section.title}</h2>
++                                            {section.description ? <p>{section.description}</p> : null}
++                                        </div>
++                                        <span>{section.items.length}</span>
++                                    </div>
++                                    <div className={styles.extensionGrid}>
++                                        {section.items.map(item => (
++                                            <ExtensionCard
++                                                actionLabel={props.getActionLabel(item)}
++                                                favorite={props.isFavorite(item)}
++                                                item={item}
++                                                key={item.favoriteKey || item.extensionId || item.rawURL}
++                                                selectable={props.isItemSelectable(item)}
++                                                selected={props.isItemSelected(item)}
++                                                onFavorite={props.onFavorite}
++                                                onSelect={selectItem}
++                                                onSelectionToggle={props.onSelectionToggle}
++                                            />
++                                        ))}
++                                    </div>
++                                </section>
++                            )) : props.emptyState}
++                        </div>
++                    </main>
++                </div>
++            </div>
++        </Modal>
++    );
++};
++
++ExtensionCenter.propTypes = {
++    customExtensionLabel: PropTypes.node,
++    emptyState: PropTypes.node,
++    filterChips: PropTypes.arrayOf(PropTypes.object).isRequired,
++    getActionLabel: PropTypes.func.isRequired,
++    headerAction: PropTypes.node,
++    isFavorite: PropTypes.func.isRequired,
++    isItemSelectable: PropTypes.func.isRequired,
++    isItemSelected: PropTypes.func.isRequired,
++    onFavorite: PropTypes.func.isRequired,
++    onItemSelected: PropTypes.func.isRequired,
++    onOpenCustomExtension: PropTypes.func.isRequired,
++    onQueryChange: PropTypes.func.isRequired,
++    onQueryClear: PropTypes.func.isRequired,
++    onRequestClose: PropTypes.func.isRequired,
++    onSelectionToggle: PropTypes.func.isRequired,
++    onSortChange: PropTypes.func.isRequired,
++    query: PropTypes.string.isRequired,
++    resultLabel: PropTypes.node,
++    searchPlaceholder: PropTypes.string,
++    sections: PropTypes.arrayOf(PropTypes.object).isRequired,
++    showOverview: PropTypes.bool,
++    sidebarExtra: PropTypes.node,
++    sidebarGroups: PropTypes.arrayOf(PropTypes.object).isRequired,
++    sortLabel: PropTypes.node,
++    sortMode: PropTypes.string.isRequired,
++    sortOptions: PropTypes.arrayOf(PropTypes.object).isRequired,
++    subtitle: PropTypes.node,
++    summary: PropTypes.arrayOf(PropTypes.object),
++    title: PropTypes.string.isRequired
++};
++
++ExtensionCenter.defaultProps = {
++    customExtensionLabel: 'Load custom extension',
++    emptyState: null,
++    headerAction: null,
++    resultLabel: null,
++    searchPlaceholder: 'Search extensions',
++    showOverview: false,
++    sidebarExtra: null,
++    sortLabel: 'Sort',
++    subtitle: null,
++    summary: []
++};
++
++export default ExtensionCenter;
+diff --git a/src/components/extension-center/index.js b/src/components/extension-center/index.js
+new file mode 100644
+index 0000000..081244f
+--- /dev/null
++++ b/src/components/extension-center/index.js
+@@ -0,0 +1 @@
++export {default} from './extension-center.jsx';
+diff --git a/src/containers/extension-library.jsx b/src/containers/extension-library.jsx
+index 52a847b..024e3f6 100644
+--- a/src/containers/extension-library.jsx
++++ b/src/containers/extension-library.jsx
+@@ -9,21 +9,23 @@ import extensionLibraryContent, {
+     galleryLoading,
+     galleryMore
+ } from '../lib/libraries/extensions/index.jsx';
+-import LibraryComponent from '../components/library/library.jsx';
++import ExtensionCenter from '../components/extension-center';
++import extensionIcon from '../components/gui/icon--extensions.svg';
+ import libraryStyles from '../components/library/library.css';
+ import {APP_NAME} from '../lib/brand.js';
+ import log from '../lib/log';
+ import {
++    EXTENSION_SOURCE_GROUPS,
+     SOURCE_KEYS,
+-    SOURCE_NAV_ORDER,
+     attachManifestToGalleryItem,
+     extensionRegistry,
+-    inferLegacySourceId
++    inferLegacySourceId,
++    sourceRegistry
+ } from '../lib/extension-hub';
+ 
+ const messages = defineMessages({
+     extensionTitle: {
+-        defaultMessage: 'Choose an Extension',
++        defaultMessage: 'Extension Center',
+         description: 'Heading for the extension library',
+         id: 'gui.extensionLibrary.chooseAnExtension'
+     },
+@@ -188,12 +190,115 @@ const messages = defineMessages({
+         id: 'tw.extensionLibrary.action.enableFeature'
+     },
+     importExtension: {
+-        defaultMessage: 'Click to import',
++        defaultMessage: 'Install',
+         description: 'Action hint for importing an extension',
+         id: 'tw.extensionLibrary.action.import'
++    },
++    openInstalledExtension: {
++        defaultMessage: 'Open',
++        description: 'Action for an installed extension',
++        id: 'tw.extensionLibrary.action.openInstalled'
++    },
++    hubSubtitle: {
++        defaultMessage: 'Official modules, compatible extensions and online marketplaces',
++        description: 'Subtitle for the NGVGE extension center',
++        id: 'ngvge.extensionCenter.subtitle'
++    },
++    hubSearchPlaceholder: {
++        defaultMessage: 'Search extensions, sources or authors',
++        description: 'Search placeholder in the NGVGE extension center',
++        id: 'ngvge.extensionCenter.searchPlaceholder'
++    },
++    hubDiscover: {
++        defaultMessage: 'Discover',
++        description: 'Discover navigation group',
++        id: 'ngvge.extensionCenter.group.discover'
++    },
++    hubHome: {
++        defaultMessage: 'Home',
++        description: 'Extension center home navigation item',
++        id: 'ngvge.extensionCenter.home'
++    },
++    hubInstalled: {
++        defaultMessage: 'Installed',
++        description: 'Installed extension navigation item',
++        id: 'ngvge.extensionCenter.installed'
++    },
++    hubEcosystem: {
++        defaultMessage: 'NGVGE Ecosystem',
++        description: 'NGVGE ecosystem navigation group',
++        id: 'ngvge.extensionCenter.group.ngvge'
++    },
++    hubCommunity: {
++        defaultMessage: 'Community',
++        description: 'Community plugins navigation item',
++        id: 'ngvge.extensionCenter.community'
++    },
++    hubCompatibility: {
++        defaultMessage: 'Compatibility',
++        description: 'Compatibility extension group',
++        id: 'ngvge.extensionCenter.group.compatibility'
++    },
++    hubOnlineMarkets: {
++        defaultMessage: 'Online Markets',
++        description: 'Online marketplace navigation group',
++        id: 'ngvge.extensionCenter.group.online'
++    },
++    hubComingSoon: {
++        defaultMessage: 'Soon',
++        description: 'Coming soon status',
++        id: 'ngvge.extensionCenter.soon'
++    },
++    hubSort: {
++        defaultMessage: 'Sort',
++        description: 'Sort control label',
++        id: 'ngvge.extensionCenter.sort'
++    },
++    hubSortRecommended: {
++        defaultMessage: 'Recommended',
++        description: 'Recommended sort option',
++        id: 'ngvge.extensionCenter.sort.recommended'
++    },
++    hubSortName: {
++        defaultMessage: 'Name',
++        description: 'Name sort option',
++        id: 'ngvge.extensionCenter.sort.name'
++    },
++    hubSortSource: {
++        defaultMessage: 'Source',
++        description: 'Source sort option',
++        id: 'ngvge.extensionCenter.sort.source'
++    },
++    hubResultCount: {
++        defaultMessage: '{count} extensions',
++        description: 'Visible extension count',
++        id: 'ngvge.extensionCenter.resultCount'
++    },
++    hubOfficialDescription: {
++        defaultMessage: 'Native modules maintained for the NGVGE editor and runtime.',
++        description: 'NGVGE official section description',
++        id: 'ngvge.extensionCenter.section.officialDescription'
++    },
++    hubCompatibilityDescription: {
++        defaultMessage: 'Scratch-compatible and legacy 02Engine extensions.',
++        description: 'Compatibility section description',
++        id: 'ngvge.extensionCenter.section.compatibilityDescription'
++    },
++    hubOnlineDescription: {
++        defaultMessage: 'Extensions fetched from preserved external marketplaces.',
++        description: 'Online marketplace section description',
++        id: 'ngvge.extensionCenter.section.onlineDescription'
+     }
+ });
+ 
++const HUB_VIEWS = Object.freeze({
++    HOME: 'hub-home',
++    INSTALLED: 'hub-installed',
++    ONLINE: 'hub-online',
++    COMPATIBILITY: 'hub-compatibility',
++    COMMUNITY: 'hub-community'
++});
++
+ const FAVORITES_STORAGE_KEY = 'tw:library-favorites:extensionLibrary';
+ const CCW_EXTENSION_API_BASE = 'https://ccwbfs-proxy.netlify.app/extensions';
+ 
+@@ -631,12 +736,12 @@ class ExtensionLibrary extends React.PureComponent {
+             'getCCWRecommendationButtons',
+             'getActionLabel',
+             'getBatchSelectableItems',
+-            'getCardProps',
++            'getFilterChips',
++            'getHubSidebarGroups',
++            'getHubSummary',
+             'getCCWSortControl',
+             'getLibraryItems',
+             'getNormalizedItems',
+-            'getQuickFilterButtons',
+-            'getSidebar',
+             'getSourceCounts',
+             'getSourceLabel',
+             'getSections',
+@@ -649,12 +754,14 @@ class ExtensionLibrary extends React.PureComponent {
+             'handleClearSelection',
+             'handleCustomExtensionOpen',
+             'handleEnableProcedureReturns',
+-            'handleFavoritesChange',
+             'handleItemSelect',
+             'handleQueryChange',
+             'handleSelectionToggle',
+             'handleSourceSelect',
++            'handleSortChange',
++            'handleFavoriteToggle',
+             'handleToggleQuickFilter',
++            'isItemFavorite',
+             'isItemSelectable',
+             'isItemSelected',
+             'matchesQuickFilters',
+@@ -685,7 +792,8 @@ class ExtensionLibrary extends React.PureComponent {
+                 custom: false
+             },
+             selectedItemKeys: [],
+-            selectedSource: SOURCE_KEYS.ALL
++            selectedSource: HUB_VIEWS.HOME,
++            sortMode: 'recommended'
+         };
+         this._queryTimeout = null;
+     }
+@@ -909,6 +1017,7 @@ class ExtensionLibrary extends React.PureComponent {
+     }
+     executeItemAction (item, {useImportModal}) {
+         if (item.href) {
++            window.open(item.href, '_blank', 'noopener,noreferrer');
+             return;
+         }
+ 
+@@ -1042,10 +1151,20 @@ class ExtensionLibrary extends React.PureComponent {
+             selectedItemKeys: []
+         });
+     }
+-    handleFavoritesChange (favorites) {
+-        this.setState({
+-            favorites
+-        });
++    handleFavoriteToggle (item) {
++        const key = getItemSelectionKey(item);
++        const favorites = this.state.favorites.includes(key) ?
++            this.state.favorites.filter(favoriteKey => favoriteKey !== key) :
++            [...this.state.favorites, key];
++        try {
++            localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
++        } catch (error) {
++            // Ignore storage failures; the in-memory state still updates.
++        }
++        this.setState({favorites});
++    }
++    handleSortChange (event) {
++        this.setState({sortMode: event.target.value});
+     }
+     handleCCWSortChange (event) {
+         const sortField = event.target.value;
+@@ -1071,7 +1190,12 @@ class ExtensionLibrary extends React.PureComponent {
+             selectedSource
+         });
+         // 切换到CCW时触发实时搜索
+-        if (selectedSource === SOURCE_KEYS.CCW || selectedSource === SOURCE_KEYS.ALL) {
++        if (
++            selectedSource === SOURCE_KEYS.CCW ||
++            selectedSource === SOURCE_KEYS.ALL ||
++            selectedSource === HUB_VIEWS.HOME ||
++            selectedSource === HUB_VIEWS.ONLINE
++        ) {
+             this.fetchAndSetCCWItems(this.state.query, this.state.ccwSortField, 1);
+         }
+     }
+@@ -1111,7 +1235,7 @@ class ExtensionLibrary extends React.PureComponent {
+                 native: false,
+                 custom: false
+             },
+-            selectedSource: SOURCE_KEYS.ALL,
++            selectedSource: HUB_VIEWS.HOME,
+             ccwPage: 1
+         });
+         this.fetchAndSetCCWItems('', this.state.ccwSortField, 1);
+@@ -1119,6 +1243,9 @@ class ExtensionLibrary extends React.PureComponent {
+     handleCustomExtensionOpen () {
+         this.props.onOpenCustomExtensionModal();
+     }
++    isItemFavorite (item) {
++        return this.state.favorites.includes(getItemSelectionKey(item));
++    }
+     isItemSelectable (item) {
+         return item.isBatchSelectable;
+     }
+@@ -1126,25 +1253,28 @@ class ExtensionLibrary extends React.PureComponent {
+         return this.state.selectedItemKeys.includes(getItemSelectionKey(item));
+     }
+     matchesSource (item, sourceKey) {
+-        // CCW 扩展只在选中 "CCW" 分类时显示，不出现在 "All" 或 "Other" 中
++        if (sourceKey === HUB_VIEWS.HOME || sourceKey === SOURCE_KEYS.ALL) {
++            return true;
++        }
++        if (sourceKey === HUB_VIEWS.INSTALLED) {
++            return item.isInstalled;
++        }
++        if (sourceKey === HUB_VIEWS.ONLINE) {
++            const source = sourceRegistry.get(item.source);
++            return Boolean(source && source.group === EXTENSION_SOURCE_GROUPS.ONLINE);
++        }
++        if (sourceKey === HUB_VIEWS.COMPATIBILITY) {
++            const source = sourceRegistry.get(item.source);
++            return Boolean(source && source.group === EXTENSION_SOURCE_GROUPS.COMPATIBILITY);
++        }
++        if (sourceKey === HUB_VIEWS.COMMUNITY) {
++            return false;
++        }
+         if (sourceKey === SOURCE_KEYS.CCW) {
+             return item.source === SOURCE_KEYS.CCW;
+         }
+-        if (sourceKey === SOURCE_KEYS.ALL) {
+-            return item.source !== SOURCE_KEYS.CCW;
+-        }
+         if (sourceKey === SOURCE_KEYS.OTHER) {
+-            return ![
+-                SOURCE_KEYS.NGVGE,
+-                SOURCE_KEYS.SCRATCH,
+-                SOURCE_KEYS.ENGINE,
+-                SOURCE_KEYS.TW,
+-                SOURCE_KEYS.ASTRA,
+-                SOURCE_KEYS.PM,
+-                SOURCE_KEYS.MIST,
+-                SOURCE_KEYS.SHARKPOOL,
+-                SOURCE_KEYS.CCW
+-            ].includes(item.source);
++            return !sourceRegistry.has(item.source) || item.source === SOURCE_KEYS.OTHER;
+         }
+         return item.source === sourceKey;
+     }
+@@ -1175,10 +1305,27 @@ class ExtensionLibrary extends React.PureComponent {
+         return item.searchText.includes(this.state.query.toLowerCase());
+     }
+     sortItems (a, b) {
++        if (this.state.sortMode === 'name') {
++            return getNameText(this.props.intl, a.name).localeCompare(getNameText(this.props.intl, b.name));
++        }
++        if (this.state.sortMode === 'source') {
++            const sourceOrder = a.sourceLabel.localeCompare(b.sourceLabel);
++            return sourceOrder || getNameText(this.props.intl, a.name).localeCompare(getNameText(this.props.intl, b.name));
++        }
++        if (a.isInstalled !== b.isInstalled) {
++            return a.isInstalled ? -1 : 1;
++        }
++        if (a.source === SOURCE_KEYS.NGVGE && b.source !== SOURCE_KEYS.NGVGE) return -1;
++        if (b.source === SOURCE_KEYS.NGVGE && a.source !== SOURCE_KEYS.NGVGE) return 1;
+         return a.originalIndex - b.originalIndex;
+     }
+     getSourceCounts (items) {
+         const counts = {
++            [HUB_VIEWS.HOME]: items.length,
++            [HUB_VIEWS.INSTALLED]: 0,
++            [HUB_VIEWS.ONLINE]: 0,
++            [HUB_VIEWS.COMPATIBILITY]: 0,
++            [HUB_VIEWS.COMMUNITY]: 0,
+             [SOURCE_KEYS.ALL]: items.length,
+             [SOURCE_KEYS.NGVGE]: 0,
+             [SOURCE_KEYS.SCRATCH]: 0,
+@@ -1188,70 +1335,224 @@ class ExtensionLibrary extends React.PureComponent {
+             [SOURCE_KEYS.PM]: 0,
+             [SOURCE_KEYS.MIST]: 0,
+             [SOURCE_KEYS.SHARKPOOL]: 0,
+-            [SOURCE_KEYS.CCW]: this.state.ccwItems.length,
++            [SOURCE_KEYS.CCW]: 0,
+             [SOURCE_KEYS.OTHER]: 0
+         };
+         for (const item of items) {
++            if (item.isInstalled) counts[HUB_VIEWS.INSTALLED] += 1;
++            if (this.matchesSource(item, HUB_VIEWS.ONLINE)) counts[HUB_VIEWS.ONLINE] += 1;
++            if (this.matchesSource(item, HUB_VIEWS.COMPATIBILITY)) counts[HUB_VIEWS.COMPATIBILITY] += 1;
+             if (this.matchesSource(item, SOURCE_KEYS.OTHER)) {
+                 counts[SOURCE_KEYS.OTHER] += 1;
+-            } else if (counts[item.source] !== undefined) {
++            } else if (typeof counts[item.source] === 'number') {
+                 counts[item.source] += 1;
+             }
+         }
+         return counts;
+     }
+     getSections () {
+-        const normalized = this.getNormalizedItems()
++        const allItems = this.getNormalizedItems().filter(item => !item.isCustomLoad);
++        const counts = this.getSourceCounts(allItems);
++        const normalized = allItems
+             .filter(item => this.matchesQuickFilters(item) && this.matchesSearch(item));
+         const visibleItems = normalized
+             .filter(item => this.matchesSource(item, this.state.selectedSource))
+             .sort(this.sortItems);
+-        const commonItems = visibleItems.filter(item => {
+-            const selectionKey = getItemSelectionKey(item);
+-            return this.state.favorites.includes(selectionKey);
+-        });
+-        const commonKeys = new Set(commonItems.map(getItemSelectionKey));
+-        const remainingItems = visibleItems.filter(item => !commonKeys.has(getItemSelectionKey(item)));
+         const sections = [];
++        const favoriteItems = visibleItems.filter(this.isItemFavorite);
++        const favoriteKeys = new Set(favoriteItems.map(getItemSelectionKey));
++        const remainingItems = visibleItems.filter(item => !favoriteKeys.has(getItemSelectionKey(item)));
+ 
+-        if (commonItems.length) {
++        if (favoriteItems.length) {
+             sections.push({
+-                key: 'common',
++                key: 'favorites',
+                 title: this.props.intl.formatMessage(messages.commonSection),
+-                items: commonItems
++                description: 'Pinned extensions from every ecosystem.',
++                items: favoriteItems
+             });
+         }
+ 
+-        if (this.state.selectedSource === SOURCE_KEYS.ALL) {
+-            for (const sourceKey of SOURCE_NAV_ORDER.slice(1)) {
+-                const sourceItems = remainingItems.filter(item => this.matchesSource(item, sourceKey));
+-                if (!sourceItems.length) {
+-                    continue;
+-                }
++        if (this.state.query) {
++            if (remainingItems.length) {
+                 sections.push({
+-                    key: `source-${sourceKey}`,
+-                    title: this.props.intl.formatMessage(messages.sourceSection, {
+-                        source: this.getSourceLabel(sourceKey)
+-                    }),
++                    key: 'search-results',
++                    title: `Search results for “${this.state.query}”`,
++                    description: 'Results include NGVGE modules and preserved external sources.',
++                    items: remainingItems
++                });
++            }
++        } else if (this.state.selectedSource === HUB_VIEWS.HOME) {
++            const official = remainingItems.filter(item => item.source === SOURCE_KEYS.NGVGE);
++            const compatibility = remainingItems.filter(item => this.matchesSource(item, HUB_VIEWS.COMPATIBILITY));
++            const online = remainingItems.filter(item => this.matchesSource(item, HUB_VIEWS.ONLINE));
++            const usedKeys = new Set([...official, ...compatibility, ...online].map(getItemSelectionKey));
++            const other = remainingItems.filter(item => !usedKeys.has(getItemSelectionKey(item)));
++
++            if (official.length) sections.push({
++                key: 'home-ngvge',
++                title: this.getSourceLabel(SOURCE_KEYS.NGVGE),
++                description: this.props.intl.formatMessage(messages.hubOfficialDescription),
++                items: official
++            });
++            if (compatibility.length) sections.push({
++                key: 'home-compatibility',
++                title: this.props.intl.formatMessage(messages.hubCompatibility),
++                description: this.props.intl.formatMessage(messages.hubCompatibilityDescription),
++                items: compatibility
++            });
++            if (online.length) sections.push({
++                key: 'home-online',
++                title: this.props.intl.formatMessage(messages.hubOnlineMarkets),
++                description: this.props.intl.formatMessage(messages.hubOnlineDescription),
++                items: online
++            });
++            if (other.length) sections.push({
++                key: 'home-other',
++                title: this.getSourceLabel(SOURCE_KEYS.OTHER),
++                items: other
++            });
++        } else if (
++            this.state.selectedSource === HUB_VIEWS.ONLINE ||
++            this.state.selectedSource === HUB_VIEWS.COMPATIBILITY
++        ) {
++            const sourceDefinitions = sourceRegistry.list({enabledOnly: true})
++                .filter(source => (
++                    this.state.selectedSource === HUB_VIEWS.ONLINE ?
++                        source.group === EXTENSION_SOURCE_GROUPS.ONLINE :
++                        source.group === EXTENSION_SOURCE_GROUPS.COMPATIBILITY
++                ));
++            for (const source of sourceDefinitions) {
++                const sourceItems = remainingItems.filter(item => item.source === source.id);
++                if (!sourceItems.length) continue;
++                sections.push({
++                    key: `group-${source.id}`,
++                    title: this.getSourceLabel(source.id),
++                    description: source.metadataURL ? `Remote source: ${source.metadataURL}` : null,
+                     items: sourceItems
+                 });
+             }
+         } else if (remainingItems.length) {
++            let title = this.getSourceLabel(this.state.selectedSource);
++            let description = null;
++            if (this.state.selectedSource === HUB_VIEWS.INSTALLED) {
++                title = this.props.intl.formatMessage(messages.hubInstalled);
++                description = 'Extensions currently loaded in this editor session.';
++            } else if (this.state.selectedSource === HUB_VIEWS.COMMUNITY) {
++                title = this.props.intl.formatMessage(messages.hubCommunity);
++                description = 'The NGVGE community repository will be connected in a later task.';
++            }
+             sections.push({
+                 key: `source-${this.state.selectedSource}`,
+-                title: this.props.intl.formatMessage(messages.moreSection, {
+-                    source: this.getSourceLabel(this.state.selectedSource)
+-                }),
++                title,
++                description,
+                 items: remainingItems
+             });
+         }
+ 
+         return {
+-            counts: this.getSourceCounts(normalized),
+-            sections
++            counts,
++            sections,
++            visibleCount: visibleItems.length
+         };
+     }
++    getHubSidebarGroups (counts) {
++        const createItem = (key, label, icon, options = {}) => ({
++            key,
++            label,
++            icon,
++            count: options.count,
++            status: options.status,
++            disabled: options.disabled,
++            active: this.state.selectedSource === key,
++            onClick: () => this.handleSourceSelect(key)
++        });
++        return [
++            {
++                key: 'discover',
++                title: this.props.intl.formatMessage(messages.hubDiscover),
++                items: [
++                    createItem(HUB_VIEWS.HOME, this.props.intl.formatMessage(messages.hubHome), '⌂', {
++                        count: counts[HUB_VIEWS.HOME]
++                    }),
++                    createItem(HUB_VIEWS.INSTALLED, this.props.intl.formatMessage(messages.hubInstalled), '✓', {
++                        count: counts[HUB_VIEWS.INSTALLED]
++                    })
++                ]
++            },
++            {
++                key: 'ngvge',
++                title: this.props.intl.formatMessage(messages.hubEcosystem),
++                items: [
++                    createItem(SOURCE_KEYS.NGVGE, this.getSourceLabel(SOURCE_KEYS.NGVGE), 'N', {
++                        count: counts[SOURCE_KEYS.NGVGE]
++                    }),
++                    createItem(HUB_VIEWS.COMMUNITY, this.props.intl.formatMessage(messages.hubCommunity), 'C', {
++                        count: 0,
++                        disabled: true,
++                        status: this.props.intl.formatMessage(messages.hubComingSoon)
++                    })
++                ]
++            },
++            {
++                key: 'compatibility',
++                title: this.props.intl.formatMessage(messages.hubCompatibility),
++                items: [
++                    createItem(HUB_VIEWS.COMPATIBILITY, 'All compatibility', '↔', {
++                        count: counts[HUB_VIEWS.COMPATIBILITY]
++                    }),
++                    createItem(SOURCE_KEYS.SCRATCH, this.getSourceLabel(SOURCE_KEYS.SCRATCH), 'S', {
++                        count: counts[SOURCE_KEYS.SCRATCH]
++                    }),
++                    createItem(SOURCE_KEYS.ENGINE, this.getSourceLabel(SOURCE_KEYS.ENGINE), '02', {
++                        count: counts[SOURCE_KEYS.ENGINE]
++                    }),
++                    createItem(SOURCE_KEYS.OTHER, this.getSourceLabel(SOURCE_KEYS.OTHER), '…', {
++                        count: counts[SOURCE_KEYS.OTHER]
++                    })
++                ]
++            },
++            {
++                key: 'online',
++                title: this.props.intl.formatMessage(messages.hubOnlineMarkets),
++                items: [
++                    createItem(HUB_VIEWS.ONLINE, 'All online sources', '◎', {
++                        count: counts[HUB_VIEWS.ONLINE]
++                    }),
++                    createItem(SOURCE_KEYS.TW, this.getSourceLabel(SOURCE_KEYS.TW), 'TW', {count: counts[SOURCE_KEYS.TW]}),
++                    createItem(SOURCE_KEYS.PM, this.getSourceLabel(SOURCE_KEYS.PM), 'PM', {count: counts[SOURCE_KEYS.PM]}),
++                    createItem(SOURCE_KEYS.ASTRA, this.getSourceLabel(SOURCE_KEYS.ASTRA), 'A', {count: counts[SOURCE_KEYS.ASTRA]}),
++                    createItem(SOURCE_KEYS.MIST, this.getSourceLabel(SOURCE_KEYS.MIST), 'M', {count: counts[SOURCE_KEYS.MIST]}),
++                    createItem(SOURCE_KEYS.SHARKPOOL, this.getSourceLabel(SOURCE_KEYS.SHARKPOOL), 'SP', {count: counts[SOURCE_KEYS.SHARKPOOL]}),
++                    createItem(SOURCE_KEYS.CCW, this.getSourceLabel(SOURCE_KEYS.CCW), 'CCW', {count: counts[SOURCE_KEYS.CCW]})
++                ]
++            }
++        ];
++    }
++    getFilterChips () {
++        const filterConfig = [
++            ['favorites', messages.quickFavorites],
++            ['selected', messages.quickSelected],
++            ['compatible', messages.quickCompatible],
++            ['native', messages.quickNative]
++        ];
++        return filterConfig.map(([key, message]) => ({
++            key,
++            label: this.props.intl.formatMessage(message),
++            active: this.state.quickFilters[key],
++            onClick: () => this.handleToggleQuickFilter(key)
++        }));
++    }
++    getHubSummary (counts) {
++        return [
++            {key: 'official', value: counts[SOURCE_KEYS.NGVGE], label: 'NGVGE official'},
++            {key: 'online', value: counts[HUB_VIEWS.ONLINE], label: 'Online market'},
++            {key: 'installed', value: counts[HUB_VIEWS.INSTALLED], label: 'Installed'}
++        ];
++    }
+     getActionLabel (item) {
++        if (item.isInstalled) {
++            return <FormattedMessage {...messages.openInstalledExtension} />;
++        }
+         if (item.isCustomLoad) {
+             return <FormattedMessage {...messages.openCustomLoader} />;
+         }
+@@ -1266,42 +1567,6 @@ class ExtensionLibrary extends React.PureComponent {
+         }
+         return <FormattedMessage {...messages.importExtension} />;
+     }
+-    getCardProps (item) {
+-        const badges = [];
+-        if (!item.isCompatible) {
+-            badges.push({
+-                key: 'incompatible',
+-                label: <FormattedMessage {...messages.badgeIncompatible} />
+-            });
+-        }
+-        if (item.isNative) {
+-            badges.push({
+-                key: 'native',
+-                label: <FormattedMessage {...messages.badgeNative} />
+-            });
+-        }
+-        const sourceToneMap = {
+-            [SOURCE_KEYS.NGVGE]: 'Engine',
+-            [SOURCE_KEYS.SCRATCH]: 'Scratch',
+-            [SOURCE_KEYS.ENGINE]: 'Engine',
+-            [SOURCE_KEYS.TW]: 'Tw',
+-            [SOURCE_KEYS.ASTRA]: 'Astra',
+-            [SOURCE_KEYS.PM]: 'Pm',
+-            [SOURCE_KEYS.MIST]: 'Mist',
+-            [SOURCE_KEYS.SHARKPOOL]: 'Sharkpool',
+-            [SOURCE_KEYS.CUSTOM]: 'Custom',
+-            [SOURCE_KEYS.SPECIAL]: 'Special',
+-            [SOURCE_KEYS.OTHER]: 'Other'
+-        };
+-
+-        return {
+-            actionLabel: this.getActionLabel(item),
+-            badges,
+-            hideFavorite: item.isCCWLoad,
+-            sourceLabel: item.sourceLabel,
+-            sourceTone: sourceToneMap[item.source] || 'Other'
+-        };
+-    }
+     getCCWRecommendationButtons () {
+         const options = [
+             ['likeCount', '最多喜欢'],
+@@ -1356,70 +1621,6 @@ class ExtensionLibrary extends React.PureComponent {
+             </div>
+         );
+     }
+-    getSidebar (counts) {
+-        return (
+-            <React.Fragment>
+-                <div className={libraryStyles.sidebarTitle}>
+-                    <FormattedMessage {...messages.sourcesTitle} />
+-                </div>
+-                <div className={libraryStyles.sidebarNav}>
+-                    {SOURCE_NAV_ORDER.map(sourceKey => (
+-                        <button
+-                            key={sourceKey}
+-                            type="button"
+-                            className={[
+-                                libraryStyles.sidebarButton,
+-                                this.state.selectedSource === sourceKey ? libraryStyles.sidebarButtonActive : ''
+-                            ].join(' ')}
+-                            onClick={() => this.handleSourceSelect(sourceKey)}
+-                        >
+-                            <div className={libraryStyles.sidebarButtonLabel}>
+-                                {this.getSourceLabel(sourceKey)}
+-                            </div>
+-                            <span className={libraryStyles.sidebarButtonCount}>
+-                                {counts[sourceKey] || 0}
+-                            </span>
+-                        </button>
+-                    ))}
+-                    <button
+-                        type="button"
+-                        className={[
+-                            libraryStyles.sidebarButton,
+-                            libraryStyles.sidebarActionButton
+-                        ].join(' ')}
+-                        onClick={this.handleCustomExtensionOpen}
+-                    >
+-                        <div className={libraryStyles.sidebarButtonLabel}>
+-                            <FormattedMessage {...messages.openCustomLoader} />
+-                        </div>
+-                    </button>
+-                </div>
+-                {this.state.selectedSource === SOURCE_KEYS.CCW && this.getCCWSortControl()}
+-            </React.Fragment>
+-        );
+-    }
+-    getQuickFilterButtons () {
+-        const quickFilterConfig = [
+-            ['favorites', messages.quickFavorites],
+-            ['selected', messages.quickSelected],
+-            ['compatible', messages.quickCompatible],
+-            ['native', messages.quickNative],
+-            ['custom', messages.quickCustom]
+-        ];
+-        return quickFilterConfig.map(([key, message]) => (
+-            <button
+-                key={key}
+-                type="button"
+-                className={[
+-                    libraryStyles.quickFilterButton,
+-                    this.state.quickFilters[key] ? libraryStyles.quickFilterButtonActive : ''
+-                ].join(' ')}
+-                onClick={() => this.handleToggleQuickFilter(key)}
+-            >
+-                {this.props.intl.formatMessage(message)}
+-            </button>
+-        ));
+-    }
+     renderEmptyState () {
+         return (
+             <div className={libraryStyles.emptyState}>
+@@ -1441,58 +1642,64 @@ class ExtensionLibrary extends React.PureComponent {
+     }
+     render () {
+         const library = this.getLibraryItems();
+-        const {counts, sections} = this.getSections();
++        const {counts, sections, visibleCount} = this.getSections();
++        const sortOptions = [
++            {value: 'recommended', label: this.props.intl.formatMessage(messages.hubSortRecommended)},
++            {value: 'name', label: this.props.intl.formatMessage(messages.hubSortName)},
++            {value: 'source', label: this.props.intl.formatMessage(messages.hubSortSource)}
++        ];
+ 
+         return (
+-            <LibraryComponent
+-                    contentKey={[
+-                        this.state.query,
+-                        this.state.selectedSource,
+-                        ...Object.keys(this.state.quickFilters)
+-                            .filter(key => this.state.quickFilters[key])
+-                    ].join(':')}
+-                    data={library}
+-                    emptyState={this.renderEmptyState()}
+-                    favorites={this.state.favorites}
+-                    filterQuery={this.state.query}
+-                    filterable
+-                    getItemProps={this.getCardProps}
+-                    headerAction={this.state.selectedItemKeys.length > 0 ? (
+-                        <React.Fragment>
+-                            <button
+-                                type="button"
+-                                className={libraryStyles.headerSecondaryButton}
+-                                onClick={this.handleClearSelection}
+-                            >
+-                                <FormattedMessage {...messages.clearSelection} />
+-                            </button>
+-                            <button
+-                                type="button"
+-                                className={libraryStyles.headerActionButton}
+-                                onClick={this.handleBatchImport}
+-                            >
+-                                <FormattedMessage
+-                                    {...messages.batchImport}
+-                                    values={{count: this.state.selectedItemKeys.length}}
+-                                />
+-                            </button>
+-                        </React.Fragment>
+-                    ) : null}
+-                    id="extensionLibrary"
+-                    isItemSelectable={this.isItemSelectable}
+-                    isItemSelected={this.isItemSelected}
+-                    persistableKey="favoriteKey"
+-                    quickFilters={this.getQuickFilterButtons()}
+-                    sections={library ? sections : []}
+-                    sidebar={this.getSidebar(counts)}
+-                    title={this.props.intl.formatMessage(messages.extensionTitle)}
+-                    visible={this.props.visible}
+-                    onFavoritesChange={this.handleFavoritesChange}
+-                    onFilterQueryChange={this.handleQueryChange}
+-                    onFilterQueryClear={this.handleClearQuery}
+-                    onItemSelectionToggle={this.handleSelectionToggle}
+-                    onItemSelected={this.handleItemSelect}
++            <ExtensionCenter
++                customExtensionLabel={<FormattedMessage {...messages.openCustomLoader} />}
++                emptyState={this.renderEmptyState()}
++                filterChips={this.getFilterChips()}
++                getActionLabel={this.getActionLabel}
++                headerAction={this.state.selectedItemKeys.length > 0 ? (
++                    <React.Fragment>
++                        <button
++                            type="button"
++                            className={libraryStyles.headerSecondaryButton}
++                            onClick={this.handleClearSelection}
++                        >
++                            <FormattedMessage {...messages.clearSelection} />
++                        </button>
++                        <button
++                            type="button"
++                            className={libraryStyles.headerActionButton}
++                            onClick={this.handleBatchImport}
++                        >
++                            <FormattedMessage
++                                {...messages.batchImport}
++                                values={{count: this.state.selectedItemKeys.length}}
++                            />
++                        </button>
++                    </React.Fragment>
++                ) : null}
++                isFavorite={this.isItemFavorite}
++                isItemSelectable={this.isItemSelectable}
++                isItemSelected={this.isItemSelected}
++                query={this.state.query}
++                resultLabel={this.props.intl.formatMessage(messages.hubResultCount, {count: visibleCount})}
++                searchPlaceholder={this.props.intl.formatMessage(messages.hubSearchPlaceholder)}
++                sections={library ? sections : []}
++                showOverview={this.state.selectedSource === HUB_VIEWS.HOME && !this.state.query}
++                sidebarExtra={this.state.selectedSource === SOURCE_KEYS.CCW ? this.getCCWSortControl() : null}
++                sidebarGroups={this.getHubSidebarGroups(counts)}
++                sortLabel={<FormattedMessage {...messages.hubSort} />}
++                sortMode={this.state.sortMode}
++                sortOptions={sortOptions}
++                subtitle={<FormattedMessage {...messages.hubSubtitle} />}
++                summary={this.getHubSummary(counts)}
++                title={this.props.intl.formatMessage(messages.extensionTitle)}
++                onFavorite={this.handleFavoriteToggle}
++                onItemSelected={this.handleItemSelect}
++                onOpenCustomExtension={this.handleCustomExtensionOpen}
++                onQueryChange={this.handleQueryChange}
++                onQueryClear={this.handleClearQuery}
+                 onRequestClose={this.props.onRequestClose}
++                onSelectionToggle={this.handleSelectionToggle}
++                onSortChange={this.handleSortChange}
+             />
+         );
+     }
+diff --git a/test/unit/components/extension-center.test.jsx b/test/unit/components/extension-center.test.jsx
+new file mode 100644
+index 0000000..0063e46
+--- /dev/null
++++ b/test/unit/components/extension-center.test.jsx
+@@ -0,0 +1,98 @@
++import React from 'react';
++import renderer from 'react-test-renderer';
++
++import ExtensionCenter from '../../../src/components/extension-center/extension-center.jsx';
++
++jest.mock('../../../src/containers/modal.jsx', () => props => <div>{props.children}</div>);
++
++const item = {
++    description: 'Native camera module',
++    extensionId: 'ngvge.camera',
++    favoriteKey: 'ngvge.camera',
++    isCompatible: true,
++    isInstalled: false,
++    name: 'Camera 2D',
++    ngvgeManifest: {
++        kind: 'ngvge-native',
++        source: {id: 'ngvge'}
++    },
++    sourceLabel: 'NGVGE Official'
++};
++
++const renderCenter = ({extension = item, onItemSelected = jest.fn()} = {}) => renderer.create(
++    <ExtensionCenter
++        filterChips={[]}
++        getActionLabel={() => 'Install'}
++        isFavorite={() => false}
++        isItemSelectable={() => false}
++        isItemSelected={() => false}
++        query=""
++        sections={[{key: 'official', title: 'NGVGE Official', items: [extension]}]}
++        sidebarGroups={[{
++            key: 'ecosystems',
++            title: 'NGVGE Ecosystem',
++            items: [{key: 'ngvge', label: 'Official', icon: 'N', count: 1, onClick: jest.fn()}]
++        }, {
++            key: 'online',
++            title: 'Online Markets',
++            items: [{key: 'tw', label: 'TurboWarp', icon: 'TW', count: 0, onClick: jest.fn()}]
++        }]}
++        sortMode="recommended"
++        sortOptions={[{value: 'recommended', label: 'Recommended'}]}
++        summary={[]}
++        title="Extension Center"
++        onFavorite={jest.fn()}
++        onItemSelected={onItemSelected}
++        onOpenCustomExtension={jest.fn()}
++        onQueryChange={jest.fn()}
++        onQueryClear={jest.fn()}
++        onRequestClose={jest.fn()}
++        onSelectionToggle={jest.fn()}
++        onSortChange={jest.fn()}
++    />
++);
++
++describe('ExtensionCenter', () => {
++    test('renders separated ecosystems and extension metadata', () => {
++        const component = renderCenter();
++        const text = JSON.stringify(component.toJSON());
++
++        expect(text).toContain('Extension Center');
++        expect(text).toContain('NGVGE Ecosystem');
++        expect(text).toContain('Online Markets');
++        expect(text).toContain('Camera 2D');
++        expect(text).toContain('NGVGE Official');
++        expect(text).toContain('Install');
++    });
++
++    test('does not activate disabled extensions', () => {
++        const onItemSelected = jest.fn();
++        const component = renderCenter({
++            extension: {...item, disabled: true},
++            onItemSelected
++        });
++        const card = component.root.findByType('article');
++
++        card.props.onClick({target: {closest: () => null}});
++
++        expect(card.props['aria-disabled']).toBe(true);
++        expect(card.props.tabIndex).toBe(-1);
++        expect(onItemSelected).not.toHaveBeenCalled();
++    });
++
++    test('does not activate the card when an author link is clicked', () => {
++        const onItemSelected = jest.fn();
++        const component = renderCenter({
++            extension: {
++                ...item,
++                credits: [<a href="https://example.com" key="author">Author</a>]
++            },
++            onItemSelected
++        });
++        const card = component.root.findByType('article');
++
++        card.props.onClick({target: {closest: selector => selector === 'a' ? {} : null}});
++
++        expect(onItemSelected).not.toHaveBeenCalled();
++    });
++});

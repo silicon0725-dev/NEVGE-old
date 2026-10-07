@@ -1,0 +1,1184 @@
+@import "../../css/units.css";
+@import "../../css/colors.css";
+
+.project-explorer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: $ui-white;
+    color: $text-primary;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.project-explorer-embedded {
+    flex: 0 0 auto;
+    min-width: 180px;
+    max-width: 560px;
+    border-right: 1px solid $ui-black-transparent;
+    box-shadow: 1px 0 0 rgba(0, 0, 0, 0.02);
+    z-index: 2;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    min-height: 3.25rem;
+    padding: 0.55rem 0.65rem 0.55rem 0.8rem;
+    border-bottom: 1px solid $ui-black-transparent;
+    background: linear-gradient(180deg, $ui-white 0%, $ui-primary 100%);
+}
+
+.header-text {
+    min-width: 0;
+}
+
+.eyebrow {
+    display: block;
+    margin-bottom: 0.08rem;
+    color: $motion-primary;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.title {
+    margin: 0;
+    overflow: hidden;
+    color: $text-primary;
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.close-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.4rem;
+    background: transparent;
+    color: $text-primary-transparent;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus-visible {
+    background: $ui-black-transparent;
+    color: $text-primary;
+    outline: none;
+}
+
+.content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 0.45rem 0;
+}
+
+.tree {
+    min-width: max-content;
+}
+
+.node {
+    display: flex;
+    align-items: center;
+    min-height: 2rem;
+    padding-right: 0.65rem;
+    user-select: none;
+}
+
+.node:hover {
+    background: rgba(77, 151, 255, 0.08);
+}
+
+.node-interactive {
+    cursor: pointer;
+}
+
+.node-interactive:focus-visible {
+    outline: 2px solid $motion-primary;
+    outline-offset: -2px;
+}
+
+.node-selected {
+    background: rgba(77, 151, 255, 0.18);
+}
+
+.node-selected:hover {
+    background: rgba(77, 151, 255, 0.23);
+}
+
+.node-selected .node-label {
+    color: $motion-primary;
+}
+
+.disclosure-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 1.25rem;
+    height: 1.5rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: $text-primary-transparent;
+    cursor: pointer;
+}
+
+.disclosure-button:focus-visible {
+    border-radius: 0.25rem;
+    outline: 2px solid $motion-primary;
+    outline-offset: -2px;
+}
+
+.disclosure-placeholder {
+    flex: 0 0 auto;
+    width: 1.25rem;
+}
+
+.disclosure-icon {
+    width: 0.72rem;
+    height: 0.72rem;
+    transition: transform 0.12s ease;
+}
+
+.disclosure-icon-expanded {
+    transform: rotate(90deg);
+}
+
+.node-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 1.35rem;
+    height: 1.35rem;
+    margin-right: 0.3rem;
+    color: $motion-primary;
+    font-size: 0.95rem;
+}
+
+.node-label {
+    overflow: hidden;
+    color: $text-primary;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.node-secondary-label {
+    margin-left: auto;
+    padding-left: 0.75rem;
+    color: $text-primary-transparent;
+    font-size: 0.68rem;
+}
+
+.empty-state {
+    margin: 0.35rem 0.65rem 0.65rem 2.95rem;
+    padding: 0.7rem;
+    border: 1px dashed rgba(77, 151, 255, 0.35);
+    border-radius: 0.55rem;
+    background: rgba(77, 151, 255, 0.05);
+    color: $text-primary-transparent;
+    font-size: 0.7rem;
+    line-height: 1.42;
+    white-space: normal;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    min-height: 2rem;
+    padding: 0 0.8rem;
+    border-top: 1px solid $ui-black-transparent;
+    color: $text-primary-transparent;
+    font-size: 0.66rem;
+}
+
+.status-dot {
+    width: 0.42rem;
+    height: 0.42rem;
+    margin-right: 0.4rem;
+    border-radius: 50%;
+    background: #2eaa62;
+    box-shadow: 0 0 0 2px rgba(46, 170, 98, 0.12);
+}
+
+.asset-workspace {
+    width: min(19rem, calc(100vw - 3rem));
+    margin: 0.35rem 0.55rem 0.75rem 2.15rem;
+    padding: 0.55rem;
+    border: 1px solid rgba(77, 151, 255, 0.2);
+    border-radius: 0.55rem;
+    background: rgba(77, 151, 255, 0.035);
+    white-space: normal;
+}
+
+.asset-workspace button,
+.asset-workspace input {
+    min-height: 1.9rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.38rem;
+    font: inherit;
+}
+
+.asset-workspace button {
+    padding: 0.25rem 0.45rem;
+    background: $ui-white;
+    color: $text-primary;
+    cursor: pointer;
+}
+
+.asset-workspace button:hover:not(:disabled),
+.asset-workspace button:focus-visible:not(:disabled) {
+    border-color: $motion-primary;
+    outline: none;
+}
+
+.asset-workspace button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.asset-primary-button {
+    width: 100%;
+    border-color: rgba(77, 151, 255, 0.45) !important;
+    color: $motion-primary !important;
+    font-weight: 700 !important;
+}
+
+.asset-details {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 0.55rem;
+    padding: 0.45rem;
+    border-radius: 0.45rem;
+    background: $ui-white;
+}
+
+.asset-preview,
+.asset-preview-fallback {
+    flex: 0 0 auto;
+    width: 2.8rem;
+    height: 2.8rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.4rem;
+    background: repeating-conic-gradient(#f1f1f1 0 25%, #fff 0 50%) 50% / 0.65rem 0.65rem;
+    object-fit: contain;
+}
+
+.asset-preview-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-primary-transparent;
+    font-size: 0.55rem;
+    font-weight: 700;
+}
+
+.asset-metadata {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.12rem;
+    color: $text-primary-transparent;
+    font-size: 0.62rem;
+}
+
+.asset-metadata strong {
+    overflow: hidden;
+    color: $text-primary;
+    font-size: 0.72rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.asset-hash {
+    overflow: hidden;
+    font-family: monospace;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.asset-rename {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.35rem;
+    margin-top: 0.45rem;
+}
+
+.asset-rename input {
+    min-width: 0;
+    padding: 0 0.45rem;
+    background: $ui-white;
+    color: $text-primary;
+}
+
+.asset-action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+    margin-top: 0.45rem;
+}
+
+.asset-action-grid button {
+    font-size: 0.64rem;
+}
+
+.asset-references {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.55rem;
+    color: $text-primary-transparent;
+    font-size: 0.62rem;
+}
+
+.asset-references strong {
+    color: $text-primary;
+    font-size: 0.66rem;
+}
+
+.asset-references button {
+    min-height: 1.55rem;
+    overflow: hidden;
+    padding: 0.15rem 0.35rem;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.asset-current-status,
+.asset-status {
+    margin-top: 0.5rem;
+    color: $text-primary-transparent;
+    font-size: 0.61rem;
+    line-height: 1.35;
+}
+
+.asset-status {
+    padding: 0.35rem 0.4rem;
+    border-radius: 0.35rem;
+    background: rgba(77, 151, 255, 0.08);
+    color: $text-primary;
+}
+
+
+.asset-provider-summary {
+    width: calc(100% - 3.1rem);
+    margin: 0.25rem 0.55rem 0.65rem 2.55rem;
+    padding: 0.55rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.5rem;
+    background: $ui-primary;
+}
+
+.asset-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+}
+
+.asset-summary-grid > div {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 0.4rem;
+    border-radius: 0.4rem;
+    background: $ui-white;
+}
+
+.asset-summary-grid span {
+    overflow: hidden;
+    color: $text-primary-transparent;
+    font-size: 0.56rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.asset-summary-grid strong {
+    margin-top: 0.12rem;
+    color: $text-primary;
+    font-size: 0.76rem;
+}
+
+.open-asset-manager-button {
+    width: 100%;
+    min-height: 2rem;
+    margin-top: 0.45rem;
+    border: 1px solid rgba(77, 151, 255, 0.45);
+    border-radius: 0.4rem;
+    background: rgba(77, 151, 255, 0.1);
+    color: $motion-primary;
+    font: inherit;
+    font-size: 0.66rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.open-asset-manager-button:hover,
+.open-asset-manager-button:focus-visible {
+    border-color: $motion-primary;
+    background: rgba(77, 151, 255, 0.16);
+    outline: none;
+}
+
+.node-creation-panel {
+    width: calc(100% - 3.1rem);
+    margin: 0.25rem 0.55rem 0.55rem 2.55rem;
+    padding: 0.55rem;
+    border: 1px solid rgba(77, 151, 255, 0.22);
+    border-radius: 0.5rem;
+    background: rgba(77, 151, 255, 0.045);
+    white-space: normal;
+}
+
+.node-creation-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem;
+}
+
+.node-creation-fields select,
+.node-creation-fields input {
+    width: 100%;
+    min-width: 0;
+    height: 1.85rem;
+    padding: 0 0.45rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.36rem;
+    background: $ui-white;
+    color: $text-primary;
+    font: inherit;
+    font-size: 0.66rem;
+}
+
+.node-creation-fields select:focus,
+.node-creation-fields input:focus {
+    border-color: $motion-primary;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(77, 151, 255, 0.12);
+}
+
+.node-creation-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+    margin-top: 0.4rem;
+}
+
+.node-creation-actions button {
+    min-width: 0;
+    min-height: 1.8rem;
+    padding: 0.2rem 0.35rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.36rem;
+    background: $ui-white;
+    color: $text-primary;
+    font: inherit;
+    font-size: 0.62rem;
+    cursor: pointer;
+}
+
+.node-creation-actions button:hover:not(:disabled),
+.node-creation-actions button:focus-visible:not(:disabled) {
+    border-color: $motion-primary;
+    color: $motion-primary;
+    outline: none;
+}
+
+.node-creation-actions button:disabled {
+    opacity: 0.42;
+    cursor: default;
+}
+
+.node-creation-hint {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.12rem;
+    margin-top: 0.42rem;
+    color: $text-primary-transparent;
+    font-size: 0.58rem;
+    line-height: 1.35;
+}
+
+.node-creation-hint span {
+    color: $motion-primary;
+}
+
+.empty-node-actions {
+    width: calc(100% - 3.1rem);
+    margin: 0.35rem 0.55rem 0.75rem 2.55rem;
+    padding: 0.65rem;
+    border: 1px dashed rgba(77, 151, 255, 0.38);
+    border-radius: 0.6rem;
+    background: rgba(77, 151, 255, 0.045);
+}
+
+.empty-node-actions p {
+    margin: 0 0 0.55rem;
+    color: $text-primary-transparent;
+    font-size: 0.62rem;
+}
+
+.empty-node-actions button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 2.35rem;
+    margin-top: 0.35rem;
+    padding: 0.4rem 0.55rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.45rem;
+    background: $ui-white;
+    color: $text-primary;
+    font: inherit;
+    font-size: 0.7rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.empty-node-actions button span {
+    margin-left: 0.45rem;
+    font-weight: 700;
+}
+
+.empty-node-actions button small {
+    margin-left: auto;
+    color: $text-primary-transparent;
+    font-size: 0.55rem;
+}
+
+.empty-node-actions button:hover:not(:disabled),
+.empty-node-actions button:focus-visible:not(:disabled) {
+    border-color: $motion-primary;
+    color: $motion-primary;
+    outline: none;
+}
+
+.empty-node-actions button:disabled {
+    opacity: 0.48;
+    cursor: default;
+}
+
+.node-dialog-backdrop {
+    position: fixed;
+    z-index: 2147483000;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.42);
+}
+
+.node-dialog {
+    display: flex;
+    width: min(46rem, calc(100vw - 4rem));
+    height: min(32rem, calc(100vh - 4rem));
+    min-height: 24rem;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.75rem;
+    background: $ui-white;
+    box-shadow: 0 1.2rem 3.5rem rgba(0, 0, 0, 0.32);
+}
+
+.node-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid $ui-black-transparent;
+}
+
+.node-dialog-header div {
+    display: flex;
+    flex-direction: column;
+}
+
+.node-dialog-header span {
+    color: $text-primary-transparent;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+}
+
+.node-dialog-header strong {
+    margin-top: 0.15rem;
+    font-size: 0.95rem;
+}
+
+.node-dialog-header button {
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 0.4rem;
+    background: transparent;
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+.node-dialog-parent {
+    padding: 0.45rem 1rem;
+    background: $ui-primary;
+    color: $text-primary-transparent;
+    font-size: 0.62rem;
+}
+
+.node-dialog-search {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid $ui-black-transparent;
+}
+
+.node-dialog-search input,
+.node-type-details input {
+    width: 100%;
+    height: 2.15rem;
+    padding: 0 0.65rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.45rem;
+    background: $ui-white;
+    color: $text-primary;
+    font: inherit;
+}
+
+.node-dialog-search input:focus,
+.node-type-details input:focus {
+    border-color: $motion-primary;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(77, 151, 255, 0.12);
+}
+
+.node-dialog-body {
+    display: grid;
+    flex: 1 1 auto;
+    min-height: 0;
+    grid-template-columns: minmax(13rem, 0.9fr) minmax(16rem, 1.2fr);
+}
+
+.node-type-list {
+    min-height: 0;
+    overflow: auto;
+    padding: 0.65rem;
+    border-right: 1px solid $ui-black-transparent;
+    background: $ui-primary;
+}
+
+.node-type-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 3rem;
+    margin-bottom: 0.35rem;
+    padding: 0.45rem 0.55rem;
+    border: 1px solid transparent;
+    border-radius: 0.45rem;
+    background: transparent;
+    color: $text-primary;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.node-type-item > span {
+    width: 1.8rem;
+    margin-right: 0.5rem;
+    color: $motion-primary;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.node-type-item div {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.node-type-item strong {
+    font-size: 0.72rem;
+}
+
+.node-type-item small {
+    margin-top: 0.1rem;
+    color: $text-primary-transparent;
+    font-size: 0.56rem;
+}
+
+.node-type-item:hover,
+.node-type-item-selected {
+    border-color: rgba(77, 151, 255, 0.42);
+    background: rgba(77, 151, 255, 0.1);
+}
+
+.node-type-empty {
+    padding: 1rem;
+    color: $text-primary-transparent;
+    font-size: 0.65rem;
+    text-align: center;
+}
+
+.node-type-details {
+    min-width: 0;
+    overflow: auto;
+    padding: 1.1rem;
+}
+
+.node-type-hero {
+    display: flex;
+    align-items: center;
+}
+
+.node-type-hero > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.2rem;
+    height: 3.2rem;
+    margin-right: 0.75rem;
+    border-radius: 0.65rem;
+    background: rgba(77, 151, 255, 0.1);
+    color: $motion-primary;
+    font-size: 1.7rem;
+}
+
+.node-type-hero div {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.node-type-hero strong {
+    font-size: 1rem;
+}
+
+.node-type-hero small {
+    margin-top: 0.2rem;
+    overflow: hidden;
+    color: $text-primary-transparent;
+    font-family: monospace;
+    font-size: 0.58rem;
+    text-overflow: ellipsis;
+}
+
+.node-type-details p {
+    margin: 1rem 0;
+    color: $text-primary-transparent;
+    font-size: 0.68rem;
+    line-height: 1.5;
+}
+
+.node-type-details label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    color: $text-primary;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.node-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid $ui-black-transparent;
+}
+
+.node-dialog-footer button {
+    min-width: 5.5rem;
+    min-height: 2rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.42rem;
+    background: $ui-white;
+    color: $text-primary;
+    font: inherit;
+    font-size: 0.68rem;
+    cursor: pointer;
+}
+
+.node-dialog-create-button {
+    border-color: $motion-primary !important;
+    background: $motion-primary !important;
+    color: $ui-white !important;
+    font-weight: 700 !important;
+}
+
+.node-dialog-footer button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.node-type-group {
+    margin-bottom: 0.75rem;
+}
+
+.node-type-group-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.15rem 0.35rem 0.4rem;
+    color: $text-primary-transparent;
+    font-size: 0.54rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.node-type-group-title strong {
+    overflow: hidden;
+    color: $text-primary;
+    font-size: 0.58rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.node-type-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+}
+
+.node-type-badges span {
+    padding: 0.22rem 0.42rem;
+    border-radius: 999px;
+    background: rgba(77, 151, 255, 0.1);
+    color: $motion-primary;
+    font-size: 0.55rem;
+    font-weight: 700;
+}
+
+.rename-node-dialog {
+    display: flex;
+    width: min(28rem, calc(100vw - 3rem));
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.75rem;
+    background: $ui-white;
+    box-shadow: 0 1.2rem 3.5rem rgba(0, 0, 0, 0.32);
+}
+
+.rename-node-body {
+    padding: 1rem;
+}
+
+.rename-node-body label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    color: $text-primary;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.rename-node-body input {
+    width: 100%;
+    height: 2.15rem;
+    padding: 0 0.65rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.45rem;
+    background: $ui-white;
+    color: $text-primary;
+    font: inherit;
+}
+
+.rename-node-body input:focus {
+    border-color: $motion-primary;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(77, 151, 255, 0.12);
+}
+
+.node-context-separator {
+    height: 1px;
+    margin: 0.3rem 0.35rem;
+    background: $ui-black-transparent;
+}
+
+.node-context-menu .node-context-danger {
+    color: #d43c3c;
+}
+
+.node-context-menu .node-context-danger:hover:not(:disabled),
+.node-context-menu .node-context-danger:focus-visible:not(:disabled) {
+    background: rgba(212, 60, 60, 0.1);
+    color: #d43c3c;
+}
+
+.node-context-menu {
+    position: fixed;
+    z-index: 2147482900;
+    width: 15rem;
+    padding: 0.35rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.5rem;
+    background: $ui-white;
+    box-shadow: 0 0.7rem 2rem rgba(0, 0, 0, 0.25);
+}
+
+.node-context-title {
+    overflow: hidden;
+    padding: 0.35rem 0.5rem 0.5rem;
+    color: $text-primary-transparent;
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.node-context-menu button {
+    width: 100%;
+    min-height: 2rem;
+    padding: 0.35rem 0.5rem;
+    border: 0;
+    border-radius: 0.35rem;
+    background: transparent;
+    color: $text-primary;
+    font: inherit;
+    font-size: 0.65rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.node-context-menu button:hover:not(:disabled),
+.node-context-menu button:focus-visible:not(:disabled) {
+    background: rgba(77, 151, 255, 0.12);
+    color: $motion-primary;
+    outline: none;
+}
+
+.node-context-menu button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.scene-tree-toolbar {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 0.45rem;
+    padding: 0.45rem 0.55rem;
+    border-bottom: 1px solid $ui-black-transparent;
+    background: $ui-primary;
+}
+
+.scene-tree-search {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 2rem;
+    padding: 0 0.35rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.42rem;
+    background: $ui-white;
+}
+
+.scene-tree-search:focus-within {
+    border-color: $motion-primary;
+    box-shadow: 0 0 0 2px rgba(77, 151, 255, 0.12);
+}
+
+.scene-tree-search > span {
+    flex: 0 0 auto;
+    width: 1.25rem;
+    color: $text-primary-transparent;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.scene-tree-search input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    padding: 0 0.3rem;
+    border: 0;
+    background: transparent;
+    color: $text-primary;
+    font: inherit;
+    font-size: 0.68rem;
+    outline: none;
+}
+
+.scene-tree-search button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 1.45rem;
+    height: 1.45rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.3rem;
+    background: transparent;
+    color: $text-primary-transparent;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.scene-tree-search button:hover,
+.scene-tree-search button:focus-visible {
+    background: $ui-black-transparent;
+    color: $text-primary;
+    outline: none;
+}
+
+.scene-tree-selection-status {
+    flex: 0 0 auto;
+    padding: 0.28rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(77, 151, 255, 0.12);
+    color: $motion-primary;
+    font-size: 0.56rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.node[draggable="true"] {
+    cursor: grab;
+}
+
+.node[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+.node-dragging {
+    opacity: 0.42;
+}
+
+.node-drop-active {
+    position: relative;
+    background: rgba(77, 151, 255, 0.18);
+    box-shadow: inset 0 0 0 2px rgba(77, 151, 255, 0.65);
+}
+
+.node-drop-active::after {
+    position: absolute;
+    right: 0.45rem;
+    content: "Move here";
+    color: $motion-primary;
+    font-size: 0.52rem;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+.runtime-node-notice {
+    display: flex;
+    align-items: flex-start;
+    flex: 0 0 auto;
+    gap: 0.5rem;
+    padding: 0.5rem 0.6rem;
+    border-bottom: 1px solid rgba(210, 54, 54, 0.24);
+    background: rgba(210, 54, 54, 0.08);
+    color: $text-primary;
+    font-size: 0.62rem;
+}
+
+.runtime-node-notice-warning {
+    border-bottom-color: rgba(205, 139, 20, 0.28);
+    background: rgba(205, 139, 20, 0.1);
+}
+
+.runtime-node-notice-body {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.14rem;
+}
+
+.runtime-node-notice-body strong {
+    font-size: 0.65rem;
+}
+
+.runtime-node-notice-body span,
+.runtime-node-notice-body small {
+    overflow-wrap: anywhere;
+}
+
+.runtime-node-notice-body small {
+    color: $text-primary-transparent;
+    font-size: 0.56rem;
+}
+
+.runtime-node-notice > button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 1.35rem;
+    height: 1.35rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.3rem;
+    background: transparent;
+    color: $text-primary-transparent;
+    cursor: pointer;
+}
+
+.runtime-node-notice > button:hover,
+.runtime-node-notice > button:focus-visible {
+    background: $ui-black-transparent;
+    color: $text-primary;
+    outline: none;
+}
+
+.close-button svg,
+.node-dialog-header button svg,
+.scene-tree-search svg,
+.runtime-node-notice button svg,
+.legacy-sprites-launcher svg,
+.functional-node-launcher svg {
+    width: 0.9rem;
+    height: 0.9rem;
+}
+
+.legacy-sprites-launcher,
+.functional-node-launcher {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.42rem;
+    background: $ui-white;
+    color: $text-primary-transparent;
+    cursor: pointer;
+}
+
+.functional-node-launcher {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.legacy-sprites-launcher:hover,
+.legacy-sprites-launcher:focus-visible,
+.functional-node-launcher:hover,
+.functional-node-launcher:focus-visible {
+    border-color: rgba(128, 128, 128, 0.5);
+    background: $ui-primary;
+    color: $text-primary;
+    outline: none;
+}

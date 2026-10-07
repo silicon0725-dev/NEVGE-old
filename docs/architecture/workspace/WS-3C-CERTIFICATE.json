@@ -1,0 +1,47 @@
+{
+  "certificateId": "ngvge.ws-3c-dock-placement-geometry-certificate/v1",
+  "stage": "WS-3C",
+  "status": "COMPLETE / VERIFIED",
+  "date": "2026-08-13",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "identities": {
+    "placementModel": "ngvge.workspace-dock-placement-model@1",
+    "preferenceSchema": "ngvge.workspace-dock-placement-preference@1",
+    "dockRuntimeModel": "ngvge.workspace-dock-runtime-model@1",
+    "interactionController": "ngvge.workspace-dock-interaction-controller@1",
+    "windowAuthority": "ngvge.workspace-window-manager@1"
+  },
+  "contract": {
+    "placements": ["top", "bottom", "left", "right"],
+    "alignments": ["start", "center", "end"],
+    "offsets": ["offsetX", "offsetY"],
+    "offsetSemantics": "+X right, +Y down",
+    "default": {
+      "placement": "bottom",
+      "alignment": "center",
+      "offsetX": 0,
+      "offsetY": 0
+    },
+    "persistence": "deferred-to-WS-4"
+  },
+  "evidence": {
+    "machineGate": {"passed": 43, "total": 43},
+    "focusedTests": {"passed": 13, "total": 13},
+    "workspaceCumulative": "PASS / exit 0",
+    "unitNode": {"suites": 104, "tests": 567, "status": "PASS"},
+    "unitDom": {"suites": 3, "tests": 26, "status": "PASS"},
+    "integration": {"suites": 4, "tests": 5, "status": "PASS"},
+    "smoke": {"suites": 1, "tests": 1, "status": "PASS"},
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "webpack": {
+      "entry": "src/components/workspace-dock/workspace-dock.jsx",
+      "config": "webpack.config.js[0]",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0,
+      "status": "PASS"
+    }
+  },
+  "deferred": ["WS-3D organization presentation", "WS-3E Launchpad", "WS-3F minimize animation", "WS-4 Workspace persistence/settings"]
+}

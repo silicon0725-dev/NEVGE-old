@@ -1,0 +1,8 @@
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  /mnt/data/ngvge_897_fix_patch/FILE-SHA256.txt
+b79b4e822b0b8910722dbf703ea85c70a31722d227dc55d61fe94145ffcd518b  /mnt/data/ngvge_897_fix_patch/NGVGE-0008.9.7-Preflight-Module-Capability-Publication-Authority-Fix-Validation.md
+8ed78e8792e59bd514e27cf6c83f0b8eab03c8c250b4eac182ed1c8db685d374  /mnt/data/ngvge_897_fix_patch/PATCH-README.md
+72bf2938bd73e5b17d997be7d5866b66065ed37c19e6813a9237c87cdc5d2cbc  /mnt/data/ngvge_897_fix_patch/package.json
+f2198b77a58a4facc99fbacb0222cc35e1d64fb8ce5990a1806628c581dd01c9  /mnt/data/ngvge_897_fix_patch/scripts/validate-ngvge-module-capability-publication.js
+0e378593f0548e64490f7fd2a466496d4540868a66b3000f37d6d6787010bda2  /mnt/data/ngvge_897_fix_patch/src/lib/first-party-modules/capability-registry.js
+4e6f7ca1668570f0a3b8d2f8eafc3efaea542e39e0ac1285b983e20985fd60b4  /mnt/data/ngvge_897_fix_patch/src/lib/first-party-modules/module-manager.js
+4b89400dcf84b350f230cea34a67bfd805f070fc769670d15595641a395caf21  /mnt/data/ngvge_897_fix_patch/test/unit/lib/first-party-modules/module-capability-publication-authority.test.js

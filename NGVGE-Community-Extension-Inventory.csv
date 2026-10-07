@@ -1,0 +1,745 @@
+﻿decision,path,extension_ids,extension_names,category,effective_license,header_license,syntax_ok,quality_score,risk_score,risk_reasons,blocks,size_bytes,unsandboxed,vm_internal_access,renderer_access,network_access,dom_access,file_access,dynamic_code,duplicate_count
+candidate-backlog,拓展/杂项/杂项/杂项/特效.js,theshovelcanvaseffects,,renderer-effects,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,7,25606,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/输入框.js,betterInput,高级输入框,input-ui,Unspecified,Unspecified,True,65,1,DOM/global UI access,4,17824,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/雷神.js,,,world-grid-camera,Unspecified,Unspecified,True,42,5,file-system/browser file access | DOM/global UI access | AI/network coupling,0,74303,False,False,False,False,True,True,False,1
+archive,拓展/杂项/杂项/杂项/HTML编辑.js,htmlplus | htmlplus.name | htmlplus.blocks.createView | htmlplus.blocks.equal | htmlplus.blocks.isElement | htmlplus.blocks.isEvent | htmlplus.blocks.isNodeList | htmlplus.blocks.addElement | htmlplus.blocks.placeNext | htmlplus.blocks.placeBefore,,input-ui,MIT AND MPL-2.0,MIT AND MPL-2.0,True,68,6,VM/internal runtime access | renderer patching | DOM/global UI access,62,77439,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/Better Quake.js,,,ui-window,Unspecified,Unspecified,True,42,5,file-system/browser file access | DOM/global UI access | AI/network coupling,0,233559,False,False,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/CoreX窗口系统.js,coreXWindow,CoreX窗口,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,12,24818,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/CoreX窗口系统背景模糊加重版（实验）.js,coreXWindow,CoreX窗口,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,12,25217,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/局部变量.js,,,world-grid-camera,Unspecified,Unspecified,True,42,5,file-system/browser file access | DOM/global UI access | AI/network coupling,0,80151,False,False,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/成就.js,achievements,成就系统 | 暂无最新成就,misc,Unspecified,Unspecified,True,67,0,,11,8443,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/一些积木.js,someBlocks,someBlocks.name,ui-window,Unspecified,Unspecified,True,63,2,AI/network coupling,5,10151,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/存档码.js,,,ui-window,Unspecified,Unspecified,True,42,5,file-system/browser file access | DOM/global UI access | AI/network coupling,0,65951,False,False,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/神金.js,Shenjin,神金,ui-window,Unspecified,Unspecified,True,61,3,DOM/global UI access | page-level mutation,12,10249,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/密码扩展.js,chineseSecureLockV3,密码验证3.0,input-ui,Unspecified,Unspecified,True,56,3,VM/internal runtime access | DOM/global UI access,5,12282,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/bluetree.js,SLZS,,math-motion,Unspecified,Unspecified,True,57,5,file-system/browser file access | VM/internal runtime access | worker usage,48,172915,True,True,False,False,False,True,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/文本编辑器.js,editorTitle_default | editorText_default | TextEditor | extensionName | setEditorText | editorId_default | editorText_default | getEditorText | editorId_default | getAllLines,,ui-window,Unspecified,Unspecified,True,56,1,DOM/global UI access,8,48731,False,False,False,False,True,False,False,2
+reference-only-license-review,拓展/杂项/杂项/杂项/音频.js,SPaddedmotion,Added Motion,ui-window,Unspecified,Unspecified,True,63,2,VM/internal runtime access,11,15281,True,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/JPS应用.js,,,world-grid-camera,Unspecified,Unspecified,True,50,1,DOM/global UI access,0,15126,False,False,False,False,True,False,False,1
+candidate-next-phase,拓展/杂项/杂项/杂项/shader library.js,DJYShaderLibrary,Shader-Library,renderer-effects,MIT,MIT,True,73,4,renderer patching | DOM/global UI access,7,27057,True,False,True,False,True,False,False,2
+duplicate-review,拓展/杂项/杂项/杂项/编程猫样式.js,KittenNStyle,KittenNStyle.name,ui-window,LGPL,LGPL,True,52,7,VM/internal runtime access | DOM/global UI access | AI/network coupling | page-level mutation,2,153228,False,True,False,False,True,False,False,2
+archive,拓展/杂项/杂项/杂项/图像处理.js,imageProcessor,图像处理器,math-motion,MIT,MIT,True,65,10,network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access,21,23885,True,True,True,True,True,True,False,1
+duplicate-review,拓展/杂项/杂项/杂项/编程猫积木.js,KittenNStyle,KittenNStyle.name,ui-window,LGPL,LGPL,True,52,7,VM/internal runtime access | DOM/global UI access | AI/network coupling | page-level mutation,2,153228,False,True,False,False,True,False,False,2
+reference-only-license-review,拓展/杂项/杂项/杂项/访问B站UP主主页.js,bilibili,B站功能,ui-window,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,1,790,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/高级文本工具.js,enhancedtextutils,高级文本工具,math-motion,Unspecified,Unspecified,True,63,2,VM/internal runtime access,19,14589,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/杂项/kzcs.js,kzcs,kzcs,misc,Unspecified,Unspecified,True,63,0,,3,1669,False,False,False,False,False,False,False,2
+quarantine,拓展/杂项/杂项/杂项/Tune-Shark-V3.js,SPtuneShark3,Tune Shark V3,audio-midi,Unspecified,Unspecified,True,39,14,dynamic code execution | network access | file-system/browser file access | VM/internal runtime access | DOM/global UI access | camera permission,31,88649,True,True,False,True,True,True,True,1
+quarantine,拓展/杂项/杂项/杂项/Tune-Shark-V3（最强音频可视化-汉化版）.js,SPtuneShark3,,audio-midi,LGPL,LGPL,True,47,14,dynamic code execution | network access | file-system/browser file access | VM/internal runtime access | DOM/global UI access | camera permission,41,121278,True,True,False,True,True,True,True,1
+reference-only-license-review,拓展/杂项/杂项/神秘起来了/FW加密.js,hjmCipher,FW加密,data-codec,Unspecified,Unspecified,True,67,0,,2,3332,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/神秘起来了/神秘.js,truefantommath,,math-motion,Unspecified,Unspecified,True,67,0,,1,5240,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/神秘起来了/合意未.js,hjmCipher,合意未,math-motion,Unspecified,Unspecified,True,67,0,,2,3127,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/神秘起来了/神秘加密.js,hjmCipher,神秘加密,data-codec,Unspecified,Unspecified,True,67,0,,2,3197,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/zyceric CCW扩展移植/[移植ccw]HTML元素.js,Element,HTML元素,data-codec,Unspecified,Unspecified,True,50,6,VM/internal runtime access | renderer patching | DOM/global UI access,0,34935,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/zyceric CCW扩展移植/[移植ccw]矩阵.js,,,world-grid-camera,Unspecified,Unspecified,True,47,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,0,38341,False,True,False,False,True,True,False,1
+quarantine,拓展/杂项/杂项/zyceric CCW扩展移植/[移植ccw]mdui弹窗.js,mdui,mdui弹窗 | mdui,ui-window,Unspecified,Unspecified,True,38,12,dynamic code execution | network access | VM/internal runtime access | DOM/global UI access | page-level mutation,29,48868,False,True,False,True,True,False,True,1
+reference-only-license-review,拓展/杂项/杂项/zyceric CCW扩展移植/白猫的扩展/[移植ccw]白猫的高级鼠标.js,,,world-grid-camera,Unspecified,Unspecified,True,43,7,file-system/browser file access | VM/internal runtime access | DOM/global UI access | AI/network coupling,0,68679,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/zyceric CCW扩展移植/白猫的扩展/[移植ccw]白猫的游戏手柄.js,,,world-grid-camera,Unspecified,Unspecified,True,43,7,file-system/browser file access | VM/internal runtime access | DOM/global UI access | AI/network coupling,0,90573,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/zyceric CCW扩展移植/白猫的扩展/[移植ccw]白猫的FPS.js,,,world-grid-camera,Unspecified,Unspecified,True,43,7,file-system/browser file access | VM/internal runtime access | DOM/global UI access | AI/network coupling,0,80785,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/zyceric CCW扩展移植/白猫的扩展/[移植ccw]白猫的输入框.js,,,world-grid-camera,Unspecified,Unspecified,True,43,7,file-system/browser file access | VM/internal runtime access | DOM/global UI access | AI/network coupling,0,92457,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/zyceric CCW扩展移植/白猫的扩展/[移植ccw]白猫的体感控制.js,,,world-grid-camera,Unspecified,Unspecified,True,47,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,0,93119,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/抖音助手.js,DreamDouyin,,data-codec,Unspecified,Unspecified,True,58,2,network access,10,21740,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/AI工具.js,aiTool,AI工具,network-ai,Unspecified,Unspecified,True,59,4,network access | AI/network coupling,3,2547,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/网易云音乐.js,neteaseMusic,网易云音乐,audio-midi,Unspecified,Unspecified,True,57,5,network access | VM/internal runtime access | DOM/global UI access,19,19631,False,True,False,True,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/真·移动积木.js,reallyMovetion,真 · 运动积木,events-control,Unspecified,Unspecified,True,67,0,,2,2130,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/验证码生成器.js,,,math-motion,Unspecified,Unspecified,True,52,0,,0,3393,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/DeepSeek AI    需API.js,deepSeekAI | extensionName | askBlock | defaultQuestion | responseBlock | checkBalance | balance | modelDeepseekChat | modelDeepseekReasoner | modelDeepseekV1,,network-ai,Unspecified,Unspecified,True,50,6,network access | VM/internal runtime access | AI/network coupling,4,5590,False,True,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/动画特效.js,advancedEffects,动画特效,data-codec,Unspecified,Unspecified,True,67,0,,4,5019,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/DeepSeek AI.js,deepseekai,DeepSeek AI,network-ai,Unspecified,Unspecified,True,59,4,network access | AI/network coupling,12,8971,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/HTML 5.js,,,events-control,Unspecified,Unspecified,True,50,1,DOM/global UI access,0,7851,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/中文搜索引擎.js,chinesesearch,中文搜索引擎,misc,Unspecified,Unspecified,True,63,2,VM/internal runtime access,3,3496,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/硅基流动AI.js,siliconflowaimodels,硅基流动AI,network-ai,Unspecified,Unspecified,True,59,4,network access | AI/network coupling,6,4876,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/Chen -Jin的工具箱.js,,,ui-window,Unspecified,Unspecified,True,42,5,network access | DOM/global UI access | page-level mutation,0,8335,False,False,False,True,True,False,False,1
+quarantine,拓展/杂项/杂项/提取/本地AI助手.js,localAI,本地AI助手,math-motion,Unspecified,Unspecified,True,43,12,dynamic code execution | VM/internal runtime access | AI/network coupling | obfuscated/packed,6,5258,False,True,False,False,False,False,True,1
+reference-only-license-review,拓展/杂项/杂项/提取/高级文本加密.js,textEncryptionPro,高级文本加密,data-codec,Unspecified,Unspecified,True,57,5,VM/internal runtime access | obfuscated/packed,11,9046,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/B站视频扩展.js,BilibiliVideoEXT,B站视频扩展 | 粘贴的视频 | 本地视频,data-codec,Unspecified,Unspecified,True,55,6,network access | file-system/browser file access | DOM/global UI access | worker usage,19,38505,True,False,False,True,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/SCNet AI窗口.js,scnetaiwindow,SCNet AI窗口,ui-window,Unspecified,Unspecified,True,57,5,network access | DOM/global UI access | AI/network coupling,31,54628,False,False,False,True,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/哈基密.js,hjmCipher,哈基密,math-motion,Unspecified,Unspecified,True,67,0,,2,3121,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/违禁词过滤.js,bannedWords,🚫违禁词过滤,editor-tools,Unspecified,Unspecified,True,67,0,,10,9915,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/URL提取/音频FFT可视化.js,AudioFFT,音频FFT可视化,audio-midi,Unspecified,Unspecified,True,57,5,network access | file-system/browser file access | DOM/global UI access,41,52109,False,False,False,True,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/URL提取/作品锁.js,,,world-grid-camera,Unspecified,Unspecified,True,34,9,DOM/global UI access | worker usage | AI/network coupling | obfuscated/packed | page-level mutation,0,61508,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/URL提取/高精度.js,qxsckbignumber,,math-motion,Unspecified,Unspecified,True,67,0,,17,19544,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/URL提取/小金鱼的屏蔽词.js,prohibitedWordsExtension,小金鱼的违禁词检测,input-ui,Unspecified,Unspecified,True,61,3,file-system/browser file access | DOM/global UI access,34,33572,False,False,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/URL提取/安全扩展.js,safeExt,,editor-tools,Unspecified,Unspecified,True,67,0,,2,3081,True,False,False,False,False,False,False,1
+adopted-as-clean-room-reference,拓展/杂项/杂项/提取/URL提取/贝塞尔曲线.js,bezierCurve,,math-motion,Unspecified,Unspecified,True,58,2,VM/internal runtime access,4,9284,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/提取/URL提取/更好的对话框.js,betterDialogs,更好的对话框,input-ui,Unspecified,Unspecified,True,65,1,DOM/global UI access,2,9299,True,False,False,False,True,False,False,1
+quarantine,拓展/杂项/杂项/提取/URL提取/msj的工具箱.js,msjtools,msj的工具箱,ui-window,Unspecified,Unspecified,True,41,13,dynamic code execution | network access | file-system/browser file access | renderer patching | DOM/global UI access,38,37585,False,False,True,True,True,True,True,1
+reference-only-license-review,拓展/杂项/杂项/提取/URL提取/3D创意工坊.js,scratch3D,3D创意工坊,math-motion,Unspecified,Unspecified,True,55,6,renderer patching | DOM/global UI access | camera permission,25,27072,False,False,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/自定义扩展库/文本助手.js,textHelperDark,文本助手,file-storage,Unspecified,Unspecified,True,57,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,7,11528,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/自定义扩展库/补间+(与孔明极其相似).js,kmsTween,,math-motion,Unspecified,Unspecified,True,58,2,VM/internal runtime access,2,9677,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/自定义扩展库/1+1=3.js,oneonethree,1+1=3,data-codec,Unspecified,Unspecified,True,67,0,,1,865,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/自定义扩展库/kzcs输出.js,kzcs,kzcs,misc,Unspecified,Unspecified,True,63,0,,3,1669,False,False,False,False,False,False,False,2
+reference-only-license-review,拓展/杂项/杂项/自定义扩展库/AI对话.js,aiChat,AI 对话,network-ai,Unspecified,Unspecified,True,57,5,network access | MIDI permission | AI/network coupling,14,12821,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/自定义扩展库/阵营2.0.js,campUltimatePro,阵营系统Pro,input-ui,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,12,12536,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/自定义扩展库/分割.js,splitNth,按分隔符取第 N 段,math-motion,Unspecified,Unspecified,True,67,0,,1,1391,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/ningqi收集到的扩展/MD5hash.js,ningqiTools,ningqiMD5hash | 加密,data-codec,Unspecified,Unspecified,True,67,0,,1,2941,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/ningqi收集到的扩展/tools.js,integratedTools,综合工具集,input-ui,Unspecified,Unspecified,True,57,5,network access | VM/internal runtime access | DOM/global UI access,11,6861,False,True,False,True,True,False,False,1
+adopted-as-clean-room-reference,拓展/杂项/杂项/ningqi收集到的扩展/Cyberexplorer's Input.js,cyberexplorertoolboxmini,,input-ui,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,20,36101,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/ningqi收集到的扩展/ningqiCollectionV1.1.js,ningqiCollect | cyberInputCategory,ningqiCollection | 工具集,file-storage,Unspecified,Unspecified,True,42,10,network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access,84,86841,True,True,True,True,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/ningqi收集到的扩展/tools2.js,CombinedTools,整合工具集,data-codec,Unspecified,Unspecified,True,63,2,VM/internal runtime access,12,9382,True,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/更杂/高级运算.js,mathTools,数学工具箱,math-motion,Unspecified,Unspecified,True,67,0,,7,3593,False,False,False,False,False,False,False,1
+archive,拓展/杂项/杂项/更杂/摄像机v2.js,SPcamera,": | : | : | : | : | default | ), (name) => {
+        if (name) {
+          allCameras[name] = {
+            xy: [0, 0],
+            zoom: 1,
+            dir: 0,
+            binds: [],
+          };
+          this.refreshBlocks();
+        }
+      });
+    }
+
+    removeCamera() {
+      openModal(Scratch.translate(",world-grid-camera,MIT,MIT,True,71,7,VM/internal runtime access | renderer patching | camera permission,28,48229,True,True,True,False,False,False,False,1
+quarantine,拓展/杂项/杂项/更杂/kylin.js,kylinRuntime | kylinRuntime.about | kylinRuntime.compile | kylin.error.noCompilerAvailable | kylin.error.gandi | kylin | kylin.hint.about | kylin.hint.obfuscated | kylin.hint.precompiled | kylin.hint.comment,* | * | [AST_SymbolDeclaration?] the name of this function | [AST_Destructuring|AST_SymbolConst|AST_SymbolLet|AST_SymbolVar] name of the variable | [AST_SymbolExport|AST_SymbolImport] The name as it is visible to this module. | [AST_SymbolClass|AST_SymbolDefClass?] optional class name. | [string] name of this symbol | * | import | *,input-ui,AGPL-3.0,AGPL-3.0,True,24,23,dynamic code execution | network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage | camera permission | MIDI permission | AI/network coupling | very large/minified,4,937894,True,True,True,True,True,True,True,1
+reference-only-license-review,拓展/杂项/杂项/更杂/窗口尺寸检测.js,,,ui-window,Unspecified,Unspecified,True,50,1,DOM/global UI access,0,3411,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/更杂/Arkosの扩展.js,,,ui-window,Unspecified,Unspecified,True,42,5,file-system/browser file access | DOM/global UI access | AI/network coupling,0,88603,False,False,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/更杂/Witcat's FPS.js,WitCatFPS,WitCatFPS.name,world-grid-camera,Unspecified,Unspecified,True,52,5,VM/internal runtime access | DOM/global UI access | AI/network coupling,8,58424,False,True,False,False,True,False,False,1
+quarantine,拓展/杂项/杂项/更杂/babylon3d-v1.0.0.js,,,world-grid-camera,Unspecified,Unspecified,True,30,11,renderer patching | DOM/global UI access | camera permission | very large/minified | obfuscated/packed,0,490637,False,False,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/更杂/SweetAlert2.js,sweetalert2,SweetAlert2,misc,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,1,4556,False,True,False,False,True,False,False,1
+quarantine,拓展/杂项/杂项/更杂/密码扩展.js,secureProjectLock_,PBKDF2 | PBKDF2 | AES-GCM | AES-GCM | HMAC | HMAC | AES-GCM | 高级作品加密锁 | Stage | 加密作品,data-codec,Unspecified,Unspecified,False,26,13,VM/internal runtime access | DOM/global UI access | syntax error | obfuscated/packed | page-level mutation,3,20551,False,True,False,False,True,False,False,1
+quarantine,拓展/杂项/杂项/更杂/MMO.js,CCWMMO.joinOrCreate | CCWMMO.joinOrCreateAndWait | CCWMMO.joinOrCreateMatch | CCWMMO.joinOrCreateMatchAndWait | CCWMMO.joinMatchmaking | CCWMMO.joinMatchmakingAndWait | CCWMMO.setMatchRoomSize | CCWMMO.lockRoom | CCWMMO.disconnectRoom | CCWMMO.roomLag,MMO | sessionId | match,ui-window,Unspecified,Unspecified,True,48,7,dynamic code execution | VM/internal runtime access,56,151148,False,True,False,False,False,False,True,1
+reference-only-license-review,拓展/杂项/杂项/更杂/临时变量.js,temporaryVariables,临时变量工具,misc,Unspecified,Unspecified,True,63,0,,6,4475,False,False,False,False,False,False,False,2
+reference-only-license-review,拓展/杂项/杂项/更杂/kmFS.js,kmFS,kmFS,file-storage,Unspecified,Unspecified,True,54,2,VM/internal runtime access,7,6233,False,True,False,False,False,False,False,2
+quarantine,拓展/杂项/杂项/更杂/gui.js,extensionWrapper | button | folder | tab | input-bool | input-color-number | input-color-object | input-color-string | input-number | input-point2d,computed | nonComputed | computed | nonComputed | computed | nonComputed | default | arguments | # | Array,ui-window,Unspecified,Unspecified,True,29,19,dynamic code execution | network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access | AI/network coupling | very large/minified,24,1049678,True,True,True,True,True,True,True,1
+reference-only-license-review,拓展/杂项/杂项/更杂/调试器.js,debugger | debugger.log | debugger.warn | debugger.error | debugger.true | debugger.false | debugger.trueOrFalse,,editor-tools,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,13,53882,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/更杂/高级对话框+.js,enhancedDialog,高级对话框+,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,3,6467,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/更杂/高级对话框.js,customDialog,高级对话框,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,2,3369,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/更杂/kmsToolsBox.js,kmsTools,kmsTools,data-codec,Unspecified,Unspecified,True,50,6,VM/internal runtime access | renderer patching | DOM/global UI access,24,32542,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/超杂/积木隐藏v2.js,hideRecover,隐藏/恢复积木,input-ui,Unspecified,Unspecified,True,65,1,DOM/global UI access,3,6037,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/超杂/旋转裁剪与混色(BLOOM).js,rotatablecliping,Sprite-Shader,renderer-effects,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,15,47693,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/超杂/临时列表.js,temporarylist,临时列表,data-codec,Unspecified,Unspecified,True,67,0,,34,34894,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/超杂/伪随机.js,coordinaterandom,坐标随机,math-motion,Unspecified,Unspecified,True,63,2,VM/internal runtime access,13,13214,False,True,False,False,False,False,False,1
+candidate-next-phase,拓展/杂项/杂项/超杂/post-process-v2 (色散扩展).js,postprocessingv2 | opcodeChangePostProcess | opcodeChangeGlitch | opcodeChangeDispersion | opcodeChangeGray | opcodeChangePointillism | opcodeChangeScreensplit | opcodeChangeCliping | opcodeRequestReDraw | opcodeGetPostProcess,Post-Processing V2,renderer-effects,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,12,37175,True,True,True,False,True,False,False,1
+quarantine,拓展/杂项/杂项/超杂/积木隐藏.js,DJYfb,隐藏积木,input-ui,Unspecified,Unspecified,True,51,8,dynamic code execution | VM/internal runtime access | DOM/global UI access,1,23393,False,True,False,False,True,False,True,1
+quarantine,拓展/杂项/杂项/超杂/猎音鲨(让声音有效果)雪冰翻译).js,SPtuneShark3,,audio-midi,LGPL,LGPL,True,51,12,dynamic code execution | network access | VM/internal runtime access | DOM/global UI access | camera permission,34,109159,True,True,False,True,True,False,True,1
+reference-only-license-review,拓展/杂项/杂项/超杂/懒人碰撞.js,LZcollisionsSP,懒人碰撞,physics-collision,Unspecified,Unspecified,True,63,2,VM/internal runtime access,5,11900,True,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/AI对话-by cy_studio.js,aiChat,AI 对话 (cy_studio),network-ai,Unspecified,Unspecified,True,57,5,network access | MIDI permission | AI/network coupling,14,13003,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/触控.js,multiTouchDetector,多指触控,math-motion,Unspecified,Unspecified,True,65,1,DOM/global UI access,3,5536,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/侦测pro.js,checkpro,侦测pro | checkpro.name,input-ui,Unspecified,Unspecified,True,52,5,VM/internal runtime access | DOM/global UI access | camera permission,83,95112,False,True,False,False,True,False,False,1
+quarantine,拓展/杂项/杂项/极杂/threejs3d_iframe.js,threedcontainer,3D容器,world-grid-camera,Unspecified,Unspecified,True,45,11,file-system/browser file access | renderer patching | DOM/global UI access | worker usage | camera permission | very large/minified,79,326324,False,False,True,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/scrPython.js,runPython,运行Python,editor-tools,Unspecified,Unspecified,True,67,0,,5,6273,True,False,False,False,False,False,False,1
+quarantine,拓展/杂项/杂项/极杂/Scratch.js,"XiISz!TJuoX}OB1C:vo} | `jEk@4|i[#Fk?(8x)AV.-my variable |  + e), a = !1)
+									}
+									return e
+								})), !a) return null;
+								var s = B(e, t, r);
+								return s ? Y(e, s) : null
+							},
+							createProgramInfoFromProgram: function Y(e, t) {
+								var i = {
+									program: t,
+									uniformSetters: j(e, t),
+									attribSetters: q(e, t)
+								};
+								return n.isWebGL2(e) && (i.uniformBlockSpec = H(e, t), i.transformFeedbackInfo = F(e, t)), i
+							},
+							createUniformSetters: function j(e, t) {
+								var i = 0;
+
+								function o(t, o) {
+									var n, r = e.getUniformLocation(t, o.name),
+										a = o.size > 1 &&  | .concat(this._id)), this.isTouching = this._isTouchingNever)
+							}
+							_skinWasAltered() {
+								this._renderer.dirty = !0, this._rotationCenterDirty = !0, this._skinScaleDirty = !0, this.setConvexHullDirty(), this.setTransformDirty()
+							}
+							static color4fFromID(e) {
+								return [(255 & (e -= r.ID_NONE)) / 255, (e >> 8 & 255) / 255, (e >> 16 & 255) / 255, 1]
+							}
+							static color3bToID(e, t, i) {
+								let o;
+								return o = 255 & e, o |= (255 & t) << 8, o |= (255 & i) << 16, o + r.ID_NONE
+							}
+							static sampleColor4b(e, t, i, o) {
+								const n = d(t, e);
+								if (n[0] < 0 || n[1] < 0 || n[0] > 1 || n[1] > 1) return i[0] = 0, i[1] = 0, i[2] = 0, i[3] = 0, i;
+								const r = t.skin._silhouette.colorAtNearest(n, i);
+								return 0 === t.enabledEffects ? r : s.transformColor(t, r, o)
+							}
+						},
+						Skin: class {
+							constructor(e, t) {
+								this._renderer = t, this._id = e, this._rotationCenter = o.v3.create(0, 0), this._texture = null, this._uniforms = {
+									u_skinSize: [0, 0],
+									u_skin: null
+								}, this._silhouette = new r, this.private = !1
+							}
+							dispose() {
+								this._id = n.ID_NONE
+							}
+							get id() {
+								return this._id
+							}
+							get rotationCenter() {
+								return this._rotationCenter
+							}
+							get size() {
+								return [0, 0]
+							}
+							useNearest(e, t) {
+								return !0
+							}
+							calculateRotationCenter() {
+								return [this.size[0] / 2, this.size[1] / 2]
+							}
+							getTexture(e) {
+								return this._emptyImageTexture
+							}
+							isMetricsReady() {
+								return !!this.getTexture([100, 100])
+							}
+							getFenceBounds(e, t) {
+								return e.getAABB(t)
+							}
+							getUniforms(e) {
+								return this._uniforms.u_skin = this.getTexture(e), this._uniforms.u_skinSize = this.size, this._uniforms
+							}
+							emitWasAltered() {
+								this._renderer.skinWasAltered(this)
+							}
+							updateSilhouette() {
+								this._silhouette.unlazy()
+							}
+							_setTexture(e) {
+								const t = this._renderer.gl;
+								t.bindTexture(t.TEXTURE_2D, this._texture), t.pixelStorei(t.UNPACK_PREMULTIPLY_ALPHA_WEBGL, !0), t.texImage2D(t.TEXTURE_2D, 0, t.RGBA, t.RGBA, t.UNSIGNED_BYTE, e), t.pixelStorei(t.UNPACK_PREMULTIPLY_ALPHA_WEBGL, !1), this._silhouette.update(e)
+							}
+							setEmptyImageData() {
+								if (this._texture = null, !this._emptyImageData) {
+									this._emptyImageData = new ImageData(1, 1);
+									const e = this._renderer.gl,
+										t = {
+											auto: !0,
+											wrap: e.CLAMP_TO_EDGE,
+											src: this._emptyImageData
+										};
+									this._emptyImageTexture = o.createTexture(e, t)
+								}
+								this._rotationCenter[0] = 0, this._rotationCenter[1] = 0, this._silhouette.update(this._emptyImageData), this.emitWasAltered()
+							}
+							isTouchingNearest(e) {
+								return this._silhouette.isTouchingNearest(e)
+							}
+							isTouchingLinear(e) {
+								return this._silhouette.isTouchingLinear(e)
+							}
+						},
+						BitmapSkin: class r {
+							constructor(e, t) {
+								this._costumeResolution = 1, this._textureSize = [0, 0]
+							}
+							dispose() {
+								this._texture && (this._renderer.gl.deleteTexture(this._texture), this._texture = null), super.dispose()
+							}
+							get size() {
+								return [this._textureSize[0] / this._costumeResolution, this._textureSize[1] / this._costumeResolution]
+							}
+							getTexture(e) {
+								return this._texture || super.getTexture()
+							}
+							setBitmap(e, t, i) {
+								if (!e.width || !e.height) return void super.setEmptyImageData();
+								const n = this._renderer.gl;
+								let a = e;
+								if (e instanceof HTMLCanvasElement && !1 !== e.reusable) {
+									a = e.getContext( | /GmGA%=lm0/ge.OF28sd | looks_nextbackdrop | looks_changeeffectby | math_number | looks_seteffectto | RelQfbJelVwavuv)FKtT",我的变量 | Stage | ImageVector | 背景1 | u_projectionMatrix | u_modelMatrix | u_skin | 角色1 | 造型1 | CHANGE,audio-midi,Unspecified,Unspecified,True,33,12,network access | VM/internal runtime access | renderer patching | DOM/global UI access | camera permission | very large/minified,456,443021,True,True,True,True,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/二维数组.js,array2d,二维数组,math-motion,Unspecified,Unspecified,True,67,0,,9,8213,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/Windows高级登录.js,windowsadvancedlogin,Windows高级登录,audio-midi,Unspecified,Unspecified,True,57,5,VM/internal runtime access | DOM/global UI access | page-level mutation,21,109550,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/锁.js,ultimateEncryptor,锁,data-codec,Unspecified,Unspecified,True,67,0,,2,1957,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/Win98风格登录注册界面.js,win98Combined,Win98风格登录/注册界面,input-ui,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,10,11618,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/更好的文件添加.js,fileImporter,文件导入,file-storage,Unspecified,Unspecified,True,61,3,file-system/browser file access | DOM/global UI access,8,5822,True,False,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/时间计算.js,,,ui-window,Unspecified,Unspecified,True,42,5,file-system/browser file access | DOM/global UI access | AI/network coupling,0,35647,False,False,False,False,True,True,False,1
+quarantine,拓展/杂项/杂项/极杂/WebDroid.js,webdroid,Webdroid API,file-storage,Unspecified,Unspecified,True,47,10,dynamic code execution | network access | DOM/global UI access | camera permission,60,38423,False,False,False,True,True,False,True,1
+reference-only-license-review,拓展/杂项/杂项/极杂/White的浏览器.js,edgeStyleWindow,Edge 风格窗口,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,17,42717,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/弹窗.js,PopupPOR,弹窗通知,ui-window,Unspecified,Unspecified,True,56,3,VM/internal runtime access | DOM/global UI access,4,13518,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/Night API扩展.js,nightAPI,Night API,editor-tools,Unspecified,Unspecified,True,61,3,network access | DOM/global UI access,6,6476,False,False,False,True,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/AI人工智能扩展.js,aiAssistant,AI助手 | aiAssistant,network-ai,Unspecified,Unspecified,True,53,7,network access | VM/internal runtime access | DOM/global UI access | AI/network coupling,23,21597,False,True,False,True,True,False,False,1
+quarantine,拓展/杂项/杂项/极杂/物理拓展汉化.js,griffpatch | griffpatch.categoryName | griffpatch.setStage | griffpatch.setGravity | griffpatch.getGravityX | griffpatch.getGravityY | griffpatch.setPhysics | griffpatch.setPhysics | griffpatch.setPhysicsAll | griffpatch.doTick,,physics-collision,Copyright stated; license unclear,Copyright stated; license unclear,True,41,13,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access | very large/minified,35,507751,True,True,True,False,True,False,True,1
+reference-only-license-review,拓展/杂项/杂项/极杂/本地文件操作（无服务器）.js,fullosaccess,全系统访问,ui-window,Unspecified,Unspecified,True,57,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,12,9030,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/Pen+.js,betterpen,Pen+,math-motion,Copyright stated; license unclear,Copyright stated; license unclear,True,59,8,VM/internal runtime access | renderer patching | DOM/global UI access | camera permission,17,73393,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/简单扩展.js,18657,扩展,data-codec,Unspecified,Unspecified,True,67,0,,17,8831,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/杂类积木.js,miscblocks,杂类积木,input-ui,Unspecified,Unspecified,True,56,3,DOM/global UI access | page-level mutation,204,93816,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/BlocksOperator.js,blockCreator,积木创建器,input-ui,Unspecified,Unspecified,True,67,0,,15,31818,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/Everything 2 TTML.js,everything2ttml,Everything 2 TTML,math-motion,Unspecified,Unspecified,True,63,2,VM/internal runtime access,7,21789,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/全局加密通信.js,globalencryptor,全局加密通信,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,6,7348,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/中文验证码.js,chinesecaptcha,中文验证码,input-ui,Unspecified,Unspecified,True,61,3,network access | DOM/global UI access,8,14483,False,False,False,True,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/TurboWarp脚本篡改工具.js,,,data-codec,Unspecified,Unspecified,True,45,6,VM/internal runtime access | renderer patching | DOM/global UI access,1,43865,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/文本编辑器.js,editorTitle_default | editorText_default | TextEditor | extensionName | setEditorText | editorId_default | editorText_default | getEditorText | editorId_default | getAllLines,,ui-window,Unspecified,Unspecified,True,56,1,DOM/global UI access,8,48731,False,False,False,False,True,False,False,2
+reference-only-license-review,拓展/杂项/杂项/极杂/自定义积木+(支持移动端滚动版本).js,SPmbpCST,自定义积木+,input-ui,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,17,105775,True,True,False,False,True,False,False,1
+quarantine,拓展/杂项/杂项/极杂/Cyberexplorer's ToolBox Mini.js,cyberexplorertoolboxmini | WhenKeyPress,Cyberexplorer,input-ui,MIT,MIT,True,55,15,dynamic code execution | network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access,54,143550,False,True,True,True,True,True,True,1
+candidate-next-phase,拓展/杂项/杂项/极杂/孔明的模糊（汤达入修改）.js,kmsBlur,孔明模糊（汤达入修改）,renderer-effects,AGPL-3.0,AGPL-3.0,True,51,8,file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access,6,19870,False,True,True,False,True,True,False,1
+quarantine,拓展/杂项/杂项/极杂/运算.js,calculationExtension,计算,math-motion,Unspecified,Unspecified,True,57,5,dynamic code execution,1,3374,False,False,False,False,False,False,True,1
+candidate-backlog,拓展/杂项/杂项/极杂/gpusb3.js,gpusb3,GPU.sb3,data-codec,MIT AND MPL-2.0,MIT AND MPL-2.0,True,75,5,VM/internal runtime access | renderer patching,79,146585,True,True,True,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/UUID.随机数v3.js,VovaLURandomUtilsV3,随机的UUID和字符串v3,ui-window,Unspecified,Unspecified,True,59,2,AI/network coupling,3,7047,False,False,False,False,False,False,False,2
+reference-only-license-review,拓展/杂项/杂项/极杂/二进制转换.js,binaryconverter,二进制转换器,misc,Unspecified,Unspecified,True,67,0,,4,2085,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/图片文本.js,textToSvgDataURL,Text to SVG DataURL,math-motion,Unspecified,Unspecified,True,63,2,AI/network coupling,4,6059,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/Apple Music.js,applemusic,Apple Music | 未选择歌曲,audio-midi,Unspecified,Unspecified,True,63,2,network access,9,7038,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/临时变量工具.js,temporaryVariables,临时变量工具,misc,Unspecified,Unspecified,True,63,0,,6,4475,False,False,False,False,False,False,False,2
+reference-only-license-review,拓展/杂项/杂项/极杂/文件.js,kmsfiles,文件,file-storage,Unspecified,Unspecified,True,46,8,file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access,3,9146,False,True,True,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/神经网络扩展1.73.js,neuralnetwork,神经网络 | 网络创建和结构验证 | 前馈计算测试 | 训练功能测试 | 参数设置和获取测试 | 网络结构修改测试 | 错误处理测试 - 无效输入 | 错误处理测试 - 无效输入 | 性能优化测试 | 性能优化测试,editor-tools,Unspecified,Unspecified,True,65,1,DOM/global UI access,14,95783,False,False,False,False,True,False,False,1
+quarantine,拓展/杂项/杂项/极杂/JS执行器.js,,,input-ui,Unspecified,Unspecified,True,39,9,dynamic code execution | DOM/global UI access | obfuscated/packed,0,29017,False,False,False,False,True,False,True,1
+reference-only-license-review,拓展/杂项/杂项/极杂/Aermini.js,,,world-grid-camera,Unspecified,Unspecified,True,43,7,file-system/browser file access | VM/internal runtime access | DOM/global UI access | AI/network coupling,0,112259,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/sprite_shader (旋转裁剪).js,spriteshader,Sprite-Shader,data-codec,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,9,38767,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/窗口.js,customWindow,自定义窗口,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,8,10518,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/检测FPS.js,nightsStats,Performance Monitor,events-control,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,3,9908,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/很高级的浏览器.js,advancedbrowser | default,高级浏览器 v2.0,ui-window,Unspecified,Unspecified,True,61,3,DOM/global UI access | camera permission,27,104217,False,False,False,False,True,False,False,1
+quarantine,拓展/杂项/杂项/极杂/cloudlink-delta-core.js,cldeltacore,CLΔ Core,ui-window,MIT,MIT,True,55,16,dynamic code execution | network access | file-system/browser file access | VM/internal runtime access | DOM/global UI access | camera permission | page-level mutation,7,152205,True,True,False,True,True,True,True,1
+reference-only-license-review,拓展/杂项/杂项/极杂/美观弹窗v2.0.js,,美观弹窗,ui-window,Unspecified,Unspecified,True,60,1,DOM/global UI access,7,17537,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/云列表json.js,listjsonconverter,列表JSON转换器,data-codec,Unspecified,Unspecified,True,63,2,VM/internal runtime access,2,4178,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/SHA-512哈希.js,sha512hash,SHA-512,data-codec,Unspecified,Unspecified,True,67,0,,1,1152,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/自定义积木+.js,SPmbpCST,自定义积木+,input-ui,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,17,104493,True,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/https-api.js,httpsapi,HTTPS API,data-codec,Unspecified,Unspecified,True,63,2,network access,6,4666,False,False,False,True,False,False,False,1
+quarantine,拓展/杂项/杂项/极杂/摇杆.js,,,input-ui,Unspecified,Unspecified,False,32,5,syntax error,0,8098,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/Python.js,MistiumPython,Python,editor-tools,Unspecified,Unspecified,True,67,0,,5,4146,True,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/很高级的浏览器v3.js,advancedbrowser | default,高级浏览器 v3.0,ui-window,Unspecified,Unspecified,True,61,3,DOM/global UI access | camera permission,23,111270,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/打开网页.js,smartUrlOpener,打开网页,editor-tools,Unspecified,Unspecified,True,57,3,DOM/global UI access | AI/network coupling,1,2357,False,False,False,False,True,False,False,2
+reference-only-license-review,拓展/杂项/杂项/极杂/密码扩展5.0.js,chineseSecureLockV3,密码验证5.0,input-ui,Unspecified,Unspecified,True,52,5,VM/internal runtime access | DOM/global UI access | page-level mutation,11,19796,False,True,False,False,True,False,False,1
+candidate-backlog,拓展/杂项/杂项/极杂/Githu API.js,githubAPI,GitHub API,file-storage,MPL-2.0,MPL-2.0,True,81,2,network access,11,15238,True,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/kmsFS.js,kmFS,kmFS,file-storage,Unspecified,Unspecified,True,54,2,VM/internal runtime access,7,6233,False,True,False,False,False,False,False,2
+reference-only-license-review,拓展/杂项/杂项/极杂/正则表达式vi.js,,,ui-window,Unspecified,Unspecified,True,42,5,file-system/browser file access | DOM/global UI access | AI/network coupling,0,42003,False,False,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/动效插件.js,,,math-motion,Unspecified,Unspecified,True,60,1,DOM/global UI access,2,36019,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/陀螺仪.js,gyroExt,陀螺仪 (Gyro),ui-window,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,11,8074,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/艺术字汉化.js,text,文本,world-grid-camera,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,23,41633,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/文件下载器.js,,文件下载器,file-storage,Unspecified,Unspecified,True,48,7,network access | file-system/browser file access | VM/internal runtime access | DOM/global UI access,5,6739,False,True,False,True,True,True,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/当前网页网址.js,currenturl,当前网页地址,ui-window,Unspecified,Unspecified,True,61,3,DOM/global UI access | page-level mutation,4,1143,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/杂项/极杂/克隆体侦测pro.js,,多莉Pro | Dolly Pro,data-codec,Unspecified,Unspecified,True,46,8,VM/internal runtime access | renderer patching | DOM/global UI access | AI/network coupling,71,195093,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/CY ScrExt Hub/输入框.js,inputboxes,输入框,input-ui,Unspecified,Unspecified,True,65,1,DOM/global UI access,14,17241,False,False,False,False,True,False,False,1
+quarantine,拓展/杂项/群里的扩展/CY ScrExt Hub/工具箱.js,msjtools,工具箱,ui-window,Unspecified,Unspecified,True,41,13,dynamic code execution | network access | file-system/browser file access | renderer patching | DOM/global UI access,37,38812,False,False,True,True,True,True,True,1
+reference-only-license-review,拓展/杂项/群里的扩展/CY ScrExt Hub/控制台.js,consoleCmd,控制台,editor-tools,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,21,29545,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/CY ScrExt Hub/英文工具.js,englishTools,英文工具,input-ui,Unspecified,Unspecified,True,67,0,,1,3809,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/CY ScrExt Hub/MS-DOS.js,msdos,MS-DOS,input-ui,Unspecified,Unspecified,True,67,0,,6,3178,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/CY ScrExt Hub/外观.js,appearance,外观,math-motion,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,5,4400,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/CY ScrExt Hub/中文工具.js,chineseTools,中文工具,input-ui,Unspecified,Unspecified,True,67,0,,3,4153,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/从Scratch到Python/cpdd.js,cpdd,cpdd,input-ui,Unspecified,Unspecified,True,67,0,,2,1851,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/从Scratch到Python/FW扩展.js,simpleUseless,简单没用,world-grid-camera,Unspecified,Unspecified,True,67,0,,5,2161,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/伪OS UI讨论群/天气.js,pageosWeatherOpenMeteoFull,天气 | TimeoutError,data-codec,Unspecified,Unspecified,True,61,3,network access | MIDI permission,29,27153,True,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/伪OS UI讨论群/svg_g2裁切.js,svgCapsule,SVG Capsule G2,math-motion,Unspecified,Unspecified,True,67,0,,1,1903,False,False,False,False,False,False,False,1
+quarantine,拓展/杂项/群里的扩展/伪OS UI讨论群/Office文档显示.js,docviewer,文档,file-storage,MIT,MIT,True,63,11,file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access | camera permission | MIDI permission,27,42962,False,True,True,False,True,True,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/02Engine扩展提交群/ScratchAnimations.js,ScratchAnimations,Scratch Animations,math-motion,Unspecified,Unspecified,True,57,5,VM/internal runtime access | renderer patching,4,15062,False,True,True,False,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/02Engine扩展提交群/GmyOS.js,gmyosWindow,GmyOS 窗口,ui-window,Copyright stated; license unclear,Copyright stated; license unclear,True,73,1,DOM/global UI access,12,35865,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/02Engine扩展提交群/网页嗅探器.js,resourcesniffer,资源嗅探器,data-codec,Unspecified,Unspecified,True,63,2,network access,4,6309,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/02Engine扩展提交群/通知pro.js,customNotification,通知pro,audio-midi,Unspecified,Unspecified,True,65,1,DOM/global UI access,10,25919,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/02Engine扩展提交群/cmd-extension.js,cmd,CMD,ui-window,Unspecified,Unspecified,True,61,3,file-system/browser file access | DOM/global UI access,4,3784,True,False,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/02Engine扩展提交群/神经网络扩展2.0.js,neuralnetwork,神经网络 | 网络创建和结构验证 | 前馈计算测试 | 训练功能测试 | 参数设置和获取测试 | 网络结构修改测试 | 错误处理测试 - 无效输入 | 错误处理测试 - 无效输入 | 性能优化测试 | 性能优化测试,editor-tools,Unspecified,Unspecified,True,65,1,DOM/global UI access,14,107751,False,False,False,False,True,False,False,1
+quarantine,拓展/杂项/群里的扩展/赛博猫猫的Scratch实验室/Run JS.js,,Run JS,ui-window,Unspecified,Unspecified,True,35,11,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access,3,21717,True,True,True,False,True,False,True,1
+reference-only-license-review,拓展/杂项/群里的扩展/赛博猫猫的Scratch实验室/舞台提示框.js,stageAlertExtension,舞台提示框,file-storage,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,2,4699,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/赛博猫猫的Scratch实验室/随机.js,RandomExtension,随机,math-motion,Unspecified,Unspecified,True,63,2,VM/internal runtime access,12,10395,True,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/赛博猫猫的Scratch实验室/Folder-Import(fix).js,importfolder,Import-Folder,file-storage,Unspecified,Unspecified,True,61,3,file-system/browser file access | DOM/global UI access,3,3886,True,False,False,False,True,True,False,1
+quarantine,拓展/杂项/群里的扩展/赛博猫猫的Scratch实验室/Hjson.js,hjson,math | hex | date | Hjson,data-codec,Copyright stated; license unclear,Copyright stated; license unclear,True,63,6,dynamic code execution | DOM/global UI access,5,60678,False,False,False,False,True,False,True,1
+quarantine,拓展/杂项/群里的扩展/赛博猫猫的Scratch实验室/任意帧.js,frameloopng,FrameLoop NextGen,file-storage,MPL-2.0,MPL-2.0,True,56,12,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage,1,13556,True,True,True,False,True,False,True,1
+reference-only-license-review,拓展/杂项/群里的扩展/赛博猫猫的Scratch实验室/大小写敏感.js,capitalSensitiveBlocks | extensionName | stringIncludesSensitiveText | text1Default | text2Default | stringEqualsSensitiveText | text1EqualDefault | text2EqualDefault | listIncludesSensitiveText | itemIncludesDefault,,ui-window,Unspecified,Unspecified,True,54,4,VM/internal runtime access | AI/network coupling,4,7738,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/程序设计/网易云音乐.js,163music,网易云音乐,audio-midi,Unspecified,Unspecified,True,59,4,network access | VM/internal runtime access,19,17246,False,True,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/程序设计/弹窗.js,jQueryInScratch | TestId,jQuery In Scratch,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,3,6509,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/程序设计/自定义角色模糊.js,kmBlur,,renderer-effects,Unspecified,Unspecified,True,52,5,VM/internal runtime access | renderer patching,4,12108,False,True,True,False,False,False,False,1
+quarantine,拓展/杂项/群里的扩展/程序设计/移动+.js,movementplus,移动+,math-motion,Unspecified,Unspecified,True,57,5,dynamic code execution,11,23355,False,False,False,False,False,False,True,1
+reference-only-license-review,拓展/杂项/群里的扩展/程序设计/着色器.js,turboShader,着色器,renderer-effects,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,3,7034,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/程序设计/chcatText v0.1.js,chcatText,chcatText v0.1,editor-tools,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,5,7916,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/程序设计/汉字转拼音.js,pinyinextension,汉字转拼音,ui-window,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,2,2297,True,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/程序设计/K-Input.js,,,input-ui,Unspecified,Unspecified,True,51,3,VM/internal runtime access | DOM/global UI access,0,18382,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/程序设计/高级模糊特效.js,blur,,renderer-effects,Unspecified,Unspecified,True,52,5,VM/internal runtime access | renderer patching,4,12996,False,True,True,False,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/程序设计/FPS监控.js,fpsMonitor,FPS监控,math-motion,Unspecified,Unspecified,True,67,0,,3,1824,False,False,False,False,False,False,False,1
+quarantine,拓展/杂项/群里的扩展/程序设计/Phigros by CHCAT ver.0.1.4.beta.js,,,world-grid-camera,Unspecified,Unspecified,True,22,11,dynamic code execution | DOM/global UI access | very large/minified | obfuscated/packed,0,570011,False,False,False,False,True,False,True,1
+quarantine,拓展/杂项/群里的扩展/程序设计/Tune Shark V3.js,SPtuneShark3,,audio-midi,LGPL,LGPL,True,51,12,dynamic code execution | network access | VM/internal runtime access | DOM/global UI access | camera permission,35,106666,True,True,False,True,True,False,True,1
+quarantine,拓展/杂项/群里的扩展/程序设计/自定义函数.js,114514141423141234,自定义js函数,editor-tools,Unspecified,Unspecified,True,57,5,dynamic code execution,6,4647,False,False,False,False,False,False,True,1
+reference-only-license-review,拓展/杂项/群里的扩展/编程小宇宙1号/TbwMath.js,tbwmath,更多的运算,math-motion,Unspecified,Unspecified,True,67,0,,3,2115,False,False,False,False,False,False,False,1
+quarantine,拓展/杂项/群里的扩展/编程小宇宙1号/KERNEL扩展-测试版.js,KERNEL,KERNEL,events-control,Unspecified,Unspecified,True,37,15,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage | obfuscated/packed,27,23971,False,True,True,False,True,False,True,1
+reference-only-license-review,拓展/杂项/群里的扩展/JScr3TWhy帝国/函数轨迹运动.js,functionpath,函数轨迹运动,math-motion,Unspecified,Unspecified,True,67,0,,10,10417,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/群里的扩展/JScr3TWhy帝国/AI EXT(1.1.2plusalpha).js,aichatext,AI 对话助手（暴力优化版）,data-codec,Unspecified,Unspecified,True,53,7,network access | file-system/browser file access | DOM/global UI access | AI/network coupling,28,43575,False,False,False,True,True,True,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/超级工具箱.js,ultimatePlugin,终极工具库 ★,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,8,7257,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/SB侦测.js,advancedDetector,高级侦测,math-motion,Unspecified,Unspecified,True,63,2,VM/internal runtime access,19,15435,False,True,False,False,False,False,False,1
+candidate-backlog,拓展/杂项/DeepSeek生成/裁剪与颜色混合.js,xeltallivclipblend,,renderer-effects,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,9,35278,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/超级工具库.js,superTools,超级工具库,math-motion,Unspecified,Unspecified,True,58,2,VM/internal runtime access,121,99182,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/文本SB工具.js,textTools,文本工具,ui-window,Unspecified,Unspecified,True,67,0,,3,2451,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/云变量.js,CloudVarsProV3,云端数据同步,data-codec,Unspecified,Unspecified,True,63,2,network access,13,16498,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/显示玩家联机.js,showplayersmultiplayer,小红 | 小刚 | 小华 | 显示玩家联机,math-motion,Unspecified,Unspecified,True,63,2,VM/internal runtime access,18,15297,False,True,False,False,False,False,False,1
+quarantine,拓展/杂项/DeepSeek生成/请输入密码.js,projectLockingAdvanced | projectLockingAdvanced_,Project Lock Advanced,ui-window,Unspecified,Unspecified,True,40,11,dynamic code execution | VM/internal runtime access | DOM/global UI access | worker usage | AI/network coupling,23,91367,False,True,False,False,True,False,True,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/颠倒逻辑.js,reverseLogic,颠倒逻辑,math-motion,Unspecified,Unspecified,True,63,2,VM/internal runtime access,16,18536,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/千问音乐pro.js,qwenMusicPro,千问音乐 Pro,audio-midi,Unspecified,Unspecified,True,65,1,DOM/global UI access,7,8167,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/AI对话扩展.js,aiChatExtension,AI对话扩展,network-ai,Unspecified,Unspecified,True,55,6,network access | VM/internal runtime access | AI/network coupling,3,5025,True,True,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/输入监听.js,YInput,输入监听,input-ui,Unspecified,Unspecified,True,65,1,DOM/global UI access,7,6080,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/时间单位转换.js,,,math-motion,Unspecified,Unspecified,True,52,0,,0,4217,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/kmsRoundedCorners.js,kmsRoundedCorners,,math-motion,Unspecified,Unspecified,True,46,6,VM/internal runtime access | renderer patching | DOM/global UI access,8,15244,False,True,True,False,True,False,False,2
+reference-only-license-review,拓展/杂项/DeepSeek生成/液态玻璃/液态玻璃.js,liquidglass,液态玻璃,math-motion,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,12,14869,False,True,False,False,True,False,False,1
+quarantine,拓展/杂项/DeepSeek生成/液态玻璃/液态玻璃播放器.js,liquidglass,液态玻璃播放器,ui-window,Unspecified,Unspecified,False,36,8,VM/internal runtime access | DOM/global UI access | syntax error,11,16272,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/液态玻璃/液态玻璃控件   修复版.js,fixedliquidglass,液态玻璃控件-修复,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,3,7684,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/液态玻璃/液态玻璃控件.js,simpleliquidglass,液态玻璃控件,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,3,5587,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/液态玻璃/舞台液态玻璃.js,stageliquidglass,舞台液态玻璃,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,5,8861,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/DeepSeek生成/液态玻璃/液态玻璃增强版.js,enhancedliquidglass,液态玻璃增强版,ui-window,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,15,18993,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/BV1YiqFBEErq一网站/字符串处理.js,stringSplit,字符串处理,editor-tools,Unspecified,Unspecified,True,67,0,,8,11340,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/BV1YiqFBEErq一网站/FPS侦测.js,fpsController,帧率控制器,ui-window,Unspecified,Unspecified,True,63,2,VM/internal runtime access,6,5526,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/BV1YiqFBEErq一网站/简·HTML.js,simpleHTML,简·HTML,input-ui,Unspecified,Unspecified,True,65,1,DOM/global UI access,50,60567,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/BV1YiqFBEErq一网站/SF文件系统.js,,SF文件系统 | SF文件系统,file-storage,Unspecified,Unspecified,True,52,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,15,53637,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/BV1YiqFBEErq一网站/全局提示.js,globalAlert,全局提示,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,10,18551,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/BV1YiqFBEErq一网站/轻布尔.js,lightboolean,轻布尔,world-grid-camera,Unspecified,Unspecified,True,63,2,VM/internal runtime access,3,1272,False,True,False,False,False,False,False,1
+quarantine,拓展/杂项/BV1YiqFBEErq一网站/simple3D-CN.js,xeltallivSimple3D,简易3D,data-codec,MIT AND MPL-2.0,MIT AND MPL-2.0,True,63,11,network access | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage | page-level mutation,78,155351,True,True,True,True,True,False,False,1
+reference-only-license-review,拓展/杂项/BV1YiqFBEErq一网站/距离计算.js,distanceCalculator,距离计算,math-motion,Unspecified,Unspecified,True,67,0,,1,2195,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/BV1YiqFBEErq一网站/星级评分.js,scratchRatingExtension,星级评分,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,3,6842,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/BV1YiqFBEErq一网站/内嵌框架.js,iframeExtension,内嵌框架,events-control,Unspecified,Unspecified,True,59,4,VM/internal runtime access | DOM/global UI access | worker usage,16,13156,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/BV1YiqFBEErq一网站/微CSV.js,microCSV,微CSV,file-storage,Unspecified,Unspecified,True,57,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,13,12019,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/Mecll的网易云音乐API/Mecll的网易云音乐API（正式版）.js,MecllNeteaseMusic,Mecll的网易云音乐API（正式版） | Mecll的网易云音乐API（正式版）,data-codec,Unspecified,Unspecified,True,49,9,network access | file-system/browser file access | VM/internal runtime access | DOM/global UI access | AI/network coupling,29,87976,False,True,False,True,True,True,False,1
+reference-only-license-review,拓展/杂项/Mecll的网易云音乐API/Mecll的网易云音乐API（测试版）.js,,,audio-midi,Unspecified,Unspecified,True,48,7,network access | VM/internal runtime access | DOM/global UI access | AI/network coupling,34,95014,False,True,False,True,True,False,False,1
+quarantine,拓展/杂项/扩展防卸载器/wrapper.js,button | folder | tab | input-bool | input-color-number | input-color-object | input-color-string | input-number | input-point2d | input-point3d,CCW Polyfill Generator | Wrapper,math-motion,Unspecified,Unspecified,True,43,12,network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access | AI/network coupling,3,168423,True,True,True,True,True,True,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/JS扩展/弹窗.js,PopupPOR,弹窗通知,ui-window,Unspecified,Unspecified,True,56,3,VM/internal runtime access | DOM/global UI access,4,13882,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/JS扩展/封号扩展.js,banAlert | extensionName | banAlertBlock | banTitle | banContent | iconOptions | banFooter | appealButton | gandiTip,,ui-window,Unspecified,Unspecified,True,56,3,DOM/global UI access | page-level mutation,1,13189,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/JS扩展/vw chat1.0.js,customNotification,vw chat 1.0,audio-midi,Unspecified,Unspecified,True,65,1,DOM/global UI access,10,25482,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/JS扩展/录音.js,Recording,录音,world-grid-camera,Unspecified,Unspecified,True,57,5,file-system/browser file access | DOM/global UI access | camera permission,4,6278,False,False,False,False,True,True,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/JS扩展/录音扩展.js,Recording,录音,world-grid-camera,Unspecified,Unspecified,True,53,5,file-system/browser file access | DOM/global UI access | camera permission,5,7906,True,False,False,False,True,True,False,2
+quarantine,拓展/杂项/XXX扩展/JS扩展/vw chat 加密.js,superEncryption,vw chat加密1.0,math-motion,Unspecified,Unspecified,True,57,5,dynamic code execution,6,21251,False,False,False,False,False,False,True,1
+reference-only-license-review,拓展/杂项/XXX扩展/JS扩展/文字转html.js,texttohtml,文字转HTML,math-motion,Unspecified,Unspecified,True,67,0,,12,6555,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/JS扩展/HZK的角色信息.js,HZKRoleInfo,HZK角色信息 | 未知造型,ui-window,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,1,3987,True,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/JS扩展/本地文件修改器.js,kmsFileWriter,kmsFileWriter,file-storage,Unspecified,Unspecified,True,58,2,network access,2,1788,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/JS扩展/html弹窗.js,advancedpopup,高级弹窗,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,5,10301,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/更多的控制和线程.js,CONTROL | control.seconds | control.milliseconds | control.microseconds | control.minutes | control.hours | control.frames | control.clear | control.increment | control.reduction,,input-ui,Unspecified,Unspecified,True,63,2,VM/internal runtime access,14,29981,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/系统弹窗.js,systemDialogs,弹窗和通知.V2,ui-window,Unspecified,Unspecified,True,61,3,DOM/global UI access | AI/network coupling,9,12802,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/强大的输入框.js,WitCatInput | WitCatInput.name | WitCatInput.docs | WitCatInput.input | WitCatInput.createinput | WitCatInput.setinput | WitCatInput.shadow | WitCatInput.shadows | WitCatInput.fontweight | WitCatInput.setread,,input-ui,Unspecified,Unspecified,True,57,5,network access | VM/internal runtime access | DOM/global UI access,24,55584,False,True,False,True,True,False,False,1
+quarantine,拓展/杂项/XXX扩展/第三方扩展/优雅的使用JS.js,function0832,Function&\n‘Function’,editor-tools,Unspecified,Unspecified,True,41,13,dynamic code execution | VM/internal runtime access | DOM/global UI access | AI/network coupling | obfuscated/packed,7,6883,False,True,False,False,True,False,True,1
+archive,拓展/杂项/XXX扩展/第三方扩展/补间.js,kmsTween,,math-motion,AGPL-3.0,AGPL-3.0,True,54,4,VM/internal runtime access | AI/network coupling,2,10396,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/停止插件.js,peacefulStop,停止,audio-midi,Unspecified,Unspecified,True,63,2,VM/internal runtime access,1,991,True,True,False,False,False,False,False,1
+quarantine,拓展/杂项/XXX扩展/第三方扩展/GIF-管理器.js,SPgifManager,a | x | a | a | a | a | a | a | _inline_1_arg0_ | _inline_1_arg0_,ui-window,MIT,MIT,True,55,17,dynamic code execution | network access | file-system/browser file access | VM/internal runtime access | DOM/global UI access | worker usage | AI/network coupling | very large/minified,13,463366,True,True,False,True,True,True,True,1
+duplicate-review,拓展/杂项/XXX扩展/第三方扩展/模糊效果器.js,kmsBlur,,renderer-effects,AGPL-3.0,AGPL-3.0,True,44,7,VM/internal runtime access | renderer patching | AI/network coupling,6,16243,False,True,True,False,False,False,False,2
+archive,拓展/杂项/XXX扩展/第三方扩展/new模糊效果器.js,kmsBlur,,renderer-effects,AGPL-3.0,AGPL-3.0,True,50,6,VM/internal runtime access | renderer patching | DOM/global UI access,6,13301,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/更简单的着色器.js,customshader,Custom-Shader,data-codec,Unspecified,Unspecified,True,57,5,VM/internal runtime access | renderer patching,9,26703,True,True,True,False,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/引用其他作品（独家汉化）.js,requireproject,引用作品,file-storage,Unspecified,Unspecified,True,59,4,network access | VM/internal runtime access,1,1511,False,True,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/虚拟文件系统.js,fileSystem,文件系统,file-storage,Unspecified,Unspecified,True,63,2,file-system/browser file access,7,6344,False,False,False,False,False,True,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/WebData.js,WebData,WebData,data-codec,Unspecified,Unspecified,True,63,2,network access,6,9912,True,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/弹窗输入.js,fancyInput,高级输入,input-ui,Unspecified,Unspecified,True,67,0,,1,780,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/访问麦克风.js,Recording,录音,world-grid-camera,Unspecified,Unspecified,True,53,5,file-system/browser file access | DOM/global UI access | camera permission,5,7906,True,False,False,False,True,True,False,2
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/Fps检测.js,,,misc,Unspecified,Unspecified,True,52,0,,0,0,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/第三方扩展/打开网页.js,smartUrlOpener,打开网页,editor-tools,Unspecified,Unspecified,True,61,3,DOM/global UI access | AI/network coupling,1,2208,False,False,False,False,True,False,False,1
+quarantine,拓展/杂项/XXX扩展/第三方扩展/着色器/shaded extra v7b.js,openSite | setStageShader | setStageShaderAlt | setSpriteShader | setSpriteSkinShader | setExtraShader | setBlend | getDescrepency | setSetting | clearShader,Shaded,data-codec,MIT,MIT,True,57,12,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage,21,84987,True,True,True,False,True,False,True,3
+quarantine,拓展/杂项/XXX扩展/第三方扩展/着色器/着色器.js,openSite | setStageShader | setStageShaderAlt | setSpriteShader | setSpriteSkinShader | setExtraShader | setBlend | getDescrepency | setSetting | clearShader,Shaded,data-codec,MIT,MIT,True,57,12,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage,21,84987,True,True,True,False,True,False,True,3
+candidate-next-phase,拓展/杂项/XXX扩展/第三方扩展/着色器/shader library.js,DJYShaderLibrary,Shader-Library,renderer-effects,MIT,MIT,True,73,4,renderer patching | DOM/global UI access,7,27057,True,False,True,False,True,False,False,2
+quarantine,拓展/杂项/XXX扩展/Turbowarp扩展/赛博猫猫翻译的新剖三第.js,xeltallivSimple3D,,math-motion,MIT AND MPL-2.0,MIT AND MPL-2.0,True,63,11,network access | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage | page-level mutation,78,177700,True,True,True,True,True,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/Turbowarp扩展/FPS测试.js,mswfps,FPS测试,misc,Unspecified,Unspecified,True,67,0,,3,1659,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/Turbowarp扩展/检测服务器延迟.js,serverlatency,服务器延迟检测,network-ai,Unspecified,Unspecified,True,63,2,network access,1,2537,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/Turbowarp扩展/index.js,,,file-storage,Unspecified,Unspecified,True,48,2,file-system/browser file access,0,2609,False,False,False,False,False,True,False,1
+quarantine,拓展/杂项/XXX扩展/Turbowarp扩展/简易3d.js,xeltallivSimple3D,简易3D,data-codec,Unspecified,Unspecified,True,41,11,network access | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage | page-level mutation,78,156362,True,True,True,True,True,False,False,2
+reference-only-license-review,拓展/杂项/XXX扩展/Turbowarp扩展/（MS）克隆体标签.js,msclone,(MS)克隆体,physics-collision,Unspecified,Unspecified,True,57,5,VM/internal runtime access | renderer patching,3,3800,False,True,True,False,False,False,False,1
+reference-only-license-review,拓展/杂项/XXX扩展/Turbowarp扩展/UUID.随机数v3.js,VovaLURandomUtilsV3,随机的UUID和字符串v3,ui-window,Unspecified,Unspecified,True,59,2,AI/network coupling,3,7047,False,False,False,False,False,False,False,2
+reference-only-license-review,拓展/杂项/XXX扩展/Turbowarp扩展/Fps监控.js,accuratefps,FPS监控,math-motion,Unspecified,Unspecified,True,57,5,VM/internal runtime access | DOM/global UI access | AI/network coupling,4,3712,False,True,False,False,True,False,False,1
+quarantine,拓展/杂项/XXX扩展/Turbowarp扩展/simple3D.js,xeltallivSimple3D,Simple 3D,data-codec,MIT AND MPL-2.0,MIT AND MPL-2.0,True,59,11,network access | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage | page-level mutation,78,153257,True,True,True,True,True,False,False,2
+reference-only-license-review,拓展/杂项/XXX扩展/Turbowarp扩展/打开网页.js,smartUrlOpener,打开网页,editor-tools,Unspecified,Unspecified,True,57,3,DOM/global UI access | AI/network coupling,1,2357,False,False,False,False,True,False,False,2
+reference-only-license-review,拓展/杂项/浅酱的音乐播放器/浅_的音乐播放器(多一积木).js,enhancedMusicSearch,浅_酱_的在线音乐播放器,audio-midi,Unspecified,Unspecified,True,57,5,network access | VM/internal runtime access | DOM/global UI access,47,116381,False,True,False,True,True,False,False,1
+reference-only-license-review,拓展/杂项/浅酱的音乐播放器/浅酱的音乐扩展.js,enhancedMusicSearch,浅_酱_的在线音乐播放器,audio-midi,Unspecified,Unspecified,True,57,5,network access | VM/internal runtime access | DOM/global UI access,46,107094,False,True,False,True,True,False,False,1
+reference-only-license-review,拓展/杂项/Github/RobotGamer96的扩展/Number_Translative.js,,,audio-midi,Unspecified,Unspecified,True,58,2,network access,11,9790,True,False,False,True,False,False,False,1
+reference-only-license-review,拓展/杂项/Github/kenzieshane的扩展/indexeddb.js,indexeddb,Persistent Storage,file-storage,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,12,16680,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/Github/kenzieshane的扩展/indexeddb_newbeta.js,indexeddb,Persistent Storage,file-storage,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,3,5852,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/Github/LincolnXGames的扩展/ColorsManipulation.js,lxColorManip,Colors,ui-window,Unspecified,Unspecified,True,67,0,,4,8307,True,False,False,False,False,False,False,1
+candidate-backlog,拓展/杂项/Github/LincolnXGames的扩展/Colors.js,lxColors,,math-motion,MIT AND MPL-2.0,MIT AND MPL-2.0,True,85,0,,26,35866,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/Github/LincolnXGames的扩展/penguinMod/regexp.js,lxRegExp,Regex,data-codec,Unspecified,Unspecified,True,67,0,,6,5658,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/Github/doger-r的扩展/Images.js,imagesExtension,Images,data-codec,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,9,16917,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/Github/doger-r的扩展/Bubbles.js,customCaptchaBubble,Bubbles,math-motion,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,5,17735,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/Github/doger-r的扩展/Peng3D.js,,Peng3D,world-grid-camera,Unspecified,Unspecified,True,46,8,VM/internal runtime access | renderer patching | DOM/global UI access | camera permission,39,46073,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/Github/doger-r的扩展/Console.js,,,input-ui,Unspecified,Unspecified,True,50,6,VM/internal runtime access | renderer patching | DOM/global UI access,49,96111,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/杂项/Github/doger-r的扩展/SortedLayers.js,layersSorted,Sorted Layers,ui-window,Unspecified,Unspecified,True,63,2,VM/internal runtime access,2,6030,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/杂项/Github/Snorfield的扩展/canvas.js,canvas,Canvas.sb3,ui-window,Unspecified,Unspecified,True,55,6,renderer patching | DOM/global UI access | AI/network coupling,29,57603,True,False,True,False,True,False,False,1
+archive,拓展/杂项/Github/Civ3ro的扩展/extra3D.js,threejsExtension,Extra 3D,world-grid-camera,MIT,MIT,True,65,10,file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access | camera permission,58,66259,True,True,True,False,True,True,False,1
+candidate-next-phase,拓展/杂项/Github/Civ3ro的扩展/extraPhysics.js,rapierPhysics,RAPIER Physics,physics-collision,MIT,MIT,True,81,2,VM/internal runtime access,17,22179,True,True,False,False,False,False,False,1
+quarantine,拓展/杂项/Github/Civ3ro的扩展/extraAddons.js,threeAddons,Extra 3D Addons,world-grid-camera,MIT,MIT,True,61,12,network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access | camera permission,12,19654,True,True,True,True,True,True,False,1
+candidate-backlog,拓展/杂项/Github/xelabs的扩展/sweetalert.js,sweetalertv2,Sweet Alert,input-ui,MPL-2.0,MPL-2.0,True,83,1,DOM/global UI access,6,14013,False,False,False,False,True,False,False,1
+candidate-backlog,拓展/杂项/Github/xelabs的扩展/ntfyscratch.js,ntfyScratch,ntfyScratch,ui-window,MPL-2.0,MPL-2.0,True,79,3,network access | DOM/global UI access,2,3930,False,False,False,True,True,False,False,1
+candidate-backlog,拓展/杂项/Github/xelabs的扩展/multifileplus.js,multiFileSelector,Multi File Selector+,file-storage,MPL-2.0,MPL-2.0,True,75,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,4,3368,False,True,False,False,True,True,False,1
+candidate-backlog,拓展/杂项/Github/xelabs的扩展/weather.js,weather,Weather,audio-midi,MPL-2.0,MPL-2.0,True,79,3,network access | MIDI permission,10,5257,False,False,False,True,False,False,False,1
+candidate-backlog,拓展/杂项/Github/xelabs的扩展/soundplayerplus.js,soundplayerplusv2,Sound Player+,audio-midi,MPL-2.0,MPL-2.0,True,79,3,network access | DOM/global UI access,20,15528,False,False,False,True,True,False,False,1
+candidate-backlog,拓展/杂项/Github/xelabs的扩展/birthday.js,birthday,Birthday,math-motion,MPL-2.0,MPL-2.0,True,83,1,DOM/global UI access,5,5864,False,False,False,False,True,False,False,1
+candidate-backlog,拓展/杂项/Github/xelabs的扩展/dropfiles.js,dropfiles,Drop Files,file-storage,MPL-2.0,MPL-2.0,True,75,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,7,4787,False,True,False,False,True,True,False,1
+adopted-as-clean-room-reference,拓展/杂项/Github/xelabs的扩展/keyboardplus.js,keyboardplus,Keyboard+,input-ui,MPL-2.0,MPL-2.0,True,83,1,DOM/global UI access,9,5467,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/杂项/Github/TheJavaScripter-dev的扩展/TAext.js,turboassembly,Turbo Assembly,ui-window,Unspecified,Unspecified,True,52,5,network access | VM/internal runtime access | DOM/global UI access,179,130528,False,True,False,True,True,False,False,1
+reference-only-license-review,拓展/杂项/Github/TheJavaScripter-dev的扩展/CBAext.js,custombuilderassembly,Custom Builder Assembly,ui-window,Unspecified,Unspecified,True,50,6,network access | VM/internal runtime access | AI/network coupling,155,108655,False,True,False,True,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)检测角色dataURL所包含的积木.js,enhancedsecurity,安全检测增强版,data-codec,Unspecified,Unspecified,True,55,6,VM/internal runtime access | DOM/global UI access | obfuscated/packed,8,6297,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)的简易3D.js,threedcontainer,3D容器,world-grid-camera,Unspecified,Unspecified,True,49,7,renderer patching | DOM/global UI access | worker usage | camera permission,37,95402,False,False,True,False,True,False,False,2
+adopted-as-clean-room-reference,拓展/YL_YOLO的扩展/(YL)弹簧动画.js,elasticAnimation,弹性动画,math-motion,Unspecified,Unspecified,True,67,0,,7,8608,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)曲线扩展.js,curveEditor,曲线编辑器 | 线性 | 贝塞尔 | 正弦函数 | 余弦函数,math-motion,Unspecified,Unspecified,True,65,1,DOM/global UI access,6,40756,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)花式曲线.js,,,math-motion,Unspecified,Unspecified,True,52,0,,0,8490,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)作品说明扩展.js,projectReadme | all | text | image | video | sound | webpage,作品说明,audio-midi,Unspecified,Unspecified,True,56,3,VM/internal runtime access | DOM/global UI access,15,24518,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)艺术字歌词.js,simpleText,简_艺术字,data-codec,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,16,29901,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)音频FFT可视化v2.js,AudioFFT,音频FFT可视化,audio-midi,Unspecified,Unspecified,True,57,5,network access | file-system/browser file access | DOM/global UI access,44,59067,False,False,False,True,True,True,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)音频可视化扩展v2.js,AudioFFT,音频FFT可视化,audio-midi,Unspecified,Unspecified,True,57,5,network access | file-system/browser file access | DOM/global UI access,44,58993,False,False,False,True,True,True,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)本地列表粉色系.js,perfectDsList,本地列表(粉色小猫版),file-storage,Unspecified,Unspecified,True,65,1,DOM/global UI access,18,19790,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)视频帧获取.js,videoFrameProcessor,视频帧处理,editor-tools,Unspecified,Unspecified,True,59,4,DOM/global UI access | worker usage | camera permission,13,40011,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)本地变量.js,ultimatestorage,终极存储,file-storage,Unspecified,Unspecified,True,65,1,DOM/global UI access,19,18293,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)音频可视化扩展.js,AudioFFT,音频FFT可视化,audio-midi,Unspecified,Unspecified,True,57,5,network access | file-system/browser file access | DOM/global UI access,41,52055,False,False,False,True,True,True,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)的简易3D导入版.js,threedcontainer,3D容器,world-grid-camera,Unspecified,Unspecified,True,53,7,renderer patching | DOM/global UI access | worker usage | camera permission,44,109161,False,False,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)触屏器v2.js,advancedtouchblock,高级触屏块,input-ui,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,21,39412,False,True,True,False,True,False,False,1
+archive,拓展/YL_YOLO的扩展/(YL)作品锁v2if版.js,,,world-grid-camera,AGPL-3.0,AGPL-3.0,True,34,5,DOM/global UI access | AI/network coupling | very large/minified,0,535601,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL改)图层特效.js,SPrenderControl,渲染器控制,renderer-effects,Unspecified,Unspecified,True,51,8,VM/internal runtime access | renderer patching | DOM/global UI access | AI/network coupling,27,116823,True,True,True,False,True,False,False,1
+archive,拓展/YL_YOLO的扩展/(YL)简单的纹理扩展.js,yololmsSkins,纹理处理 | Unknown,editor-tools,LGPL,LGPL,True,55,10,network access | VM/internal runtime access | renderer patching | obfuscated/packed,9,11646,False,True,True,True,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)移动端按键模拟ui.js,advancedtouchblock,高级触屏块与摇杆,input-ui,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,48,100366,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)超级流畅艺术字扩展.js,simpleText,简 - 艺术字,editor-tools,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,6,12264,False,True,True,False,True,False,False,1
+archive,拓展/YL_YOLO的扩展/(YL)聊天弹幕.js,,,world-grid-camera,AGPL-3.0,AGPL-3.0,True,34,5,DOM/global UI access | AI/network coupling | very large/minified,0,921015,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)简易3D.js,threedcontainer,3D容器,world-grid-camera,Unspecified,Unspecified,True,49,7,renderer patching | DOM/global UI access | worker usage | camera permission,37,95402,False,False,True,False,True,False,False,2
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)简_艺术字+纹理缓存(超流畅)v3.js,simpleText,简_艺术字,editor-tools,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,29,48885,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)移动端按键映射.js,advancedtouchblock,高级触屏块与摇杆,input-ui,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,48,100403,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/（YL）临时列表.js,ultraFastTempList,临时列表,file-storage,Unspecified,Unspecified,True,67,0,,16,9233,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)屏幕按钮v3(自定义图片).js,responsivebuttons,自适应屏幕按钮,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,20,31676,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)作品说明扩展v1.5.js,projectReadme | all | text | image | video | sound | webpage | file,作品说明,file-storage,Unspecified,Unspecified,True,56,3,VM/internal runtime access | DOM/global UI access,22,34338,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)最易3D.js,threedcontainer,3D容器,world-grid-camera,Unspecified,Unspecified,True,53,7,renderer patching | DOM/global UI access | worker usage | camera permission,32,72283,False,False,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)简_艺术字+纹理缓存(细微的差别，但超流畅).js,simpleText,简_艺术字,editor-tools,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,29,48834,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)双合一作品锁.obf.js,,,world-grid-camera,Unspecified,Unspecified,True,40,6,DOM/global UI access | AI/network coupling | obfuscated/packed,0,110098,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)屏幕按钮v2.js,responsivebuttons,自适应屏幕按钮,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,11,20606,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)屏幕摇杆v2.js,responsivejoystick,自适应屏幕摇杆,input-ui,Unspecified,Unspecified,True,65,1,DOM/global UI access,17,27271,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)获取文本dataURL.js,fonttext,字体文本,editor-tools,Unspecified,Unspecified,True,65,1,DOM/global UI access,11,10195,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)屏幕摇杆v3(自定义图片).js,responsivejoystick,自适应屏幕摇杆,input-ui,Unspecified,Unspecified,True,65,1,DOM/global UI access,20,37857,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)隐藏所有角色.js,robustHide,可靠隐藏,editor-tools,Unspecified,Unspecified,True,57,5,VM/internal runtime access | renderer patching,1,1432,False,True,True,False,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)(硅基流动)AI Chat.js,,AI Chat,network-ai,Unspecified,Unspecified,True,50,6,network access | VM/internal runtime access | AI/network coupling,12,11654,False,True,False,True,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)本地列表.js,ultraFastList,超高速列表,file-storage,Unspecified,Unspecified,True,67,0,,18,14166,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)简_艺术字+纹理缓存 尝鲜版.js,simpleText,简_艺术字,editor-tools,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,28,47430,False,True,True,False,True,False,False,1
+archive,拓展/YL_YOLO的扩展/(YL)作品上锁.js,,,world-grid-camera,AGPL-3.0,AGPL-3.0,True,34,5,DOM/global UI access | AI/network coupling | very large/minified,0,514673,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)流畅艺术字v2.js,simpleText,简_艺术字,editor-tools,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,9,20742,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)读取本地图片dataURL.js,basicimagereader,基础图片读取器,file-storage,Unspecified,Unspecified,True,57,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,1,1756,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)让字符串换行.js,,超级文本工具,editor-tools,Unspecified,Unspecified,True,58,2,VM/internal runtime access,3,3857,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)双合一作品锁.js,,,world-grid-camera,Unspecified,Unspecified,True,46,3,DOM/global UI access | AI/network coupling,0,285827,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/(YL)角色线程暂停修复.js,ultimateRoleControlFinal,角色控制(修复版),events-control,Unspecified,Unspecified,True,63,2,VM/internal runtime access,6,10145,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/没有(YL)前缀/绿色背景控制器.js,color | mention | private | settings | send | greenbackgroundcontroller,绿色背景控制器 v6.0,ui-window,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,22,74048,False,True,True,False,True,False,False,1
+quarantine,拓展/YL_YOLO的扩展/没有(YL)前缀/YOLO改shader.js,OACShadedWithBlending | openSite | setStageShaderAlt | setSpriteShader | setSpriteSkinShader | setExtraShader | setBlendMode | getBlendMode | setAdditiveBlend | getAdditiveBlend,Shaded with Blending,data-codec,Unspecified,Unspecified,True,45,11,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access,23,68493,True,True,True,False,True,False,True,1
+quarantine,拓展/YL_YOLO的扩展/没有(YL)前缀/聊天弹幕.js,color | mention | private | settings | send |  + this.cloudChat.getMyInfo().id +  | FullServiceBulletScreen,全服弹幕,ui-window,Unspecified,Unspecified,True,43,12,network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access | camera permission,14,150827,False,True,True,True,True,True,False,1
+candidate-backlog,拓展/YL_YOLO的扩展/没有(YL)前缀/多层画笔.js,SPpenPapers,Pen Papers,ui-window,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,11,13133,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/没有(YL)前缀/Audio Analyser V6.1.0(多音轨分析).js,AudioAnalyser,Audio Analyser V6.1.0,audio-midi,Unspecified,Unspecified,True,61,3,network access | DOM/global UI access,19,19644,False,False,False,True,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/没有(YL)前缀/YOLO改视频播放角色.js,lmsVideo,,events-control,Unspecified,Unspecified,True,51,8,VM/internal runtime access | renderer patching | DOM/global UI access | camera permission,17,29036,True,True,True,False,True,False,False,1
+archive,拓展/YL_YOLO的扩展/没有(YL)前缀/Sprite-Effects.js,SPspriteEffects,Sprite Effects,ui-window,MIT,MIT,True,67,9,VM/internal runtime access | renderer patching | DOM/global UI access | MIDI permission | AI/network coupling,34,235915,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/没有(YL)前缀/YOLO的内嵌框架prov2.js,enhancedmultiiframehtml | ${id} | ${id} | ${id} | ${id},YOLO的内嵌框架pro,ui-window,Unspecified,Unspecified,True,57,5,renderer patching | DOM/global UI access | worker usage,31,70055,False,False,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/没有(YL)前缀/测试全服弹幕.js,,,world-grid-camera,Unspecified,Unspecified,True,46,3,DOM/global UI access | AI/network coupling,0,297633,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/没有(YL)前缀/Canvas媒体专业版.js,CanvasMediaPro,Canvas媒体专业版,math-motion,Unspecified,Unspecified,True,51,8,VM/internal runtime access | renderer patching | DOM/global UI access | camera permission,43,65408,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/没有(YL)前缀/all_at_once（一步执行）.js,allAtOnce | allAtOnce | DJYaao,,events-control,Unspecified,Unspecified,True,63,2,VM/internal runtime access,1,2049,False,True,False,False,False,False,False,1
+candidate-backlog,拓展/YL_YOLO的扩展/没有(YL)前缀/外观+造型抠图测试.js,SPlooksExpanded,,renderer-effects,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,22,47354,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/没有(YL)前缀/YOLO的内嵌框架pro.js,enhancedmultiiframehtml,YOLO的内嵌框架pro,file-storage,Unspecified,Unspecified,True,59,4,renderer patching | DOM/global UI access,22,35924,False,False,True,False,True,False,False,1
+quarantine,拓展/YL_YOLO的扩展/没有(YL)前缀/shaded extrav7b.js,openSite | setStageShader | setStageShaderAlt | setSpriteShader | setSpriteSkinShader | setExtraShader | setBlend | getDescrepency | setSetting | clearShader,Shaded,data-codec,MIT,MIT,True,57,12,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage,21,84987,True,True,True,False,True,False,True,3
+reference-only-license-review,拓展/YL_YOLO的扩展/简单翻译后的扩展/父子系统没用.js,SPspriteParent,角色父子关系,ui-window,Unspecified,Unspecified,True,63,2,VM/internal runtime access,13,36737,True,True,False,False,False,False,False,1
+quarantine,拓展/YL_YOLO的扩展/简单翻译后的扩展/简单3D 英文1.js,xeltallivSimple3D,Simple 3D,data-codec,MIT AND MPL-2.0,MIT AND MPL-2.0,True,59,11,network access | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage | page-level mutation,78,153257,True,True,True,True,True,False,False,2
+candidate-backlog,拓展/YL_YOLO的扩展/简单翻译后的扩展/图像编辑器.js,SPimgEditor,图像编辑器,events-control,MIT,MIT,True,79,3,VM/internal runtime access | DOM/global UI access,18,20873,True,True,False,False,True,False,False,1
+quarantine,拓展/YL_YOLO的扩展/简单翻译后的扩展/GIF扩展没用.js,SPgifManager,a | x | a | a | a | a | a | a | _inline_1_arg0_ | _inline_1_arg0_,ui-window,MIT,MIT,True,55,17,dynamic code execution | network access | file-system/browser file access | VM/internal runtime access | DOM/global UI access | worker usage | AI/network coupling | very large/minified,13,463337,True,True,False,True,True,True,True,1
+reference-only-license-review,拓展/YL_YOLO的扩展/简单翻译后的扩展/网格扩展.js,SPgrids,瓦片网格,world-grid-camera,Unspecified,Unspecified,True,63,2,VM/internal runtime access,9,14932,True,True,False,False,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/简单翻译后的扩展/简易碰撞没用.js,LZcollisionsSP,简易碰撞检测,physics-collision,Unspecified,Unspecified,True,63,2,VM/internal runtime access,5,12109,True,True,False,False,False,False,False,1
+candidate-backlog,拓展/YL_YOLO的扩展/简单翻译后的扩展/渲染器.js,SPrenderControl,,world-grid-camera,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,16,15707,True,True,True,False,True,False,False,1
+candidate-backlog,拓展/YL_YOLO的扩展/简单翻译后的扩展/粒子扩展.js,SPpartEngine,,math-motion,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,22,42693,True,True,True,False,True,False,False,1
+archive,拓展/YL_YOLO的扩展/简单翻译后的扩展/屏幕特效(YOLO翻译).js,SPspriteEffects,角色效果,ui-window,MIT,MIT,True,67,9,VM/internal runtime access | renderer patching | DOM/global UI access | MIDI permission | AI/network coupling,35,240552,True,True,True,False,True,False,False,1
+archive,拓展/YL_YOLO的扩展/简单翻译后的扩展/角色效果.js,SPspriteEffects,角色效果,ui-window,MIT,MIT,True,67,9,VM/internal runtime access | renderer patching | DOM/global UI access | MIDI permission | AI/network coupling,35,238265,True,True,True,False,True,False,False,1
+quarantine,拓展/YL_YOLO的扩展/简单翻译后的扩展/场景.js,SPscenes,"场景 | , async (name) =>{
+        if (name) {
+          scenes[name] = this.convert2Scene();
+          sceneThumbs[name] = { isDefault: false, img:  | _any_",ui-window,MIT,MIT,True,63,11,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access,8,30181,True,True,True,False,True,False,True,1
+candidate-backlog,拓展/YL_YOLO的扩展/简单翻译后的扩展/图像效果图片碎片.js,imgEffectsSP,图像效果,math-motion,MIT,MIT,True,83,1,DOM/global UI access,40,67199,True,False,False,False,True,False,False,1
+quarantine,拓展/YL_YOLO的扩展/简单翻译后的扩展/简单3D 英文3.js,xeltallivSimple3D,Simple 3D,data-codec,MIT AND MPL-2.0,MIT AND MPL-2.0,True,59,11,network access | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage | page-level mutation,78,153209,True,True,True,True,True,False,False,2
+quarantine,拓展/YL_YOLO的扩展/简单翻译后的扩展/简单3D 英文2.js,xeltallivSimple3D,Simple 3D,data-codec,MIT AND MPL-2.0,MIT AND MPL-2.0,True,59,11,network access | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage | page-level mutation,78,153209,True,True,True,True,True,False,False,2
+reference-only-license-review,拓展/YL_YOLO的扩展/简单翻译后的扩展/设置原版变量扩展.js,DICandSPmonitorsPlus,变量扩展,input-ui,Unspecified,Unspecified,True,57,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,24,39294,True,True,False,False,True,True,False,1
+candidate-backlog,拓展/YL_YOLO的扩展/简单翻译后的扩展/动画.js,SPanimations,动画,math-motion,MIT,MIT,True,75,5,VM/internal runtime access | renderer patching,26,26568,True,True,True,False,False,False,False,1
+reference-only-license-review,拓展/YL_YOLO的扩展/简单翻译后的扩展/粒子工具没用.js,ParticleToolsSP,粒子工具,ui-window,Unspecified,Unspecified,True,63,2,VM/internal runtime access,13,20996,True,True,False,False,False,False,False,1
+quarantine,拓展/YL_YOLO的扩展/简单翻译后的扩展/Simple 3D翻译.js,xeltallivSimple3D,简易3D,data-codec,Unspecified,Unspecified,True,41,11,network access | VM/internal runtime access | renderer patching | DOM/global UI access | worker usage | page-level mutation,78,156362,True,True,True,True,True,False,False,2
+candidate-backlog,拓展/YL_YOLO的扩展/简单翻译后的扩展/外观颜色替换+扭曲.js,SPlooksExpanded,,renderer-effects,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,17,38737,True,True,True,False,True,False,False,1
+reference-only-license-review,拓展/MSW的扩展/带惯性的动画.js,mswanim,带惯性的动画系统,math-motion,Unspecified,Unspecified,True,67,0,,6,6405,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/MSW的扩展/Crypto.js,Crypto,,data-codec,Unspecified,Unspecified,True,67,0,,18,20220,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/圆粽子yuanzongzi的扩展/选择框.js,advancedpopup,高级弹出选择框,math-motion,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,2,9960,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/圆粽子yuanzongzi的扩展/弹窗.js,ultimateAlert,弹窗-圆粽子YuanZongzi,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,2,9171,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/圆粽子yuanzongzi的扩展/进度条.js,progressbar,进度条,math-motion,Unspecified,Unspecified,True,65,1,DOM/global UI access,8,8487,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/圆粽子yuanzongzi的扩展/文本朗读.js,autoTTS,TTS,audio-midi,Unspecified,Unspecified,True,65,1,DOM/global UI access,2,3172,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/圆粽子yuanzongzi的扩展/科技加载弹窗.js,techloading,科技加载弹窗,ui-window,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,4,7448,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/圆粽子yuanzongzi的扩展/可靠对话框.js,reliableDialog,可靠对话框,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,5,7466,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/圆粽子yuanzongzi的扩展/弹窗2.0.js,customDialog,弹窗2.0-圆粽子YuanZongzi,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,4,6745,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/圆粽子yuanzongzi的扩展/圈圈加载器.js,debugLoader,圆圈加载器,editor-tools,Unspecified,Unspecified,True,65,1,DOM/global UI access,3,4762,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/点击输入文字/SVG圆角生成器.js,roundedSVGTool,SVG圆角生成器,math-motion,Unspecified,Unspecified,True,67,0,,2,3545,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/点击输入文字/视觉中心裁切.js,visualCenterCrop,视觉中心裁切,math-motion,Unspecified,Unspecified,True,67,0,,5,10512,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/DS和DVD的扩展/DS和DVD的项目模拟点击.js,controlsimulation,模拟控制,input-ui,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,10,13677,True,True,False,False,True,False,False,1
+reference-only-license-review,拓展/DS和DVD的扩展/DS和DVD的磁盘空间检测(修复版).js,diskinfo,磁盘信息,ui-window,Unspecified,Unspecified,True,61,3,file-system/browser file access | DOM/global UI access,14,13052,True,False,False,False,True,True,False,1
+reference-only-license-review,拓展/Dream的扩展/Dream的扩展生成器.js,",
+             | myExtension | DreamextensionGenerator | extensionName | createExtension | createExtension_default | addBlock | addBlock_default | blockText_default | generateCode",My Extension | ${this.extensionData.name},editor-tools,Unspecified,Unspecified,True,62,0,,7,9828,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/Dream的扩展/Dream的画中画工具.js,DreampipExtension,,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,10,15475,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/Dream的扩展/Dream的Python编译器.js,Dreampy | extensionName | executePython | executePythonWithInput | getPythonOutput | getPythonError | pythonStatus,,input-ui,Unspecified,Unspecified,True,58,2,network access,5,6841,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/Dream的扩展/Dream的字符加密解密工具.js,Dreamkey,,data-codec,Unspecified,Unspecified,True,63,2,VM/internal runtime access,4,4585,False,True,False,False,False,False,False,1
+quarantine,拓展/Yoyo的扩展/工具扩展.js,yoyo2024318mytool,Yoyo工具扩展,math-motion,Unspecified,Unspecified,True,47,10,dynamic code execution | VM/internal runtime access | obfuscated/packed,9,9560,False,True,False,False,False,False,True,1
+reference-only-license-review,拓展/Yoyo的扩展/AdvancedListm.js,,,world-grid-camera,Unspecified,Unspecified,True,52,0,,0,207610,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/Yoyo的扩展/ManySpritem.js,,,world-grid-camera,Unspecified,Unspecified,True,52,0,,0,152638,False,False,False,False,False,False,False,1
+candidate-next-phase,拓展/Aurami的扩展/孔明的模糊+.js,kmsBlur,,renderer-effects,AGPL-3.0,AGPL-3.0,True,50,6,VM/internal runtime access | renderer patching | DOM/global UI access,9,22419,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/洛天依arm64的扩展/APP_NAME.js,getAppName,App Info,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,1,1950,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/makabakaKUN的扩展/高级手电筒.js,advancedFlashlight,高级手电筒,math-motion,Unspecified,Unspecified,True,57,5,file-system/browser file access | worker usage | camera permission,4,2856,False,False,False,False,False,True,False,1
+archive,拓展/makabakaKUN的扩展/图像处理器.js,imageProcessor,图像处理器,math-motion,MIT,MIT,True,65,10,network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access,21,23887,True,True,True,True,True,True,False,1
+reference-only-license-review,拓展/白猫的扩展/[Beta]白猫的文件助手.js,,,world-grid-camera,Unspecified,Unspecified,True,42,5,file-system/browser file access | DOM/global UI access | AI/network coupling,0,81583,False,False,False,False,True,True,False,1
+adopted-as-clean-room-reference,拓展/白猫的扩展/[Beta]白猫的高级鼠标.js,,,world-grid-camera,Unspecified,Unspecified,True,42,5,file-system/browser file access | DOM/global UI access | AI/network coupling,0,59927,False,False,False,False,True,True,False,1
+reference-only-license-review,拓展/白猫的扩展/[Beta]白猫的FPS.js,,,world-grid-camera,Unspecified,Unspecified,True,42,5,file-system/browser file access | DOM/global UI access | AI/network coupling,0,80599,False,False,False,False,True,True,False,1
+reference-only-license-review,拓展/白猫的扩展/[Beta]白猫的输入框.js,,,world-grid-camera,Unspecified,Unspecified,True,43,7,file-system/browser file access | VM/internal runtime access | DOM/global UI access | AI/network coupling,0,77469,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/10000why的扩展/方向键.js,up | down | left | right | rainbowDirPad,方向键,input-ui,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,6,7737,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/10000why的扩展/HTML 实验室.js,runHtml,HTML 实验室,file-storage,Unspecified,Unspecified,True,61,3,file-system/browser file access | DOM/global UI access,15,11307,False,False,False,False,True,True,False,1
+reference-only-license-review,拓展/10000why的扩展/摇杆扩展v1.2(测试版bug超多).js,nineZoneJoystick,九宫摇杆,input-ui,Unspecified,Unspecified,True,65,1,DOM/global UI access,3,5887,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/10000why的扩展/语音转代码扩展.js,audioCodecPro,一万的音频编码器,math-motion,Unspecified,Unspecified,True,57,5,DOM/global UI access | camera permission | AI/network coupling,17,19795,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/10000why的扩展/作品事件积木（开始按钮被点击不会触发）.js,startEventNoFlag,一万的作品侦测2,data-codec,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,2,6212,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/10000why的扩展/B小猫扩展.js,biliMulti,B 站万能助手,data-codec,Unspecified,Unspecified,True,63,2,network access,11,8559,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/10000why的扩展/临时云变量.js,CloudVarsJackV2,云变量 V2,ui-window,Unspecified,Unspecified,True,63,2,network access,12,15153,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/10000why的扩展/扩展框扩展.js,marqueeSelectCN,一万的框选框,math-motion,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,13,13544,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/10000why的扩展/作品事件积木（开始按钮被点击也会触发）.js,startEvent,一万的作品侦测,data-codec,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,2,5069,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/枫的扩展/Blur.js,gaussianBlur,高斯模糊,renderer-effects,Unspecified,Unspecified,True,57,5,VM/internal runtime access | DOM/global UI access | AI/network coupling,3,23366,False,True,False,False,True,False,False,1
+quarantine,拓展/SharkPools-Extensions-main/extension-code/Extra-Controls.js,SPadvControl,Extra Controls,ui-window,MIT,MIT,True,69,8,dynamic code execution | VM/internal runtime access | DOM/global UI access,41,58269,True,True,False,False,True,False,True,1
+archive,拓展/SharkPools-Extensions-main/extension-code/YouTube-Operations.js,SPyoutubeoperations,YouTube Operations,ui-window,MIT,MIT,True,65,10,network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access,10,21426,True,True,True,True,True,True,False,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/Events-Plus.js,SPeventsPlus,Events+,events-control,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,15,28037,True,True,True,False,True,False,False,1
+quarantine,拓展/SharkPools-Extensions-main/extension-code/More-Operators.js,SPmoreOPs,More Operators,ui-window,MIT OR LGPL-3.0 (repository default),Unspecified,True,47,10,dynamic code execution | network access | VM/internal runtime access | DOM/global UI access,38,33078,True,True,False,True,True,False,True,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/Files-Expanded.js,filesExpanded,filesExpanded_storedFiles,file-storage,MIT AND MPL-2.0,MIT AND MPL-2.0,True,65,10,network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access,28,46749,True,True,True,True,True,True,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Sprite-Parenting.js,SPspriteParent,Sprite Parenting,ui-window,MIT OR LGPL-3.0 (repository default),Unspecified,True,63,2,VM/internal runtime access,13,36711,True,True,False,False,False,False,False,1
+quarantine,拓展/SharkPools-Extensions-main/extension-code/Captchas.js,SPcaptcha,Captchas,input-ui,MIT OR LGPL-3.0 (repository default),Unspecified,True,45,11,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access,17,27030,True,True,True,False,True,False,True,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Sty-Lists.js,SPlistMonitors,Sty-Lists,world-grid-camera,MIT OR LGPL-3.0 (repository default),Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,23,34813,True,True,False,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Display-Text.js,SPdisText,Display Text (Deprecated),data-codec,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,39,48018,True,True,True,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/SoundCloud-API.js,SPsoundCloud,SoundCloud API,ui-window,MIT,MIT,True,75,5,network access | VM/internal runtime access | DOM/global UI access,12,25779,True,True,False,True,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Seeds.js,SeedsSP,Seeds,math-motion,MIT,MIT,True,83,1,DOM/global UI access,9,18087,True,False,False,False,True,False,False,1
+adopted-as-clean-room-reference,拓展/SharkPools-Extensions-main/extension-code/JSON-Array.js,SPjson,Swift JSON,data-codec,MIT,MIT,True,81,2,VM/internal runtime access,54,92049,True,True,False,False,False,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Pen-Papers.js,SPpenPapers,Pen Papers,data-codec,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,11,13201,True,True,True,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Better-Input.js,BetterInputSP,Submit | Cancel | Better Input,input-ui,MIT OR LGPL-3.0 (repository default),Unspecified,True,51,8,network access | VM/internal runtime access | renderer patching | DOM/global UI access,55,74489,True,True,True,True,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Pixel-Utilities.js,lbgpixelutilities,Pixel Utilities,input-ui,MIT OR LGPL-3.0 (repository default),Unspecified,True,63,2,VM/internal runtime access,9,6042,False,True,False,False,False,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Monitors-Plus.js,DICandSPmonitorsPlus,Variables Expanded,input-ui,MIT,MIT,True,75,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,24,39343,True,True,False,False,True,True,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Variables-Expanded.js,DICandSPmonitorsPlus,Variables Expanded,input-ui,MIT,MIT,True,75,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,24,37535,True,True,False,False,True,True,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Particle-Tools.js,ParticleToolsSP,Particle Tools,ui-window,MIT OR LGPL-3.0 (repository default),Unspecified,True,63,2,VM/internal runtime access,13,21061,True,True,False,False,False,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Temporary-Variables.js,SPtempVars,Temporary Variables,input-ui,MIT,MIT,True,81,2,VM/internal runtime access,10,19429,True,True,False,False,False,False,False,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/Sound-Waves.js,SPsoundWaves,Sound Waves,audio-midi,MIT,MIT,True,77,4,VM/internal runtime access | DOM/global UI access | MIDI permission,15,15253,True,True,False,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Script-Control.js,SPscripts,,events-control,MIT,MIT,True,79,3,VM/internal runtime access | DOM/global UI access,15,18351,True,True,False,False,True,False,False,1
+reference-only-license-review,拓展/SharkPools-Extensions-main/extension-code/Script-Management.js,0znzwScriptManagement,Script Management,events-control,Copyright stated; license unclear,Copyright stated; license unclear,True,69,3,VM/internal runtime access | DOM/global UI access,18,15468,True,True,False,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Turbo-Skins.js,SPturboSkins,Turbo Skins,data-codec,MIT,MIT,True,71,7,network access | VM/internal runtime access | renderer patching,13,15635,True,True,True,True,False,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Tune-Shark.js,SPtuneShark,Tune Shark (Legacy),audio-midi,MIT OR LGPL-3.0 (repository default),Unspecified,True,55,6,network access | file-system/browser file access | VM/internal runtime access,33,47037,True,True,False,True,False,True,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Display-Text-V2.js,SPdisplayTextV2,Display Text V2,editor-tools,MIT,MIT,True,69,8,file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access,36,58025,True,True,True,False,True,True,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Renderer-Control.js,SPrenderControl,,world-grid-camera,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,16,15689,True,True,True,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Spotify.js,SPspotify,Spotify API,audio-midi,MIT OR LGPL-3.0 (repository default),Unspecified,True,57,5,network access | VM/internal runtime access | DOM/global UI access,9,21401,True,True,False,True,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Scratch-Utilities.js,SPscratchUtilities,Scratch Utilities,data-codec,MIT,MIT,True,73,6,network access | file-system/browser file access | VM/internal runtime access,18,19747,True,True,False,True,False,True,False,1
+adopted-as-clean-room-reference,拓展/SharkPools-Extensions-main/extension-code/Gamepad-Expanded.js,Gamepad,Gamepad Extended,input-ui,MIT,MIT,True,85,0,,14,15482,False,False,False,False,False,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Recording-V2.js,SPrecording2,,audio-midi,MIT,MIT,True,71,7,file-system/browser file access | VM/internal runtime access | DOM/global UI access | camera permission,9,11790,True,True,False,False,True,True,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Community-Spotlight.js,SPspotlight,Community Spotlight,ui-window,MIT,MIT,True,69,8,network access | VM/internal runtime access | renderer patching | DOM/global UI access,13,17370,True,True,True,True,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Newgrounds-Audio.js,SPaudioNG,Newgrounds Audio,audio-midi,MIT,MIT,True,81,2,network access,5,13506,True,False,False,True,False,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Speech-Bubbles.js,speechSP,Speech Bubbles,ui-window,MIT OR LGPL-3.0 (repository default),Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,19,30833,True,True,True,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/DOM-Selector.js,SPdomSelect,DOM Selector,input-ui,MIT,MIT,True,79,3,VM/internal runtime access | DOM/global UI access,21,20307,True,True,False,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Layer-Control.js,SPlayering,,data-codec,MIT OR LGPL-3.0 (repository default),Unspecified,True,53,7,VM/internal runtime access | renderer patching | camera permission,6,10353,True,True,True,False,False,False,False,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/Camera.js,SPcamera,"default | ), (name) => {
+        if (name) {
+          allCameras[name] = {
+            xy: [0, 0],
+            zoom: 1,
+            dir: 0,
+            binds: [],
+            precisionMode: false,
+          };
+          this.refreshBlocks();
+        }
+      });
+    }
+
+    removeCamera() {
+      openModal(Scratch.translate(",world-grid-camera,MIT,MIT,True,71,7,VM/internal runtime access | renderer patching | camera permission,30,41609,True,True,True,False,False,False,False,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/Image-Effects.js,imgEffectsSP,Image Effects,data-codec,MIT,MIT,True,83,1,DOM/global UI access,40,67266,True,False,False,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Hyper-Sense.js,HyperSenseSP,Hyper Sense,input-ui,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,47,35267,True,True,True,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Google-Spreadsheets.js,SPspreads,Google Spreadsheets,editor-tools,MIT,MIT,True,75,5,network access | VM/internal runtime access | DOM/global UI access,7,10833,True,True,False,True,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Better-Comments.js,SPcomments,Better Comments,input-ui,MIT,MIT,True,79,3,VM/internal runtime access | DOM/global UI access,1,28059,True,True,False,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Since-2000.js,,,math-motion,LGPL,LGPL,True,66,2,VM/internal runtime access,15,12622,True,True,False,False,False,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Money-Utilities.js,SPmoney,Money Utilities,data-codec,MIT,MIT,True,81,2,network access,3,8565,True,False,False,True,False,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Recording.js,SPrecording,Recording,audio-midi,MIT OR LGPL-3.0 (repository default),Unspecified,True,49,9,network access | file-system/browser file access | VM/internal runtime access | DOM/global UI access | camera permission,10,11842,True,True,False,True,True,True,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Pause-Utilities.js,SPPause,,events-control,MIT,MIT,True,79,3,VM/internal runtime access | DOM/global UI access,18,16124,True,True,False,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Font-Manager.js,added_field_added | added_field_removed | SPASfontManager,,file-storage,MIT,MIT,True,77,4,network access | VM/internal runtime access,10,14816,True,True,False,True,False,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Sprite-Effects.js,SPspriteEffects,Sprite Effects,ui-window,MIT,MIT,True,67,9,VM/internal runtime access | renderer patching | DOM/global UI access | MIDI permission | AI/network coupling,35,238304,True,True,True,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Perlin-Noise.js,SPperlin,Perlin Noise,data-codec,MIT,MIT,True,83,1,DOM/global UI access,5,7670,True,False,False,False,True,False,False,1
+quarantine,拓展/SharkPools-Extensions-main/extension-code/Scenes.js,SPscenes,"Scenes | , async (name) =>{
+        if (name) {
+          scenes[name] = this.convert2Scene();
+          sceneThumbs[name] = { isDefault: false, img:  | _any_",ui-window,MIT,MIT,True,63,11,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access,8,30185,True,True,True,False,True,False,True,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/Tile-Grids.js,SPgrids,Tile Grids,world-grid-camera,MIT OR LGPL-3.0 (repository default),Unspecified,True,63,2,VM/internal runtime access,9,14871,True,True,False,False,False,False,False,1
+quarantine,拓展/SharkPools-Extensions-main/extension-code/Sharktilities.js,SharkPoolSharktilities,Sharktilities,data-codec,MIT,MIT,True,63,11,dynamic code execution | VM/internal runtime access | renderer patching | DOM/global UI access,39,33184,True,True,True,False,True,False,True,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Popup-Phoenix.js,SPpopups,,ui-window,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,45,66915,True,True,True,False,True,False,False,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/Image-Editor.js,SPimgEditor,Image Editor,data-codec,MIT,MIT,True,79,3,VM/internal runtime access | DOM/global UI access,22,28354,True,True,False,False,True,False,False,1
+adopted-as-clean-room-reference,拓展/SharkPools-Extensions-main/extension-code/Animations.js,SPanimations,Animations,math-motion,MIT,MIT,True,75,5,VM/internal runtime access | renderer patching,26,27025,True,True,True,False,False,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Dropdown-Maker.js,SP0zMenuMaker,"), listItem);
+    return rowDiv;
+  }
+
+  function makeItemRow(item, index, isDark, contain, name) {
+    const rowDiv = document.createElement( | Dropdown Maker",ui-window,LGPL,LGPL,True,69,3,VM/internal runtime access | DOM/global UI access,3,25418,True,True,False,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Fetch-Progress.js,SPprogress,Fetch+,file-storage,MIT,MIT,True,67,9,network access | file-system/browser file access | VM/internal runtime access | obfuscated/packed,9,9209,True,True,False,True,False,True,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Text-to-Speech.js,SPtts,Text to Speech,audio-midi,MIT,MIT,True,77,4,network access | VM/internal runtime access,7,12564,True,True,False,True,False,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Timezones.js,iStimezones,Timezones,data-codec,MIT,MIT,True,85,0,,2,4095,False,False,False,False,False,False,False,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/Rigidbodies.js,SPrigidBody,,physics-collision,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,13,35113,True,True,True,False,True,False,False,1
+quarantine,拓展/SharkPools-Extensions-main/extension-code/QR-Codes.js,template | SPqrCodes,QR Codes,math-motion,Apache-2.0,Apache-2.0,True,73,6,dynamic code execution | DOM/global UI access,5,169914,True,False,False,False,True,False,True,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Geometry-Dash-API.js,GDapiSP,Geometry Dash API,data-codec,MIT OR LGPL-3.0 (repository default),Unspecified,True,63,2,network access,21,26307,True,False,False,True,False,False,False,1
+reference-only-license-review,拓展/SharkPools-Extensions-main/extension-code/Niche-Toolbox.js,0znzwNicheToolboxLite,Niche Toolbox Lite,audio-midi,Copyright stated; license unclear,Copyright stated; license unclear,True,63,6,VM/internal runtime access | renderer patching | DOM/global UI access,2,14318,True,True,True,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Geolocation.js,SPgeolocation,Geolocation,ui-window,MIT,MIT,True,81,2,network access,7,38696,True,False,False,True,False,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/SVG-Spritesheets.js,SPsvgSheets,SVG Spritesheets,data-codec,MIT OR LGPL-3.0 (repository default),Unspecified,True,67,0,,9,9261,True,False,False,False,False,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Camera-Sensing-Plus.js,CameraSensingPlusSP,Camera Sensing+,world-grid-camera,MIT,MIT,True,69,8,VM/internal runtime access | renderer patching | DOM/global UI access | camera permission,25,22987,True,True,True,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Particle-Engine.js,SPpartEngine,,math-motion,MIT,MIT,True,69,8,network access | VM/internal runtime access | renderer patching | DOM/global UI access,24,51539,True,True,True,True,True,False,False,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/Runtime-Events.js,SPevents,Runtime Events,events-control,MIT,MIT,True,79,3,VM/internal runtime access | DOM/global UI access,14,10996,True,True,False,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/KeysPlusV2.js,enderKeysPlusV2,Keys+ V2,input-ui,LGPL,LGPL,True,69,3,VM/internal runtime access | DOM/global UI access,44,44812,True,True,False,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/My-Blocks-Plus.js,SPmbpCST,My Blocks+,input-ui,MIT,MIT,True,79,3,VM/internal runtime access | DOM/global UI access,17,107602,True,True,False,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Messages-Plus.js,SPmessagePlus,,events-control,MIT OR LGPL-3.0 (repository default),Unspecified,True,63,2,VM/internal runtime access,16,24754,True,True,False,False,False,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Looks-Expanded.js,SPlooksExpanded,,renderer-effects,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,17,37597,True,True,True,False,True,False,False,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/Lazy-Collisions.js,LZcollisionsSP,Lazy Collisions,physics-collision,MIT OR LGPL-3.0 (repository default),Unspecified,True,63,2,VM/internal runtime access,5,12056,True,True,False,False,False,False,False,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/Advanced-Messages.js,SPmessages,Advanced Messages,events-control,MIT,MIT,True,81,2,VM/internal runtime access,16,14625,True,True,False,False,False,False,False,1
+quarantine,拓展/SharkPools-Extensions-main/extension-code/Sprite-Effects-V2.js,SPspriteEffectsV2,,ui-window,MIT,MIT,True,63,11,network access | VM/internal runtime access | renderer patching | DOM/global UI access | MIDI permission | AI/network coupling,31,211454,True,True,True,True,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Time-Calculation.js,SPtimeCalc,Time Calculation,math-motion,MIT OR LGPL-3.0 (repository default),Unspecified,True,67,0,,10,19093,False,False,False,False,False,False,False,1
+quarantine,拓展/SharkPools-Extensions-main/extension-code/GIF-Manager.js,SPgifManager,a | x | a | a | a | a | a | a | _inline_1_arg0_ | _inline_1_arg0_,ui-window,MIT,MIT,True,55,17,dynamic code execution | network access | file-system/browser file access | VM/internal runtime access | DOM/global UI access | worker usage | AI/network coupling | very large/minified,13,463348,True,True,False,True,True,True,True,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Added-Motion.js,SPaddedmotion,Added Motion,ui-window,MIT OR LGPL-3.0 (repository default),Unspecified,True,63,2,VM/internal runtime access,11,15283,True,True,False,False,False,False,False,1
+archive,拓展/SharkPools-Extensions-main/extension-code/Sprite-Panel.js,SPspritePanel,"), listItem);
+    } else {
+      const label = makeLabel(`Name: ${name}`, isDark ?  | x |  y | size | stretch x |  y | direction | show | layer | costume",ui-window,LGPL,LGPL,True,58,6,VM/internal runtime access | renderer patching | DOM/global UI access,0,35196,True,True,True,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Hyper-Sense-V2.js,HyperSense2SP,,input-ui,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,40,40066,True,True,True,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/extension-code/Color-Master.js,SPcolorMaster,Color Master,world-grid-camera,MIT,MIT,True,75,5,VM/internal runtime access | DOM/global UI access | AI/network coupling,17,173078,True,True,False,False,True,False,False,1
+candidate-next-phase,拓展/SharkPools-Extensions-main/extension-code/MIDI-Tools.js,ObscurasMIDITools,Obscuras MIDI Tools v3.0,ui-window,MIT,MIT,True,65,10,network access | file-system/browser file access | VM/internal runtime access | DOM/global UI access | MIDI permission | AI/network coupling,12,51191,False,True,False,True,True,True,False,1
+archive,拓展/SharkPools-Extensions-main/pages/gallery-startup.js,,,ui-window,MIT OR LGPL-3.0 (repository default),Unspecified,True,42,5,network access | DOM/global UI access | page-level mutation,0,9644,False,False,False,True,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/pages/components/panel-modal.js,,,input-ui,MIT OR LGPL-3.0 (repository default),Unspecified,True,50,1,DOM/global UI access,0,7802,False,False,False,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/pages/components/extension.js,,,math-motion,MIT OR LGPL-3.0 (repository default),Unspecified,True,50,1,DOM/global UI access,0,3144,False,False,False,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/pages/components/tag.js,,,renderer-effects,MIT OR LGPL-3.0 (repository default),Unspecified,True,50,1,DOM/global UI access,0,4057,False,False,False,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/pages/scripts/extension-generator.js,,,ui-window,MIT OR LGPL-3.0 (repository default),Unspecified,True,40,6,network access | file-system/browser file access | DOM/global UI access | worker usage,0,3336,False,False,False,True,True,True,False,1
+archive,拓展/SharkPools-Extensions-main/pages/scripts/mobile-scaler.js,,,ui-window,MIT OR LGPL-3.0 (repository default),Unspecified,True,50,1,DOM/global UI access,0,1443,False,False,False,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/pages/scripts/auto-extension-labeler.js,,,file-storage,MIT OR LGPL-3.0 (repository default),Unspecified,True,46,3,network access | DOM/global UI access,0,2404,False,False,False,True,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/pages/scripts/contributor-generator.js,,,data-codec,MIT OR LGPL-3.0 (repository default),Unspecified,True,46,3,network access | DOM/global UI access,0,1008,False,False,False,True,True,False,False,1
+quarantine,拓展/SharkPools-Extensions-main/extension-utils/MO/math-calculus.js,,diff | sum | product | integrate | defint | S | C | limit,math-motion,MIT OR LGPL-3.0 (repository default),Unspecified,True,38,7,dynamic code execution | AI/network coupling,0,39895,False,False,False,False,False,False,True,1
+quarantine,拓展/SharkPools-Extensions-main/extension-utils/MO/math-algebra.js,,factor | simplify | gcd | lcm | roots | divide | div | partfrac | deg | coeffs,math-motion,MIT OR LGPL-3.0 (repository default),Unspecified,True,42,5,dynamic code execution,0,49506,False,False,False,False,False,False,True,1
+quarantine,拓展/SharkPools-Extensions-main/extension-utils/MO/math-solve.js,,solveEquations | solve | setEquation,math-motion,MIT OR LGPL-3.0 (repository default),Unspecified,True,42,5,dynamic code execution,0,19447,False,False,False,False,False,False,True,1
+quarantine,拓展/SharkPools-Extensions-main/extension-utils/MO/math-core.js,,[object Decimal],math-motion,MIT OR LGPL-3.0 (repository default),Unspecified,True,38,7,dynamic code execution | very large/minified,0,322658,False,False,False,False,False,False,True,1
+candidate-backlog,拓展/SharkPools-Extensions-main/tests/penguinmod-custom-input-api-test.js,SPcustomInputTest | button-test | slider-test | textarea | soundplayer,Custom Input Test [PM],input-ui,MIT,MIT,True,79,3,VM/internal runtime access | DOM/global UI access,4,13866,True,True,False,False,True,False,False,1
+archive,拓展/SharkPools-Extensions-main/tests/Block-Counter.js,SPtest,...,ui-window,MIT OR LGPL-3.0 (repository default),Unspecified,True,56,3,VM/internal runtime access | DOM/global UI access,0,3060,True,True,False,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/tests/pre-done-extension.js,SPext,...,ui-window,MIT,MIT,True,73,6,VM/internal runtime access | renderer patching | DOM/global UI access,1,4132,True,True,True,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/tests/unfinished-inline-block.js,SPext,unfinished inline,ui-window,MIT,MIT,True,81,2,VM/internal runtime access,1,1168,True,True,False,False,False,False,False,1
+archive,拓展/SharkPools-Extensions-main/tests/Toggle-Bounds.js,,,data-codec,MIT OR LGPL-3.0 (repository default),Unspecified,True,40,6,VM/internal runtime access | renderer patching | DOM/global UI access,0,6469,False,True,True,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/tests/Dependent-Blocks.js,SPext,...,input-ui,MIT,MIT,True,81,2,VM/internal runtime access,1,2604,True,True,False,False,False,False,False,1
+archive,拓展/SharkPools-Extensions-main/tests/Collapse-Blocks.js,SPcollapse,Collapse Blocks,input-ui,MIT OR LGPL-3.0 (repository default),Unspecified,True,56,3,VM/internal runtime access | DOM/global UI access,0,6691,True,True,False,False,True,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/tests/dynamic-blocks.js,SPext,dynamic block test,data-codec,MIT,MIT,True,81,2,VM/internal runtime access,1,1943,True,True,False,False,False,False,False,1
+candidate-backlog,拓展/SharkPools-Extensions-main/tests/penguinmod-custom-shape-api-test.js,SPext,PM Custom Shape API,data-codec,MIT,MIT,True,81,2,VM/internal runtime access,2,2589,True,True,False,False,False,False,False,1
+reference-only-license-review,拓展/蒲公英-WeiP的扩展/scratch自定义拓展-按键自定义·检测V2.js,advancedDetectorV2,高级侦测V2-weip制造,input-ui,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,2,4107,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/蒲公英-WeiP的扩展/scratch自定义拓展-按键自定义·检测.js,keyboardDetector,键盘检测器,input-ui,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,2,2557,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/蒲公英-WeiP的扩展/关闭当前窗口.js,closeWindow,窗口关闭属性（TDP-seed测试版）,ui-window,Unspecified,Unspecified,True,57,5,VM/internal runtime access | DOM/global UI access | page-level mutation,1,2049,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/蒲公英-WeiP的扩展/scratch自定义拓展-网页爬虫.js,webCrawlerPro,网页爬虫,network-ai,Unspecified,Unspecified,True,59,4,network access | VM/internal runtime access,3,2026,False,True,False,True,False,False,False,1
+reference-only-license-review,拓展/蒲公英-WeiP的扩展/scratch自定义拓展-提升帧率.js,fpscontrol,FPS 控制,events-control,Unspecified,Unspecified,True,63,2,VM/internal runtime access,2,1413,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/蒲公英-WeiP的扩展/scratch自定义拓展-按键自定义·检测V2Pro.js,advancedDetectorV2Plus,高级侦测V2 Pro-weip制造,input-ui,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,3,6561,False,True,False,False,True,False,False,1
+adopted-as-clean-room-reference,拓展/蒲公英-WeiP的扩展/鼠标滚轮检测.js,mousewheel,鼠标滚轮,input-ui,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,5,2833,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/蒲公英-WeiP的扩展/scratch自定义拓展-本地储存（浏览器）.js,advancedLocalStorage,高级本地存储,file-storage,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,8,7256,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/NOname_awa的扩展/控制.js,CONTROL | control.seconds | control.milliseconds | control.microseconds | control.minutes | control.hours | control.frames | control.clear | control.increment | control.reduction,,world-grid-camera,Unspecified,Unspecified,True,63,2,VM/internal runtime access,17,44435,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/NOname_awa的扩展/诈骗.js,a,恶搞块,world-grid-camera,Unspecified,Unspecified,True,61,3,DOM/global UI access | AI/network coupling,3,64507,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/NOname_awa的扩展/远算(紫色主题).js,OPERATION_SETTING | OPERATION.SHOW | OPERATION.HIDE | OPERATION.EXPAND | OPERATION.COLLAPSE | OPERATION.RARE_BLOCK | OPERATION.EXPAND_MENU | OPERATION.LETTER_CASE | OPERATION.MATH_LABEL | OPERATION.BOOLEAN_LABEL,,world-grid-camera,Unspecified,Unspecified,True,60,1,DOM/global UI access,95,246266,False,False,False,False,True,False,False,1
+reference-only-license-review,拓展/NOname_awa的扩展/运算.js,OPERATION_SETTING | OPERATION.SHOW | OPERATION.HIDE | OPERATION.EXPAND | OPERATION.COLLAPSE | OPERATION.RARE_BLOCK | OPERATION.EXPAND_MENU | OPERATION.LETTER_CASE | OPERATION.MATH_LABEL | OPERATION.BOOLEAN_LABEL,,ui-window,Copyright stated; license unclear,Copyright stated; license unclear,True,64,3,VM/internal runtime access | DOM/global UI access,111,270006,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/NOname_awa的扩展/运动.js,MOTION | MOTION_EXT_NAME | MOTION_TEXT | MOTION_MOVE_EDGE | MOTION_POINT_IN_DIRECTION | MOTION_MOVE_TOWARDS | MOTION_MOVE_WITH_ANGLE | MOTION_MOVE_WITH_DIRECTION | MOTION_SET_DISTANCE | MOTION_TURN_RIGHT_AROUND,,world-grid-camera,Unspecified,Unspecified,True,63,2,VM/internal runtime access,9,28822,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/NOname_awa的扩展/汉字.js,hanzi,,math-motion,Unspecified,Unspecified,True,67,0,,2,7711,False,False,False,False,False,False,False,1
+reference-only-license-review,拓展/Uonsan的扩展/實時裁切.js,Cut,裁切,math-motion,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,3,10193,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/Uonsan的扩展/裁切URL-高質量.js,cropURL,裁切URL - 高質量,math-motion,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,3,12437,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/Uonsan的扩展/模糊裁切 Plus（GPU）.js,fastBlurCrop1,模糊裁切 Plus（GPU）,renderer-effects,Unspecified,Unspecified,True,57,5,VM/internal runtime access | renderer patching,3,7939,False,True,True,False,False,False,False,1
+duplicate-review,拓展/Uonsan的扩展/模糊.js,kmsBlur,,renderer-effects,AGPL-3.0,AGPL-3.0,True,44,7,VM/internal runtime access | renderer patching | AI/network coupling,6,16334,False,True,True,False,False,False,False,2
+reference-only-license-review,拓展/Uonsan的扩展/坐標改變.js,changeXYSizeDivide,改變 X Y 尺寸（帶除數）,misc,Unspecified,Unspecified,True,63,0,,1,2094,False,False,False,False,False,False,False,2
+reference-only-license-review,拓展/Uonsan的扩展/網頁.js,,,world-grid-camera,Unspecified,Unspecified,True,43,7,file-system/browser file access | VM/internal runtime access | DOM/global UI access | AI/network coupling,0,112727,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/Uonsan的扩展/裁切_url_圖片並回傳資料url.js,cropURL,裁切URL,math-motion,Unspecified,Unspecified,True,61,3,VM/internal runtime access | DOM/global UI access,2,6233,False,True,False,False,True,False,False,1
+reference-only-license-review,拓展/Uonsan的扩展/簡潔坐標.js,changeXYSizeDivide,改變 X Y 尺寸（帶除數）,misc,Unspecified,Unspecified,True,63,0,,1,2094,False,False,False,False,False,False,False,2
+archive,拓展/Uonsan的扩展/模糊新.js,kmsBlurV2,,renderer-effects,AGPL-3.0,AGPL-3.0,True,50,6,VM/internal runtime access | renderer patching | DOM/global UI access,6,14492,False,True,True,False,True,False,False,1
+archive,拓展/Uonsan的扩展/外觀.js,lmsLooksPlus,,ui-window,LGPL,LGPL,True,61,7,VM/internal runtime access | renderer patching | AI/network coupling,14,38551,False,True,True,False,False,False,False,1
+reference-only-license-review,拓展/Uonsan的扩展/拼音搜尋.js,onlinePinyinIME,拼音输入法（联网）,data-codec,Unspecified,Unspecified,True,63,2,network access,3,2040,False,False,False,True,False,False,False,1
+reference-only-license-review,拓展/Uonsan的扩展/裁切模糊.js,cblur,裁切模糊,renderer-effects,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,5,12485,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/Uonsan的扩展/角色裁切.js,cblur,裁切模糊,renderer-effects,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,5,14127,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/Uonsan的扩展/裁剪渲染.js,CutPro,裁切,math-motion,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,2,6179,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/Uonsan的扩展/陀螺仪.js,gyroSensor,陀螺仪,ui-window,Unspecified,Unspecified,True,65,1,DOM/global UI access,6,2730,True,False,False,False,True,False,False,1
+reference-only-license-review,拓展/孔明的扩展/孔明のG2圆角.js,kmsRoundedCorners,,math-motion,Unspecified,Unspecified,True,46,6,VM/internal runtime access | renderer patching | DOM/global UI access,8,15244,False,True,True,False,True,False,False,2
+adopted-as-clean-room-reference,拓展/孔明的扩展/kmsTween.js,kmsTween,,math-motion,AGPL-3.0,AGPL-3.0,True,50,4,VM/internal runtime access | AI/network coupling,2,10461,False,True,False,False,False,False,False,2
+reference-only-license-review,拓展/孔明的扩展/水平仪.js,levelData,水平仪,math-motion,Unspecified,Unspecified,True,65,1,DOM/global UI access,2,1524,False,False,False,False,True,False,False,1
+duplicate-review,拓展/孔明的扩展/kmsBlur/kmsBlur(恢复造型).js,kmsBlur,,renderer-effects,AGPL-3.0,AGPL-3.0,True,44,7,VM/internal runtime access | renderer patching | AI/network coupling,6,16334,False,True,True,False,False,False,False,2
+adopted-as-clean-room-reference,拓展/孔明的扩展/kmsTween/kmsTween.js,kmsTween,,math-motion,AGPL-3.0,AGPL-3.0,True,50,4,VM/internal runtime access | AI/network coupling,2,10461,False,True,False,False,False,False,False,2
+candidate-next-phase,拓展/孔明的扩展/孔明的模糊/新 孔明的模糊(预缓存).js,kmsBlur,,renderer-effects,AGPL-3.0,AGPL-3.0,True,50,6,VM/internal runtime access | renderer patching | DOM/global UI access,6,14486,False,True,True,False,True,False,False,1
+candidate-next-phase,拓展/孔明的扩展/孔明的模糊/孔明的模糊(恢复造型).js,kmsBlur,,renderer-effects,AGPL-3.0,AGPL-3.0,True,44,7,VM/internal runtime access | renderer patching | AI/network coupling,6,16243,False,True,True,False,False,False,False,2
+candidate-next-phase,拓展/孔明的扩展/孔明的模糊/孔明の模糊(手动释放内存).js,kmsBlur,,renderer-effects,Copyright stated; license unclear,Copyright stated; license unclear,True,58,6,VM/internal runtime access | renderer patching | DOM/global UI access,5,18329,False,True,True,False,True,False,False,1
+candidate-next-phase,拓展/孔明的扩展/孔明的模糊/kmsblur/kmsBlur(无缓存).js,kmsBlur,,renderer-effects,Unspecified,Unspecified,True,50,6,VM/internal runtime access | renderer patching | DOM/global UI access,4,10459,False,True,True,False,True,False,False,1
+candidate-next-phase,拓展/孔明的扩展/孔明的模糊/kmsblur/kmsBlur3I(当前模糊值).js,KMSBLUR3,𝙆𝙢𝙨 𝘽𝙡𝙪𝙧,renderer-effects,Unspecified,Unspecified,True,55,6,VM/internal runtime access | renderer patching | DOM/global UI access,5,9217,False,True,True,False,True,False,False,1
+reference-only-license-review,拓展/肆囸的扩展/Scratch.js,mytools,常用工具,math-motion,Unspecified,Unspecified,True,67,0,,31,13998,False,False,False,False,False,False,False,1
+adopted-as-clean-room-reference,拓展/肆囸的扩展/Compress.js,pakoCompression,高级压缩,data-codec,Unspecified,Unspecified,True,57,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,11,13006,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/肆囸的扩展/VelatoGraph.js,velatoGraph,Velato可视化,world-grid-camera,Unspecified,Unspecified,True,67,0,,31,13864,False,False,False,False,False,False,False,1
+adopted-as-clean-room-reference,拓展/肆囸的扩展/Unicode.js,unicode,Unicode工具,data-codec,Unspecified,Unspecified,True,67,0,,1,721,False,False,False,False,False,False,False,1
+adopted-as-clean-room-reference,拓展/肆囸的扩展/Checksum.js,checksum,校验和,data-codec,Unspecified,Unspecified,True,63,2,VM/internal runtime access,8,9304,False,True,False,False,False,False,False,1
+reference-only-license-review,拓展/肆囸的扩展/PNG/PNG3.js,pakoCompression | checksum,高级压缩 | 校验和,data-codec,Unspecified,Unspecified,True,57,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,16,18826,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/肆囸的扩展/PNG/PNG2.js,pakoCompression | checksum,高级压缩 | 校验和,data-codec,Unspecified,Unspecified,True,57,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,16,18832,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/肆囸的扩展/PNG/PNG1.js,pakoCompression | checksum,高级压缩 | 校验和,data-codec,Unspecified,Unspecified,True,57,5,file-system/browser file access | VM/internal runtime access | DOM/global UI access,19,21663,False,True,False,False,True,True,False,1
+reference-only-license-review,拓展/MCsc_Junjie的扩展/SayChat.js,saychat,Saychat 3,file-storage,Unspecified,Unspecified,True,47,10,network access | file-system/browser file access | VM/internal runtime access | renderer patching | DOM/global UI access,32,35105,False,True,True,True,True,True,False,1
+quarantine,拓展/HZK的扩展/HZK窗口系统.js,hzkWindow,HZK窗口系统,ui-window,Unspecified,Unspecified,True,51,8,dynamic code execution | network access | DOM/global UI access,19,47146,False,False,False,True,True,False,True,1

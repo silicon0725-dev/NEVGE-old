@@ -1,0 +1,47 @@
+{
+  "certificateId": "ngvge-ws3d-dock-organization-certificate/v1",
+  "stage": "WS-3D",
+  "title": "Dock Organization",
+  "status": "COMPLETE / VERIFIED",
+  "date": "2026-08-13",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "identities": {
+    "organizationModel": "ngvge.workspace-dock-organization-model@1",
+    "organizationPreference": "ngvge.workspace-dock-organization-preference@1",
+    "dockRuntimeModel": "ngvge.workspace-dock-runtime-model@1",
+    "windowManager": "ngvge.workspace-window-manager@1"
+  },
+  "organizationKinds": ["separator", "group", "folder"],
+  "invariants": {
+    "stableMembershipIdentity": "ToolId",
+    "oneContainerPerTool": true,
+    "organizationDoesNotReplaceToolId": true,
+    "globalOrderAuthority": "DockRuntimeModel",
+    "windowAuthority": "WindowManager",
+    "folderExpandedState": "runtime-only",
+    "persistence": "deferred-to-WS-4",
+    "backendIdentityInPreference": false
+  },
+  "verification": {
+    "machineGate": {"passed": 45, "total": 45},
+    "focusedJest": {"suites": 2, "tests": 16, "status": "PASS"},
+    "workspaceCumulative": "PASS",
+    "lscG1": "PASS",
+    "lrcG1": "PASS",
+    "lplG1": "PASS",
+    "lexG1": "PASS",
+    "col0": "PASS",
+    "transform0009E": {"passed": 12, "total": 12},
+    "permanentRegression": {"passed": 19, "total": 19},
+    "unitNode": {"suites": 105, "tests": 578, "status": "PASS"},
+    "unitDom": {"suites": 3, "tests": 26, "status": "PASS"},
+    "unitTotal": {"suites": 108, "tests": 604, "status": "PASS"},
+    "integration": {"suites": 4, "tests": 5, "status": "PASS"},
+    "smoke": {"suites": 1, "tests": 1, "status": "PASS"},
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "dockWebpack": {"exitCode": 0, "errors": 0, "warnings": 0, "status": "PASS"},
+    "editorWebpack": {"exitCode": 0, "errors": 0, "warnings": 0, "status": "PASS"}
+  },
+  "deferred": ["WS-3E Launchpad", "WS-3F Minimize/Restore Animation", "WS-4 Workspace Persistence/Settings"]
+}

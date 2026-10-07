@@ -1,0 +1,30 @@
+{
+  "schema": "ngvge-freeze-certificate/v1",
+  "project": "NGVGE",
+  "version": "0008.9.7",
+  "sceneSystem": "V2.1",
+  "authority": "ARC-0001 Kernel Independence Contract",
+  "decision": "ACCEPTED",
+  "architectureStatus": "ARCHITECTURE_FROZEN",
+  "correctnessStatus": "PASS",
+  "p0Blockers": 0,
+  "p1Blockers": 0,
+  "releaseReproducibilityStatus": "PENDING_EXTERNAL_CI_EVIDENCE",
+  "candidateSourceSha256": "5c3a348c99d104db5f70be1c8df95647736d5d7468cdafb354324643aebf4084",
+  "manifestFileCount": 3482,
+  "manifestBytes": 83543492,
+  "gates": {
+    "permanentRegression": "6/6 PASS",
+    "smoke": "1/1 PASS",
+    "unit": "65/65 suites; 312/312 tests PASS",
+    "integration": "3/3 suites; 4/4 tests PASS",
+    "eslintCorrectness": "PASS",
+    "typescriptStrict": "PASS",
+    "sceneLifecycleStability": "10/10 PASS",
+    "architecture": "PASS"
+  },
+  "externalEvidenceHolds": [
+    "bun frozen clean install / Node 24 primary matrix cannot execute in current sandbox",
+    "production webpack build cannot reach natural completion inside current sandbox command window"
+  ]
+}

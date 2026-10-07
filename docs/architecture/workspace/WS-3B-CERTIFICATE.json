@@ -1,0 +1,86 @@
+{
+  "certificateId": "ngvge.workspace.ws3b-basic-interaction-verification/v1",
+  "stage": "WS-3B",
+  "title": "Dock Basic Interaction",
+  "status": "COMPLETE / VERIFIED",
+  "runtimeIdentities": {
+    "dockRuntimeModel": "ngvge.workspace-dock-runtime-model@1",
+    "dockInteractionController": "ngvge.workspace-dock-interaction-controller@1",
+    "toolRegistry": "ngvge.workspace-tool-registry@1",
+    "windowManager": "ngvge.workspace-window-manager@1"
+  },
+  "clickSemantics": [
+    "launch",
+    "focus",
+    "restore",
+    "already-active"
+  ],
+  "dockOwnedMutations": [
+    "pin",
+    "unpin",
+    "reorder"
+  ],
+  "windowAuthorityOwnedBy": "ngvge.workspace-window-manager@1",
+  "persistenceDeferredTo": "WS-4",
+  "placementDeferredTo": "WS-3C",
+  "organizationPresentationDeferredTo": "WS-3D",
+  "launchpadDeferredTo": "WS-3E",
+  "animationDeferredTo": "WS-3F",
+  "machineChecks": {
+    "passed": 39,
+    "total": 39
+  },
+  "focusedTests": {
+    "suites": 3,
+    "tests": 20,
+    "status": "PASS"
+  },
+  "unitTests": {
+    "nodeSuites": 103,
+    "nodeTests": 557,
+    "domSuites": 3,
+    "domTests": 26,
+    "totalSuites": 106,
+    "totalTests": 583,
+    "status": "PASS"
+  },
+  "integration": {
+    "suites": 4,
+    "tests": 5,
+    "status": "PASS"
+  },
+  "smoke": {
+    "tests": 1,
+    "status": "PASS"
+  },
+  "webpack": {
+    "dockProductionEntry": {
+      "entry": "src/components/workspace-dock/workspace-dock.jsx",
+      "config": "webpack.config.js[0]",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0,
+      "status": "PASS"
+    },
+    "fullEditorEntry": {
+      "entry": "src/playground/editor.jsx",
+      "status": "TIMEOUT / NOT CLAIMED AS PASS",
+      "reason": "external execution window expired before webpack callback"
+    }
+  },
+  "cumulative": {
+    "workspaceWs0ThroughWs3b": "PASS",
+    "lscG1": "PASS",
+    "lrcG1": "PASS",
+    "lplG1": "PASS",
+    "lexG1": "PASS",
+    "col0": "PASS",
+    "arcC0011": "7/7 PASS",
+    "transform0009E": "12/12 PASS",
+    "permanentRegression": "19/19 PASS",
+    "typeScript": "PASS",
+    "eslintCorrectness": "PASS",
+    "cssPostcss": "PASS"
+  },
+  "nextStage": "WS-3C | Placement & Geometry"
+}

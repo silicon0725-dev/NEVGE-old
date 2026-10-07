@@ -1,0 +1,122 @@
+diff --git a/src/components/project-explorer/project-explorer.jsx b/src/components/project-explorer/project-explorer.jsx
+index 07e96ff..d845222 100644
+--- a/src/components/project-explorer/project-explorer.jsx
++++ b/src/components/project-explorer/project-explorer.jsx
+@@ -445,6 +445,37 @@ EmptyNodeActions.propTypes = {
+     onCreatePreset: PropTypes.func.isRequired
+ };
+ 
++const useDismissableContextMenu = onClose => {
++    const menuRef = React.useRef(null);
++
++    React.useEffect(() => {
++        // React 16 delegates pointer events at document level. Closing on every
++        // document pointerdown unmounts the portal before its button click runs.
++        // Only dismiss when the native event target is outside the menu element.
++        const handlePointerDown = event => {
++            if (menuRef.current && menuRef.current.contains(event.target)) return;
++            onClose();
++        };
++        const handleKeyDown = event => {
++            if (event.key === 'Escape') onClose();
++        };
++        const close = () => onClose();
++
++        window.addEventListener('blur', close);
++        document.addEventListener('pointerdown', handlePointerDown, true);
++        document.addEventListener('keydown', handleKeyDown);
++        document.addEventListener('scroll', close, true);
++        return () => {
++            window.removeEventListener('blur', close);
++            document.removeEventListener('pointerdown', handlePointerDown, true);
++            document.removeEventListener('keydown', handleKeyDown);
++            document.removeEventListener('scroll', close, true);
++        };
++    }, [onClose]);
++
++    return menuRef;
++};
++
+ const NodeContextMenu = props => {
+     const {
+         node,
+@@ -461,32 +492,25 @@ const NodeContextMenu = props => {
+         position
+     } = props;
+     const isTargetNode = Boolean(node.targetId);
++    const menuRef = useDismissableContextMenu(onClose);
+     const runAction = action => event => {
+         event.preventDefault();
+         event.stopPropagation();
+-        onClose();
+         action();
++        onClose();
+     };
+ 
+-    React.useEffect(() => {
+-        const close = () => onClose();
+-        window.addEventListener('blur', close);
+-        document.addEventListener('pointerdown', close);
+-        document.addEventListener('scroll', close, true);
+-        return () => {
+-            window.removeEventListener('blur', close);
+-            document.removeEventListener('pointerdown', close);
+-            document.removeEventListener('scroll', close, true);
+-        };
+-    }, [onClose]);
+-
+     return (
+         <Portal>
+             <div
+                 className={styles.nodeContextMenu}
++                ref={menuRef}
+                 role="menu"
+                 style={{left: position.x, top: position.y}}
+-                onPointerDown={event => event.stopPropagation()}
++                onContextMenu={event => {
++                    event.preventDefault();
++                    event.stopPropagation();
++                }}
+             >
+                 <div className={styles.nodeContextTitle}>{node.name}</div>
+                 <button
+@@ -564,32 +588,25 @@ NodeContextMenu.defaultProps = {
+ 
+ const RootNodeContextMenu = props => {
+     const {onClose, onCollapseAll, onCreateRoot, onExpandAll, position} = props;
++    const menuRef = useDismissableContextMenu(onClose);
+     const runAction = action => event => {
+         event.preventDefault();
+         event.stopPropagation();
+-        onClose();
+         action();
++        onClose();
+     };
+ 
+-    React.useEffect(() => {
+-        const close = () => onClose();
+-        window.addEventListener('blur', close);
+-        document.addEventListener('pointerdown', close);
+-        document.addEventListener('scroll', close, true);
+-        return () => {
+-            window.removeEventListener('blur', close);
+-            document.removeEventListener('pointerdown', close);
+-            document.removeEventListener('scroll', close, true);
+-        };
+-    }, [onClose]);
+-
+     return (
+         <Portal>
+             <div
+                 className={styles.nodeContextMenu}
++                ref={menuRef}
+                 role="menu"
+                 style={{left: position.x, top: position.y}}
+-                onPointerDown={event => event.stopPropagation()}
++                onContextMenu={event => {
++                    event.preventDefault();
++                    event.stopPropagation();
++                }}
+             >
+                 <div className={styles.nodeContextTitle}>Entities</div>
+                 <button role="menuitem" type="button" onClick={runAction(onCreateRoot)}>

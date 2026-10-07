@@ -1,0 +1,128 @@
+{
+  "schema": "ngvge-lrc2-runtime-policy-certificate/v1",
+  "milestone": "LRC-2 | Execution / Presentation / Safety Profile Foundation",
+  "generatedAt": "2026-08-13",
+  "authority": "ARC-0001 | Kernel Independence Contract",
+  "status": "PASS",
+  "governanceStatus": "COMPLETE / CERTIFIED / ARCHITECTURE FROZEN",
+  "machineCertification": {
+    "status": "PASS",
+    "requirementsChecked": 12,
+    "requirementsPassed": 12,
+    "entrypoint": "node scripts/validate-lrc2-runtime-policy-certification.js",
+    "evidence": [
+      {
+        "id": "LRC2-DOD-01",
+        "title": "Runtime Policy has a versioned NGVGE-owned schema",
+        "status": "PASS",
+        "detail": "ngvge.runtime-policy-set@1 is registered as the versioned Runtime Policy contract."
+      },
+      {
+        "id": "LRC2-DOD-02",
+        "title": "Execution / Presentation / Safety / Compatibility are separate domains",
+        "status": "PASS",
+        "detail": "Execution, Presentation, Runtime Safety and Scratch Compatibility are represented as independent policy objects."
+      },
+      {
+        "id": "LRC2-DOD-03",
+        "title": "Simulation tick and presentation refresh are independent",
+        "status": "PASS",
+        "detail": "The high-refresh profile retains a 30 Hz simulation tick while using display-refresh presentation; Scratch interpolation remains domain-scoped."
+      },
+      {
+        "id": "LRC2-DOD-04",
+        "title": "Each Runtime Policy domain has exactly one Writer Authority",
+        "status": "PASS",
+        "detail": "All six Runtime Policy domains have one unique Writer registration in the Authority Registry."
+      },
+      {
+        "id": "LRC2-DOD-05",
+        "title": "Scratch backend consumes Runtime Policy through the Compatibility Adapter",
+        "status": "PASS",
+        "detail": "Scratch backend application is exercised through ngvge.scratch-runtime-policy-adapter@1."
+      },
+      {
+        "id": "LRC2-DOD-06",
+        "title": "Legacy Advanced Settings has no direct Runtime Policy VM/Renderer writer",
+        "status": "PASS",
+        "detail": "Advanced Settings routes Runtime Policy-owned controls through the bridge and Engine Protocol command path; Editor cannot supply Writer Authority identity."
+      },
+      {
+        "id": "LRC2-DOD-07",
+        "title": "OpsPerFrame is not a Native Runtime Policy field",
+        "status": "PASS",
+        "detail": "opsPerFrame is rejected by Runtime Policy validation and remains explicit Legacy scheduler quarantine."
+      },
+      {
+        "id": "LRC2-DOD-08",
+        "title": "miscLimits is not a Native Runtime Policy field",
+        "status": "PASS",
+        "detail": "miscLimits is rejected by Runtime Policy validation; explicit compatibility fields are projected to the legacy backend switch only inside the Scratch adapter."
+      },
+      {
+        "id": "LRC2-DOD-09",
+        "title": "Stage geometry is outside Runtime Policy",
+        "status": "PASS",
+        "detail": "stageWidth and stageHeight are rejected by Runtime Policy validation and remain quarantined for Project/Scene geometry ownership."
+      },
+      {
+        "id": "LRC2-DOD-10",
+        "title": "Compiler/backend override remains runtime-only",
+        "status": "PASS",
+        "detail": "executionBackend and backendHints are runtime-only Schema properties and are stripped from project Runtime Policy persistence."
+      },
+      {
+        "id": "LRC2-DOD-11",
+        "title": "Runtime Policy DTOs exclude Scratch/backend-private handles",
+        "status": "PASS",
+        "detail": "VM, renderer, Scratch Target, private backend handles and _twconfig_ identity are rejected from Runtime Policy DTOs."
+      },
+      {
+        "id": "LRC2-DOD-12",
+        "title": "Cumulative LRC-2 certification and freeze gates are executable",
+        "status": "PASS",
+        "detail": "package.json exposes cumulative lrc2-certification and real-WebPack lrc2-freeze entrypoints."
+      }
+    ]
+  },
+  "regressionEvidence": {
+    "lrc2Focused": "4 suites / 21 tests PASS",
+    "arcC0011": "7 / 7 PASS",
+    "transform0009E": "12 / 12 PASS",
+    "permanentRegression": "19 / 19 PASS",
+    "unitNode": "85 suites / 444 tests PASS",
+    "unitDom": "3 suites / 26 tests PASS",
+    "unitTotal": "88 suites / 470 tests PASS",
+    "integration": "3 suites / 4 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "runtimeNodeBoundary": "PASS",
+    "runtimeComponentBoundary": "PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "webpackBuildDev": "PASS / exit code 0"
+  },
+  "frozenContracts": [
+    "ngvge.runtime-policy-set@1",
+    "ngvge.runtime-policy-profile-registry@1",
+    "ngvge.runtime-policy-resolver@1",
+    "ngvge.runtime-policy-command / version 1",
+    "ngvge.runtime-policy-command-executor@1",
+    "ngvge.runtime-policy-client@1",
+    "ngvge.scratch-runtime-policy-adapter@1",
+    "ngvge.presenter-capability/v1",
+    "ngvge.legacy-advanced-settings-bridge@1",
+    "ngvge.legacy-runtime-settings-quarantine@1"
+  ],
+  "explicitDeferrals": [
+    "_twconfig_ import/export precedence -> LRC-3",
+    "legacy URL/runtime ingress -> LRC-3",
+    "Green Flag / shortcut FPS ingress -> LRC-3",
+    "legacy tw-state-manager initialization -> LRC-3",
+    "remaining legacy direct VM caller precedence -> LRC-3",
+    "OpsPerFrame final retirement/quarantine",
+    "Warp Timer final Runtime Safety ownership",
+    "Stage geometry -> Project/Scene viewport schema",
+    "Compatibility Analyzer / visual-domain diagnostics -> LRC-4"
+  ],
+  "nextStage": "LRC-3 | Legacy Runtime Settings Compatibility Adapter"
+}

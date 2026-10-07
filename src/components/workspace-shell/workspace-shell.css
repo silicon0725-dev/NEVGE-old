@@ -1,0 +1,75 @@
+.workspace-shell {
+    --ngvge-shell-canvas: #17191d;
+    --ngvge-shell-canvas-elevated: #1d2025;
+    --ngvge-shell-border: rgba(255, 255, 255, 0.09);
+    --ngvge-shell-border-strong: rgba(255, 255, 255, 0.14);
+    --ngvge-shell-text: #eef1f4;
+    --ngvge-shell-text-muted: #a0a8b3;
+    --ngvge-shell-icon: #b5bdc8;
+
+    --ngvge-window-surface: #f7f8fa;
+    --ngvge-window-border: rgba(13, 16, 20, 0.72);
+    --ngvge-window-radius: 10px;
+    --ngvge-window-shadow: 0 18px 42px rgba(0, 0, 0, 0.28), 0 3px 10px rgba(0, 0, 0, 0.18);
+    --ngvge-window-chrome: #24282e;
+    --ngvge-window-chrome-hover: #292e35;
+    --ngvge-window-chrome-text: #e9edf2;
+    --ngvge-window-header-height: 30px;
+    --ngvge-window-header-padding: 0 8px;
+    --ngvge-window-header-font-size: 11px;
+    --ngvge-window-header-font-weight: 650;
+    --ngvge-window-control-hover: rgba(255, 255, 255, 0.1);
+    --ngvge-window-control-active: rgba(255, 255, 255, 0.15);
+    --ngvge-window-control-size: 18px;
+    --ngvge-window-control-radius: 999px;
+    --ngvge-window-resize-hover: rgba(190, 198, 208, 0.18);
+
+    --ngvge-minimized-background: #252a31;
+    --ngvge-minimized-background-hover: #303640;
+    --ngvge-minimized-foreground: #eef1f4;
+    --ngvge-minimized-border-style: 1px solid rgba(255, 255, 255, 0.12);
+    --ngvge-minimized-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+
+    position: relative;
+    background: var(--ngvge-shell-canvas);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.workspace-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(255, 255, 255, 0.025);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.workspace-menu-bar {
+    --ngvge-menu-bar-background: #1e2227;
+    --ngvge-menu-bar-background-image: none;
+    --ngvge-menu-bar-foreground: #f0f2f5;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.32);
+}
+
+.workspace-launcher {
+    border-color: var(--ngvge-shell-border-strong) !important;
+    background: rgba(36, 40, 46, 0.96) !important;
+    color: var(--ngvge-shell-text) !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22) !important;
+    backdrop-filter: blur(10px);
+}
+
+.workspace-launcher:hover,
+.workspace-launcher:focus-visible {
+    border-color: rgba(205, 212, 221, 0.32) !important;
+    background: #2a2f36 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28) !important;
+}
+
+.workspace-launcher-icon {
+    background: rgba(255, 255, 255, 0.07) !important;
+    color: var(--ngvge-shell-icon) !important;
+}

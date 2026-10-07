@@ -1,0 +1,78 @@
+{
+  "task": "0007.2.4",
+  "title": "Context Menu Click Fix",
+  "changedRuntimeFiles": [
+    "src/components/project-explorer/project-explorer.jsx"
+  ],
+  "checks": [
+    {
+      "name": "shared dismiss hook exists",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outside target containment guard exists",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "capture pointer listener exists",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "matching capture cleanup exists",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "old unconditional document pointerdown listener removed",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "node menu uses menu ref",
+      "passed": true,
+      "detail": "count=2"
+    },
+    {
+      "name": "both menu actions execute before close",
+      "passed": true,
+      "detail": "count=2"
+    },
+    {
+      "name": "Escape dismissal exists",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "node/root context menu components remain",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "balanced braces",
+      "passed": true,
+      "detail": "{=368 }=368"
+    },
+    {
+      "name": "balanced parentheses",
+      "passed": true,
+      "detail": "(=407 )=407"
+    },
+    {
+      "name": "balanced JSX angle tags heuristic",
+      "passed": true,
+      "detail": "open=4 close=4"
+    },
+    {
+      "name": "patch contains only intended runtime file",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "allPassed": true,
+  "notes": [
+    "Full Jest/ESLint/Webpack execution requires the local project node_modules dependency tree."
+  ]
+}

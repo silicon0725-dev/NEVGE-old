@@ -1,0 +1,4 @@
+tool_id,title,lifecycle,origin,tool_registry,persistence_scopes,authority,required_services,oss_intake,backend_selection,stage_result
+ngvge.tool.todo,Todo,active,first-party,registered,workspace,workspace-only,window-manager|tool-persistence,not-applicable,native-reference,VERIFIED
+ngvge.tool.terminal,Better Terminal,planned,oss-wrapped,not-registered,workspace|session,workspace-only,window-manager|tool-persistence,required,unselected,PLANNED
+ngvge.tool.paint,Better Paint / Costume Editor,planned,oss-wrapped,not-registered,workspace|user,resource-command,window-manager|tool-persistence|resource-manager,required,unselected,PLANNED

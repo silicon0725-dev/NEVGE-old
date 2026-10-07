@@ -1,0 +1,168 @@
+{
+  "task": "Task-0007.2 — Node Tree Foundation",
+  "base": "scratch-gui-main-task-0007.1-NES-branding",
+  "changed_file_count": 16,
+  "checks": [
+    {
+      "name": "JavaScript syntax validation",
+      "status": "PASS"
+    },
+    {
+      "name": "React JSX parser validation",
+      "status": "PASS"
+    },
+    {
+      "name": "relative import resolution",
+      "status": "PASS"
+    },
+    {
+      "name": "CSS Module class coverage",
+      "status": "PASS"
+    },
+    {
+      "name": "target-backed node synchronization",
+      "status": "PASS"
+    },
+    {
+      "name": "root and child node creation",
+      "status": "PASS"
+    },
+    {
+      "name": "PhysicsBody2D and Collider2D hierarchy",
+      "status": "PASS"
+    },
+    {
+      "name": "node property editing",
+      "status": "PASS"
+    },
+    {
+      "name": "shared Undo/Redo behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "project-section persistence integration",
+      "status": "PASS"
+    },
+    {
+      "name": "target rebinding after runtime ID changes",
+      "status": "PASS"
+    },
+    {
+      "name": "project load reset behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "plugin node type registration",
+      "status": "PASS"
+    },
+    {
+      "name": "unknown plugin node data preservation design",
+      "status": "PASS"
+    },
+    {
+      "name": "git apply --check against NES-branded Task-0007.1",
+      "status": "PASS"
+    },
+    {
+      "name": "patched result byte comparison",
+      "status": "PASS"
+    },
+    {
+      "name": "Jest unit suite",
+      "status": "NOT_RUN",
+      "detail": "The uploaded source archive does not contain node_modules."
+    },
+    {
+      "name": "ESLint and production Webpack build",
+      "status": "NOT_RUN",
+      "detail": "The project dependency tree and Bun are unavailable in this runtime."
+    },
+    {
+      "name": "physics simulation and collision debug rendering",
+      "status": "NOT_IMPLEMENTED",
+      "detail": "This milestone provides editable node data; runtime behavior is deferred."
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/TASK-0007.2-NODE-TREE-FOUNDATION.md",
+      "bytes": 3131,
+      "sha256": "4fcd24f7a90ad2a8cb58d356101828e8c0bf398ea9d1d628beedd03973c493d4"
+    },
+    {
+      "path": "src/components/gui/gui.jsx",
+      "bytes": 98986,
+      "sha256": "c321974f329cc3a63e3ba47a7a6321183d412d44e14ebe39fcd3bc297c5532d9"
+    },
+    {
+      "path": "src/components/project-explorer/project-explorer.css",
+      "bytes": 10698,
+      "sha256": "ab81e6fbe78831a4da7fb7a3cd69510c7c834878a48ec58046a9b457d2a364fd"
+    },
+    {
+      "path": "src/components/project-explorer/project-explorer.jsx",
+      "bytes": 22846,
+      "sha256": "c323ff3df98457dfa54f59a24f875676d69f0fb8f80920f400dafdcd72047320"
+    },
+    {
+      "path": "src/components/project-inspector/project-inspector.css",
+      "bytes": 8388,
+      "sha256": "8f1ececd62705a0a98dae411f5fc2153b9548073d2f218a43654d02ccf3f578f"
+    },
+    {
+      "path": "src/components/project-inspector/project-inspector.jsx",
+      "bytes": 40996,
+      "sha256": "a3f1379a08c412967926c531014b00e7f17629b68ab9f7d0160a7dad4c22696b"
+    },
+    {
+      "path": "src/lib/project-nodes/index.js",
+      "bytes": 71,
+      "sha256": "d56a5374e799a395f38751a5636acccd9b6ee00aa918570d934804612b41995b"
+    },
+    {
+      "path": "src/lib/project-nodes/node-database.js",
+      "bytes": 18267,
+      "sha256": "b706f9bbf73487948132fa14496a955c856206c99d27453069a30c19da198e06"
+    },
+    {
+      "path": "src/lib/project-nodes/node-type-registry.js",
+      "bytes": 8693,
+      "sha256": "afa10aac27171bffb3c84c0194827a001e7e484c5ec7f402100b46cd51b20804"
+    },
+    {
+      "path": "src/lib/vm-listener-hoc.jsx",
+      "bytes": 16497,
+      "sha256": "ea470acb2d0b8b7800c555d525b15e3a5e3cb40f9050ee12797cb698b56efedc"
+    },
+    {
+      "path": "src/reducers/project-explorer.js",
+      "bytes": 3070,
+      "sha256": "2b4a333eeef0e4d73335e49849572b93826c28d7d219f96fbb84f9248f3efd67"
+    },
+    {
+      "path": "src/reducers/project-inspector.js",
+      "bytes": 2747,
+      "sha256": "ad94f138e32a7572fb9e8b3faa21bd7c5e7bf611e0f1f44a8fe79d55255f9fc5"
+    },
+    {
+      "path": "test/unit/components/project-explorer.test.jsx",
+      "bytes": 4983,
+      "sha256": "8e722d469ab03c29a20a33ffd31176663a4ecf4bdce0a1cacf12f98f88342135"
+    },
+    {
+      "path": "test/unit/components/project-inspector.test.jsx",
+      "bytes": 6073,
+      "sha256": "af7698adc999b3ba4c0e504ad5fd7a7f7f1c60d78a1d23dfdd28ef6c3129188b"
+    },
+    {
+      "path": "test/unit/lib/project-nodes-node-database.test.js",
+      "bytes": 4622,
+      "sha256": "9566a5800fe23ddf4bd3c2db5209eb84e055b443f028eb04ed4a9ce50ce76d97"
+    },
+    {
+      "path": "test/unit/reducers/project-explorer-reducer.test.js",
+      "bytes": 4123,
+      "sha256": "24e9a1d2225c4fe8801ce28b2ba2d452137de806a898dcd5530352b6e0683d06"
+    }
+  ]
+}

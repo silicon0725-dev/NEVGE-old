@@ -1,0 +1,12 @@
+code,scope,severity,blocking,meaning,owner
+NGVGE_WORKSPACE_PROJECT_REVIEW_NO_OP,proposal-command,info,false,Command is valid but current Resource metadata already matches proposed result,Project Transaction Review
+NGVGE_WORKSPACE_PROJECT_REVIEW_RESOURCE_NOT_FOUND,proposal-command,error,true,Canonical ResourceId is not available in current Resource authority,Project Transaction Review
+NGVGE_WORKSPACE_PROJECT_REVIEW_FOLDER_NOT_FOUND,proposal-command,error,true,Destination Resource folder is not available,Project Transaction Review
+NGVGE_WORKSPACE_PROJECT_REVIEW_RESOURCE_AUTHORITY_UNAVAILABLE,proposal-command,error,true,Resource authority cannot provide impact data,Project Transaction Review
+NGVGE_WORKSPACE_PROJECT_REVIEW_STALE_PROJECT_CONTEXT,proposal-or-transaction,error,true,Review subject belongs to another or unavailable Project Context,Project Transaction Review
+NGVGE_WORKSPACE_PROJECT_COMMAND_PROPOSAL_NOT_COMMITTABLE,proposal,error,true,WS-9G Host proposal state is no longer committable,Project Command Host
+NGVGE_WORKSPACE_PROJECT_COMMAND_TRANSACTION_ADAPTER_UNAVAILABLE,proposal-or-transaction,error,true,WS-9G semantic transaction adapter is unavailable,Project Command Host
+NGVGE_WORKSPACE_PROJECT_REVIEW_TRANSACTION_FAILED,transaction,error,true,Committed transaction attempt failed,Project Transaction Review
+NGVGE_WORKSPACE_PROJECT_REVIEW_ROLLBACK_FAILED,transaction,error,true,Transaction compensation/rollback failed,Project Transaction Review
+NGVGE_WORKSPACE_PROJECT_TRANSACTION_ROLLBACK_ORDER_CONFLICT,transaction,warning,false,Transaction is no longer the latest owned Resource history entry,Project Command Host
+NGVGE_WORKSPACE_PROJECT_TRANSACTION_REVIEW_UNAVAILABLE,provider,error,true,Shared Review/Diagnostics service is absent or disposed,Capability Provider Registry

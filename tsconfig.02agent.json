@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "baseUrl": "./src/addons/addons/02agent",
+    "paths": {
+      "assets/*": ["assets/*"],
+      "components/*": ["shims/components/*"],
+      "hooks/*": ["shims/hooks/*"],
+      "utils/*": ["shims/utils/*"]
+    },
+    "allowJs": true,
+    "checkJs": false,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "types": ["react"]
+  },
+  "include": [
+    "src/addons/addons/02agent/**/*.ts",
+    "src/addons/addons/02agent/**/*.tsx",
+    "src/addons/addons/02agent/**/*.d.ts"
+  ]
+}

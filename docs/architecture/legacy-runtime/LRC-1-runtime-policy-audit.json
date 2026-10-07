@@ -1,0 +1,668 @@
+{
+  "schema": "ngvge-lrc1-runtime-policy-audit/v1",
+  "stage": "LRC-1",
+  "status": "AUDIT_FREEZE",
+  "baseline": "LSC-0 / WS-2",
+  "scope": {
+    "advancedRuntimeControls": 11,
+    "latentStoredPolicies": 1,
+    "persistenceMechanisms": 1,
+    "totalAuditRecords": 13
+  },
+  "domains": [
+    "simulation-scheduler",
+    "presentation",
+    "presentation-renderer",
+    "renderer-optimization",
+    "resource-budget",
+    "scratch-compatibility",
+    "mixed-compatibility",
+    "runtime-safety-compiler",
+    "execution-backend",
+    "project-scene-geometry",
+    "persistence"
+  ],
+  "policies": [
+    {
+      "id": "LRC1-POL-001",
+      "legacyKey": "framerate",
+      "label": "60 FPS / Custom FPS",
+      "uiHandler": "handleFramerateChange / handleCustomizeFramerate",
+      "legacySetter": "vm.setFramerate(number)",
+      "domain": "simulation-scheduler",
+      "semanticClass": "EXECUTION_SEMANTIC",
+      "default": 30,
+      "currentBehavior": "Changes Runtime FrameLoop step cadence. 0 is a special display-refresh-synchronized simulation mode; positive values set currentStepTime=1000/fps.",
+      "hiddenEffects": [
+        "changes Runtime._step cadence",
+        "changes currentStepTime used by sequencer and I/O timing",
+        "changes monitor/hat evaluation frequency",
+        "does not merely change presentation refresh"
+      ],
+      "ingress": [
+        "Advanced Settings",
+        "FramerateChanger UI",
+        "Alt/right-click Green Flag",
+        "URL ?fps / legacy ?60fps",
+        "_twconfig_ project comment"
+      ],
+      "persistence": {
+        "twconfig": true,
+        "url": true,
+        "redux": true
+      },
+      "validationDebt": [
+        "Advanced Settings accepts any finite number including 0 and negative values",
+        "02 fork removed upstream >250 FPS clamp",
+        "different UI ingress applies different validation"
+      ],
+      "compatibilityRisk": "CRITICAL",
+      "ngvgeOwner": "ExecutionProfile.simulationTickRate",
+      "disposition": "KEEP_SEMANTIC_REDESIGN",
+      "migration": "30 => scratch-compatible. Other values => explicit legacy custom simulation-rate override with compatibility warning. 0 => quarantined legacy display-synced simulation mode, not a normal FPS choice."
+    },
+    {
+      "id": "LRC1-POL-002",
+      "legacyKey": "opsPerFrame",
+      "label": "2 OpsPerFrame / Custom OpsPerFrame",
+      "uiHandler": "handleOpsPerFrameChange / handleCustomizeOpsPerFrame",
+      "legacySetter": "vm.setOpsPerFrame(number)",
+      "domain": "simulation-scheduler",
+      "semanticClass": "EXECUTION_SEMANTIC",
+      "default": 1,
+      "currentBehavior": "Runs Runtime._step() repeatedly inside one outer FrameLoop step callback before the render callback.",
+      "hiddenEffects": [
+        "multiple logical steps share one outer scheduler interval",
+        "0 executes zero logical steps",
+        "fractional values produce loop-count behavior rather than a meaningful fractional policy",
+        "no OPSSPERFRAME/OPSPERFRAME VM event is consumed by GUI state listener"
+      ],
+      "ingress": [
+        "Advanced Settings",
+        "_twconfig_ project comment"
+      ],
+      "persistence": {
+        "twconfig": true,
+        "url": false,
+        "redux": true
+      },
+      "validationDebt": [
+        "custom value accepts 0",
+        "custom value accepts fractions",
+        "negative value is normalized by Runtime but raw negative is dispatched to Redux",
+        "no upper bound",
+        "project-load event can leave Redux/UI stale"
+      ],
+      "compatibilityRisk": "CRITICAL",
+      "ngvgeOwner": "none-public / LegacyScratchSchedulerAdapter",
+      "disposition": "DELETE_PUBLIC_POLICY",
+      "migration": "1 => drop. Non-1 => preserve only as quarantined legacy Scratch-backend compatibility override until corpus proves a safe migration; never expose as normal project setting."
+    },
+    {
+      "id": "LRC1-POL-003",
+      "legacyKey": "interpolation",
+      "label": "Interpolation",
+      "uiHandler": "handleInterpolationChange",
+      "legacySetter": "vm.setInterpolation(boolean)",
+      "domain": "presentation",
+      "semanticClass": "PRESENTATION_POLICY",
+      "default": false,
+      "currentBehavior": "Keeps simulation cadence unchanged and performs requestAnimationFrame presentation interpolation for visible Scratch targets.",
+      "hiddenEffects": [
+        "only x/y, rendered direction, scale and ghost are interpolated",
+        "costume changes disable scale/direction interpolation for that frame",
+        "Pen/stamp/custom renderer state is not resampled",
+        "implementation reads renderer private _allDrawables"
+      ],
+      "ingress": [
+        "Advanced Settings",
+        "URL ?interpolate",
+        "_twconfig_ project comment"
+      ],
+      "persistence": {
+        "twconfig": true,
+        "url": true,
+        "redux": true
+      },
+      "validationDebt": [
+        "no capability/compatibility analyzer",
+        "can be combined freely with custom simulation rates and Pen projects"
+      ],
+      "compatibilityRisk": "HIGH",
+      "ngvgeOwner": "PresentationProfile / per-domain Presenter capability",
+      "disposition": "WRAP_LEGACY_COMPAT",
+      "migration": "Map to legacy Scratch transform presenter. Native NGVGE interpolation must be per semantic domain and advertise support; unsupported visual domains must fail/degrade explicitly."
+    },
+    {
+      "id": "LRC1-POL-004",
+      "legacyKey": "hq",
+      "label": "High Quality Pen",
+      "uiHandler": "handleHighQualityPenChange",
+      "legacySetter": "vm.renderer.setUseHighQualityRender(boolean)",
+      "domain": "presentation-renderer",
+      "semanticClass": "MIXED_PRESENTATION_COMPATIBILITY",
+      "default": false,
+      "currentBehavior": "Globally toggles renderer high-quality mode, raises PenSkin render quality, disables integer rounding for all Drawable positions, and also relaxes Pen size clamping through VM checks.",
+      "hiddenEffects": [
+        "not Pen-only",
+        "changes global drawable coordinate rounding",
+        "changes Pen size compatibility semantics",
+        "device/render-resolution sensitive"
+      ],
+      "ingress": [
+        "Advanced Settings",
+        "URL ?hqpen",
+        "_twconfig_ project comment"
+      ],
+      "persistence": {
+        "twconfig": true,
+        "url": true,
+        "redux": true
+      },
+      "validationDebt": [
+        "label hides global semantic effects",
+        "render quality and coordinate/limit semantics are fused"
+      ],
+      "compatibilityRisk": "HIGH",
+      "ngvgeOwner": "PresentationProfile + ScratchCompatibilityProfile split",
+      "disposition": "SPLIT_AND_REPLACE",
+      "migration": "Preserve legacy hq flag only inside Scratch adapter. Native model separates render resolution/quality from numeric coordinate semantics and Pen limits."
+    },
+    {
+      "id": "LRC1-POL-005",
+      "legacyKey": "runtimeOptions.offscreenDrawableCulling",
+      "label": "Skip Offscreen Sprite Rendering",
+      "uiHandler": "handleOffscreenDrawableCullingChange",
+      "legacySetter": "vm.setRuntimeOptions({offscreenDrawableCulling})",
+      "domain": "renderer-optimization",
+      "semanticClass": "BACKEND_OPTIMIZATION_HINT",
+      "default": false,
+      "currentBehavior": "Skips provably offstage Bitmap/SVG drawables only in the normal default stage draw pass; special query/filter/effect/private-skin paths bypass culling.",
+      "hiddenEffects": [
+        "02-specific fork addition",
+        "stored as project runtimeOptions despite being backend optimization",
+        "renderer owns conservative eligibility rules"
+      ],
+      "ingress": [
+        "Advanced Settings",
+        "_twconfig_ project comment"
+      ],
+      "persistence": {
+        "twconfig": true,
+        "url": false,
+        "redux": true
+      },
+      "validationDebt": [
+        "project persistence incorrectly elevates a backend optimization into portable project semantics",
+        "not mirrored by URL state"
+      ],
+      "compatibilityRisk": "MEDIUM",
+      "ngvgeOwner": "RenderingBackend automatic optimization",
+      "disposition": "BACKEND_AUTO",
+      "migration": "Ignore as native project semantic. Legacy import may treat it as a non-authoritative renderer hint; do not serialize into NGVGE project source."
+    },
+    {
+      "id": "LRC1-POL-006",
+      "legacyKey": "runtimeOptions.maxClones",
+      "label": "Infinite Clones",
+      "uiHandler": "handleInfiniteClonesChange",
+      "legacySetter": "vm.setRuntimeOptions({maxClones})",
+      "domain": "resource-budget",
+      "semanticClass": "RESOURCE_POLICY",
+      "default": 300,
+      "currentBehavior": "Changes clone admission from Scratch-compatible 300 to Infinity in the UI toggle; Runtime clonesAvailable compares clone counter against this value.",
+      "hiddenEffects": [
+        "Infinity removes the only configured clone-count budget",
+        "resource consumption becomes device-dependent and potentially unbounded"
+      ],
+      "ingress": [
+        "Advanced Settings",
+        "URL ?clones",
+        "_twconfig_ project comment"
+      ],
+      "persistence": {
+        "twconfig": true,
+        "url": true,
+        "redux": true
+      },
+      "validationDebt": [
+        "boolean UI cannot express resource budget policy",
+        "Infinity is serialized through ExtendedJSON rather than portable JSON semantics"
+      ],
+      "compatibilityRisk": "HIGH",
+      "ngvgeOwner": "RuntimeSafetyPolicy.cloneBudget / ResourceBudget",
+      "disposition": "REPLACE_WITH_BUDGET",
+      "migration": "300 => Scratch-compatible budget. Infinity/non-default => explicit legacy clone-budget override with warning and host hard ceiling; native projects use finite/adaptive budgets."
+    },
+    {
+      "id": "LRC1-POL-007",
+      "legacyKey": "runtimeOptions.fencing",
+      "label": "Remove Fencing",
+      "uiHandler": "handleRemoveFencingChange",
+      "legacySetter": "vm.setRuntimeOptions({fencing})",
+      "domain": "scratch-compatibility",
+      "semanticClass": "COMPATIBILITY_SEMANTIC",
+      "default": true,
+      "currentBehavior": "When disabled, bypasses Scratch position fencing and size clamps and enables offstage collision/touching bounds.",
+      "hiddenEffects": [
+        "changes motion coordinates",
+        "changes sprite size admissible range",
+        "changes touching/collision behavior outside stage"
+      ],
+      "ingress": [
+        "Advanced Settings",
+        "URL ?offscreen",
+        "_twconfig_ project comment"
+      ],
+      "persistence": {
+        "twconfig": true,
+        "url": true,
+        "redux": true
+      },
+      "validationDebt": [
+        "presented as a generic limit toggle despite modifying three compatibility semantics"
+      ],
+      "compatibilityRisk": "CRITICAL",
+      "ngvgeOwner": "ScratchCompatibilityProfile.fencing",
+      "disposition": "KEEP_LEGACY_COMPAT_ONLY",
+      "migration": "Keep exact legacy value only in Scratch Compatibility Adapter. Native NGVGE Node/Scene geometry must not inherit Scratch fencing semantics."
+    },
+    {
+      "id": "LRC1-POL-008",
+      "legacyKey": "runtimeOptions.miscLimits",
+      "label": "Remove Miscellaneous Limits",
+      "uiHandler": "handleRemoveLimitsChange",
+      "legacySetter": "vm.setRuntimeOptions({miscLimits})",
+      "domain": "mixed-compatibility",
+      "semanticClass": "INVALID_AGGREGATE_POLICY",
+      "default": true,
+      "currentBehavior": "One flag controls unrelated Scratch/TurboWarp behaviors across sound, Pen, Music and mouse input.",
+      "hiddenEffects": [
+        "sound effect range clamps",
+        "sound effect/volume yield behavior",
+        "Pen size clamp",
+        "Music concurrency limit",
+        "mouse coordinate integer rounding vs three-decimal precision"
+      ],
+      "ingress": [
+        "Advanced Settings",
+        "URL ?limitless",
+        "_twconfig_ project comment"
+      ],
+      "persistence": {
+        "twconfig": true,
+        "url": true,
+        "redux": true
+      },
+      "validationDebt": [
+        "one boolean crosses multiple semantic domains",
+        "cannot express compatibility independently per capability"
+      ],
+      "compatibilityRisk": "CRITICAL",
+      "ngvgeOwner": "ScratchCompatibilityProfile decomposed capabilities",
+      "disposition": "DECOMPOSE",
+      "migration": "Legacy false maps to a compatibility bundle preserving all historical effects. Native schema must split sound limits/yield, Pen limits, Music concurrency, input precision, etc."
+    },
+    {
+      "id": "LRC1-POL-009",
+      "legacyKey": "compilerOptions.warpTimer",
+      "label": "Warp Timer",
+      "uiHandler": "handleWarpTimerChange",
+      "legacySetter": "vm.setCompilerOptions({warpTimer})",
+      "domain": "runtime-safety-compiler",
+      "semanticClass": "SAFETY_BACKEND_POLICY",
+      "default": false,
+      "currentBehavior": "Changes compiler-generated warp-loop yielding/isStuck behavior and forces compiler cache reset. Blocks workspace mount independently turns it on in the editor.",
+      "hiddenEffects": [
+        "compiler/backend-specific",
+        "not a stable user-owned project setting",
+        "editor lifecycle can overwrite user choice"
+      ],
+      "ingress": [
+        "Advanced Settings",
+        "URL ?stuck / ?warp_timer",
+        "Blocks workspace mount"
+      ],
+      "persistence": {
+        "twconfig": false,
+        "url": "player-only/partial",
+        "redux": true
+      },
+      "validationDebt": [
+        "multiple writers",
+        "UI suggests user preference although editor mounts can force-enable it"
+      ],
+      "compatibilityRisk": "HIGH",
+      "ngvgeOwner": "RuntimeSafetyPolicy.scriptWatchdog",
+      "disposition": "REMOVE_FROM_NORMAL_UI",
+      "migration": "Do not import as project semantic. Use host/runtime safety defaults; expose only diagnostic override in Developer Tools if required."
+    },
+    {
+      "id": "LRC1-POL-010",
+      "legacyKey": "compilerOptions.enabled",
+      "label": "Disable Compiler",
+      "uiHandler": "handleDisableCompilerChange",
+      "legacySetter": "vm.setCompilerOptions({enabled})",
+      "domain": "execution-backend",
+      "semanticClass": "BACKEND_SELECTION",
+      "default": true,
+      "currentBehavior": "Controls whether new threads attempt compilation and resets all block caches when changed; precompiled scripts may still execute.",
+      "hiddenEffects": [
+        "implementation/backend choice rather than intended project semantics",
+        "cache reset side effect",
+        "compiled-project load explicitly disables compiler after installing compiled data"
+      ],
+      "ingress": [
+        "Advanced Settings",
+        "URL ?nocompile"
+      ],
+      "persistence": {
+        "twconfig": false,
+        "url": true,
+        "redux": true
+      },
+      "validationDebt": [
+        "normal creator-facing UI exposes backend implementation switch"
+      ],
+      "compatibilityRisk": "MEDIUM",
+      "ngvgeOwner": "ExecutionBackendPolicy / Developer Tools",
+      "disposition": "DEVELOPER_ONLY",
+      "migration": "Never serialize as native project semantics. Runtime chooses backend automatically; debugging override remains hidden/developer scoped."
+    },
+    {
+      "id": "LRC1-POL-011",
+      "legacyKey": "width,height",
+      "label": "Custom Stage Size",
+      "uiHandler": "handleStageWidthChange / handleStageHeightChange",
+      "legacySetter": "vm.setStageSize(width,height)",
+      "domain": "project-scene-geometry",
+      "semanticClass": "PROJECT_SCHEMA",
+      "default": {
+        "width": 480,
+        "height": 360
+      },
+      "currentBehavior": "Changes Runtime stageWidth/stageHeight, renderer stage projection/bounds, shifts monitor coordinates to preserve center-relative placement, and emits STAGE_SIZE_CHANGED.",
+      "hiddenEffects": [
+        "not a runtime tuning knob",
+        "affects coordinate space and project geometry",
+        "collaboration has another direct stage-size writer"
+      ],
+      "ingress": [
+        "Advanced Settings",
+        "URL ?size via reducer initialization",
+        "_twconfig_ project comment",
+        "collaboration sync"
+      ],
+      "persistence": {
+        "twconfig": true,
+        "url": true,
+        "redux": true
+      },
+      "validationDebt": [
+        "settings input max=1024",
+        "URL parser allows up to 4096",
+        "Runtime itself has no upper bound beyond positive rounding",
+        "multiple ingress use inconsistent validation"
+      ],
+      "compatibilityRisk": "CRITICAL",
+      "ngvgeOwner": "Project/Scene Viewport Schema",
+      "disposition": "PROMOTE_TO_PROJECT_SCHEMA",
+      "migration": "Map legacy width/height to versioned project/scene viewport fields. Scratch adapter consumes them; remove from Advanced Runtime settings."
+    },
+    {
+      "id": "LRC1-POL-012",
+      "legacyKey": "turbo",
+      "label": "Turbo Mode (latent persisted option)",
+      "uiHandler": "outside Advanced Settings / Shift+Green Flag",
+      "legacySetter": "vm.setTurboMode(boolean)",
+      "domain": "simulation-scheduler",
+      "semanticClass": "EXECUTION_MODE",
+      "default": false,
+      "currentBehavior": "Sequencer ignores redraw-request yielding while turbo mode is active, allowing more script work before yielding/rendering.",
+      "hiddenEffects": [
+        "not shown in this modal but Store Project Options persists it",
+        "changes scheduler/yield behavior rather than just visual speed"
+      ],
+      "ingress": [
+        "Shift+Green Flag",
+        "URL ?turbo",
+        "_twconfig_ project comment"
+      ],
+      "persistence": {
+        "twconfig": true,
+        "url": true,
+        "redux": true
+      },
+      "validationDebt": [
+        "hidden member of the same project-options bundle"
+      ],
+      "compatibilityRisk": "HIGH",
+      "ngvgeOwner": "ScratchCompatibility Execution Mode",
+      "disposition": "KEEP_LEGACY_COMPAT_ONLY",
+      "migration": "Preserve only for Scratch compatibility projects that explicitly depend on TurboWarp behavior; do not generalize into NGVGE native scheduler semantics."
+    },
+    {
+      "id": "LRC1-PERSIST-001",
+      "legacyKey": "_twconfig_ Scratch comment",
+      "label": "Store settings in project",
+      "uiHandler": "handleStoreProjectOptions",
+      "legacySetter": "vm.storeProjectOptions()",
+      "domain": "persistence",
+      "semanticClass": "LEGACY_PERSISTENCE_ADAPTER",
+      "default": null,
+      "currentBehavior": "Serializes differing runtime settings into an ExtendedJSON payload hidden in a Stage comment ending with // _twconfig_; VM parses it during whole-project install.",
+      "hiddenEffects": [
+        "mixes execution, presentation, resource, compatibility and project geometry in one unversioned payload",
+        "uses user-visible Scratch comment as configuration transport",
+        "brands payload as TurboWarp configuration",
+        "02 fork adds opsPerFrame/offscreen culling beyond current upstream bundle"
+      ],
+      "ingress": [
+        "Advanced Settings button",
+        "project load parseProjectOptions"
+      ],
+      "persistence": {
+        "twconfig": "mechanism",
+        "url": false,
+        "redux": false
+      },
+      "validationDebt": [
+        "no NGVGE schema/version/authority metadata",
+        "no conflict-resolution contract against URL/session writers"
+      ],
+      "compatibilityRisk": "CRITICAL",
+      "ngvgeOwner": "LegacyScratchProjectOptionsAdapter only",
+      "disposition": "LEGACY_IMPORT_EXPORT_ONLY",
+      "migration": "Parse on import, normalize each field into its owning NGVGE domain, preserve compatibility export only when targeting legacy Scratch/TurboWarp format. Never use _twconfig_ as NGVGE project authority."
+    }
+  ],
+  "findings": [
+    {
+      "id": "LRC1-F001",
+      "severity": "P1",
+      "summary": "OpsPerFrame can be set to 0, causing FrameLoop stepCallback to execute zero Runtime._step calls.",
+      "policyIds": [
+        "LRC1-POL-002"
+      ],
+      "status": "CONFIRMED_SOURCE"
+    },
+    {
+      "id": "LRC1-F002",
+      "severity": "P1",
+      "summary": "OpsPerFrame custom negative input is normalized to 1 by Runtime but the raw negative value is dispatched to Redux; GUI does not subscribe to OPSPERFRAME_CHANGED.",
+      "policyIds": [
+        "LRC1-POL-002"
+      ],
+      "status": "CONFIRMED_SOURCE"
+    },
+    {
+      "id": "LRC1-F003",
+      "severity": "P1",
+      "summary": "02 fork comments out TurboWarp's >250 framerate cap, permitting an unbounded high-frequency scheduling request and setImmediate path.",
+      "policyIds": [
+        "LRC1-POL-001"
+      ],
+      "status": "CONFIRMED_FORK_DELTA"
+    },
+    {
+      "id": "LRC1-F004",
+      "severity": "P1",
+      "summary": "High Quality Pen changes all Drawable position rounding and Pen size clamping in addition to Pen render resolution.",
+      "policyIds": [
+        "LRC1-POL-004"
+      ],
+      "status": "CONFIRMED_SOURCE"
+    },
+    {
+      "id": "LRC1-F005",
+      "severity": "P1",
+      "summary": "miscLimits is an invalid aggregate policy spanning Sound, Pen, Music and Mouse semantics.",
+      "policyIds": [
+        "LRC1-POL-008"
+      ],
+      "status": "CONFIRMED_SOURCE"
+    },
+    {
+      "id": "LRC1-F006",
+      "severity": "P1",
+      "summary": "Interpolation is partial presentation resampling only; it cannot provide general 60 Hz compatibility for Pen/custom visual domains.",
+      "policyIds": [
+        "LRC1-POL-003"
+      ],
+      "status": "CONFIRMED_SOURCE"
+    },
+    {
+      "id": "LRC1-F007",
+      "severity": "P2",
+      "summary": "Offscreen drawable culling is a backend optimization but is persisted as project runtimeOptions.",
+      "policyIds": [
+        "LRC1-POL-005",
+        "LRC1-PERSIST-001"
+      ],
+      "status": "CONFIRMED_SOURCE"
+    },
+    {
+      "id": "LRC1-F008",
+      "severity": "P1",
+      "summary": "Custom Stage Size validation disagrees across UI (1024), URL reducer (4096), and Runtime (no equivalent upper bound).",
+      "policyIds": [
+        "LRC1-POL-011"
+      ],
+      "status": "CONFIRMED_SOURCE"
+    },
+    {
+      "id": "LRC1-F009",
+      "severity": "P1",
+      "summary": "Warp Timer is not stable user authority: Blocks workspace mount forces warpTimer=true independently of the settings checkbox.",
+      "policyIds": [
+        "LRC1-POL-009"
+      ],
+      "status": "CONFIRMED_SOURCE"
+    },
+    {
+      "id": "LRC1-F010",
+      "severity": "P1",
+      "summary": "Infinite Clones encodes resource policy as Infinity and can remove a host safety budget.",
+      "policyIds": [
+        "LRC1-POL-006"
+      ],
+      "status": "CONFIRMED_SOURCE"
+    },
+    {
+      "id": "LRC1-F011",
+      "severity": "P1",
+      "summary": "Runtime policy authority is fragmented across modal handlers, Green Flag gestures, URL parameters, project comment parsing, workspace mount, collaboration sync and backend setters.",
+      "policyIds": [
+        "LRC1-POL-001",
+        "LRC1-POL-002",
+        "LRC1-POL-003",
+        "LRC1-POL-004",
+        "LRC1-POL-005",
+        "LRC1-POL-006",
+        "LRC1-POL-007",
+        "LRC1-POL-008",
+        "LRC1-POL-009",
+        "LRC1-POL-010",
+        "LRC1-POL-011",
+        "LRC1-POL-012",
+        "LRC1-PERSIST-001"
+      ],
+      "status": "CONFIRMED_STRUCTURAL"
+    },
+    {
+      "id": "LRC1-F012",
+      "severity": "P1",
+      "summary": "_twconfig_ mixes unrelated domains in one unversioned Scratch comment and has no explicit precedence resolver against session/URL writers.",
+      "policyIds": [
+        "LRC1-PERSIST-001"
+      ],
+      "status": "CONFIRMED_STRUCTURAL"
+    },
+    {
+      "id": "LRC1-F013",
+      "severity": "P2",
+      "summary": "URL mirroring is incomplete: OpsPerFrame and offscreen drawable culling can persist in _twconfig_ but are not represented in the URL state mapping.",
+      "policyIds": [
+        "LRC1-POL-002",
+        "LRC1-POL-005"
+      ],
+      "status": "CONFIRMED_SOURCE"
+    },
+    {
+      "id": "LRC1-F014",
+      "severity": "P1",
+      "summary": "No compatibility/conflict analyzer prevents semantically hazardous combinations such as custom simulation rate + interpolation + Pen/3D/custom renderer workloads.",
+      "policyIds": [
+        "LRC1-POL-001",
+        "LRC1-POL-003",
+        "LRC1-POL-004"
+      ],
+      "status": "CONFIRMED_ABSENCE"
+    },
+    {
+      "id": "LRC1-F015",
+      "severity": "P2",
+      "summary": "Compiler enable/disable is exposed as creator project configuration even though it is an execution backend/debug choice.",
+      "policyIds": [
+        "LRC1-POL-010"
+      ],
+      "status": "CONFIRMED_SEMANTIC_DEBT"
+    }
+  ],
+  "futureDomains": {
+    "ExecutionProfile": [
+      "simulationTickRate",
+      "legacyScratchTurboMode"
+    ],
+    "PresentationProfile": [
+      "refreshPolicy",
+      "perDomainInterpolation",
+      "qualityPolicy"
+    ],
+    "RuntimeSafetyPolicy": [
+      "scriptWatchdog",
+      "cloneBudget",
+      "resourceBudgets"
+    ],
+    "ScratchCompatibilityProfile": [
+      "fencing",
+      "soundLimits",
+      "soundYieldSemantics",
+      "penLimits",
+      "musicConcurrency",
+      "inputPrecision"
+    ],
+    "ExecutionBackendPolicy": [
+      "compiler/interpreter selection; developer/internal only"
+    ],
+    "ProjectSceneSchema": [
+      "viewport width/height"
+    ],
+    "RenderingBackend": [
+      "automatic offscreen culling and other non-semantic optimization"
+    ],
+    "LegacyScratchProjectOptionsAdapter": [
+      "_twconfig_ import/export only"
+    ]
+  }
+}

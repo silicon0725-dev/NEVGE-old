@@ -1,0 +1,613 @@
+@import "../../css/units.css";
+@import "../../css/colors.css";
+
+.manager {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    background: $ui-primary;
+    color: $text-primary;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    white-space: normal;
+}
+
+.manager button,
+.manager input,
+.manager select {
+    min-height: 2rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.4rem;
+    background: $ui-white;
+    color: $text-primary;
+    font: inherit;
+}
+
+.manager button {
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+}
+
+.manager button:hover:not(:disabled),
+.manager button:focus-visible:not(:disabled),
+.manager input:focus-visible,
+.manager select:focus-visible {
+    border-color: $motion-primary;
+    outline: none;
+}
+
+.manager button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.toolbar {
+    display: flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid $ui-black-transparent;
+    background: $ui-white;
+}
+
+.toolbar-group {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.primary-button,
+.primary-action {
+    border-color: rgba(77, 151, 255, 0.55) !important;
+    background: rgba(77, 151, 255, 0.1) !important;
+    color: $motion-primary !important;
+    font-weight: 700 !important;
+}
+
+.history-button {
+    color: $text-primary-transparent !important;
+}
+
+.asset-count {
+    padding-left: 0.35rem;
+    color: $text-primary-transparent;
+    font-size: 0.7rem;
+    white-space: nowrap;
+}
+
+.hidden-input {
+    display: none;
+}
+
+.workspace-body {
+    display: grid;
+    min-width: 0;
+    min-height: 0;
+    flex: 1 1 auto;
+    grid-template-columns: 11.5rem minmax(18rem, 1fr) 18rem;
+    overflow: hidden;
+}
+
+.sidebar,
+.details {
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    background: $ui-white;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid $ui-black-transparent;
+}
+
+.sidebar-section {
+    padding: 0.7rem 0.55rem 0.25rem;
+}
+
+.section-heading,
+.detail-section h3 {
+    margin: 0;
+    color: $text-primary-transparent;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.section-heading-row,
+.detail-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.section-heading-row > span,
+.detail-section-heading > span {
+    color: $text-primary-transparent;
+    font-size: 0.62rem;
+}
+
+.nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+    margin-top: 0.35rem;
+}
+
+.nav-button {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.4rem;
+    border-color: transparent !important;
+    background: transparent !important;
+    text-align: left;
+}
+
+.nav-button:hover:not(:disabled) {
+    background: rgba(77, 151, 255, 0.08) !important;
+}
+
+.nav-button-active {
+    background: rgba(77, 151, 255, 0.14) !important;
+    color: $motion-primary !important;
+    font-weight: 700 !important;
+}
+
+.nav-label {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nav-count {
+    flex: 0 0 auto;
+    color: $text-primary-transparent;
+    font-size: 0.62rem;
+}
+
+.folder-icon {
+    flex: 0 0 auto;
+    color: $motion-primary;
+    font-size: 0.7rem;
+}
+
+.folder-tools {
+    margin-top: auto;
+    padding: 0.65rem 0.55rem;
+    border-top: 1px solid $ui-black-transparent;
+}
+
+.folder-create-form,
+.folder-editor {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.3rem;
+}
+
+.folder-create-form input,
+.folder-editor input,
+.search-input,
+.rename-row input {
+    min-width: 0;
+    padding: 0 0.5rem;
+}
+
+.folder-editor {
+    margin-top: 0.45rem;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.folder-editor-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem;
+}
+
+.danger-button {
+    color: $error-primary !important;
+}
+
+.browser {
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    background: $ui-primary;
+}
+
+.browser-toolbar {
+    display: flex;
+    min-height: 3rem;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    border-bottom: 1px solid $ui-black-transparent;
+    background: $ui-white;
+}
+
+.search-input {
+    flex: 1 1 auto;
+}
+
+.view-toggle {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.2rem;
+}
+
+.view-toggle button {
+    width: 2.1rem;
+    padding: 0;
+    font-size: 1rem;
+}
+
+.active-toggle {
+    border-color: $motion-primary !important;
+    background: rgba(77, 151, 255, 0.12) !important;
+    color: $motion-primary !important;
+}
+
+.asset-collection {
+    min-width: 0;
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
+    padding: 0.7rem;
+}
+
+.asset-grid {
+    display: grid;
+    align-content: start;
+    grid-template-columns: repeat(auto-fill, minmax(8.8rem, 1fr));
+    gap: 0.55rem;
+}
+
+.asset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.asset-card {
+    display: flex;
+    min-width: 0;
+    min-height: 4rem !important;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem !important;
+    text-align: left;
+}
+
+.asset-grid .asset-card {
+    min-height: 8.4rem !important;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.asset-card-selected {
+    border-color: $motion-primary !important;
+    background: rgba(77, 151, 255, 0.08) !important;
+    box-shadow: 0 0 0 1px rgba(77, 151, 255, 0.16);
+}
+
+.thumbnail,
+.large-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.45rem;
+    background: repeating-conic-gradient(#f1f1f1 0 25%, #fff 0 50%) 50% / 0.65rem 0.65rem;
+}
+
+.thumbnail {
+    width: 3.2rem;
+    height: 3.2rem;
+}
+
+.asset-grid .thumbnail {
+    width: 100%;
+    height: 5.4rem;
+}
+
+.thumbnail img,
+.large-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.asset-type-icon {
+    color: $motion-primary;
+    font-size: 1.65rem;
+    font-weight: 700;
+}
+
+.card-text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.card-text strong,
+.card-text span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-text strong {
+    font-size: 0.72rem;
+}
+
+.card-text span {
+    color: $text-primary-transparent;
+    font-size: 0.6rem;
+}
+
+.empty-state {
+    display: flex;
+    min-height: 9rem;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    grid-column: 1 / -1;
+    gap: 0.3rem;
+    padding: 1.25rem;
+    border: 1px dashed rgba(77, 151, 255, 0.35);
+    border-radius: 0.55rem;
+    color: $text-primary-transparent;
+    text-align: center;
+}
+
+.empty-state strong {
+    color: $text-primary;
+    font-size: 0.78rem;
+}
+
+.empty-state span {
+    max-width: 18rem;
+    font-size: 0.65rem;
+    line-height: 1.4;
+}
+
+.browser-footer,
+.status-bar {
+    display: flex;
+    min-height: 2rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0 0.7rem;
+    border-top: 1px solid $ui-black-transparent;
+    background: $ui-white;
+    color: $text-primary-transparent;
+    font-size: 0.62rem;
+}
+
+.details {
+    border-left: 1px solid $ui-black-transparent;
+}
+
+.details-scroll {
+    padding: 0.7rem;
+}
+
+.details-empty {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 1rem;
+    color: $text-primary-transparent;
+    text-align: center;
+}
+
+.details-empty > span {
+    margin-bottom: 0.5rem;
+    color: $motion-primary;
+    font-size: 2rem;
+}
+
+.details-empty strong {
+    color: $text-primary;
+    font-size: 0.8rem;
+}
+
+.details-empty p {
+    max-width: 13rem;
+    margin: 0.35rem 0 0;
+    font-size: 0.65rem;
+    line-height: 1.45;
+}
+
+.preview-panel {
+    padding: 0.5rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.55rem;
+    background: $ui-primary;
+}
+
+.large-preview {
+    width: 100%;
+    height: 9rem;
+}
+
+.audio-preview {
+    width: 100%;
+    height: 2.2rem;
+    margin-top: 0.5rem;
+}
+
+.details-title {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.12rem;
+    padding: 0.7rem 0 0.5rem;
+}
+
+.details-title strong,
+.details-title span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.details-title strong {
+    font-size: 0.86rem;
+}
+
+.details-title span {
+    color: $text-primary-transparent;
+    font-size: 0.62rem;
+}
+
+.metadata-grid {
+    display: flex;
+    margin: 0;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.metadata-row {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    gap: 0.45rem;
+    font-size: 0.62rem;
+}
+
+.metadata-row dt {
+    color: $text-primary-transparent;
+}
+
+.metadata-row dd {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.detail-section {
+    margin-top: 0.75rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid $ui-black-transparent;
+}
+
+.rename-row {
+    display: grid;
+    margin-top: 0.45rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.35rem;
+}
+
+.folder-select {
+    display: grid;
+    align-items: center;
+    margin-top: 0.45rem;
+    grid-template-columns: 4rem minmax(0, 1fr);
+    gap: 0.4rem;
+    color: $text-primary-transparent;
+    font-size: 0.62rem;
+}
+
+.folder-select select {
+    min-width: 0;
+    padding: 0 0.4rem;
+}
+
+.action-stack {
+    display: flex;
+    margin-top: 0.45rem;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.action-stack button {
+    width: 100%;
+    text-align: left;
+}
+
+.references {
+    display: flex;
+    margin-top: 0.45rem;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.reference-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.3rem;
+}
+
+.reference-row button:first-child {
+    display: flex;
+    min-width: 0;
+    align-items: flex-start;
+    flex-direction: column;
+    overflow: hidden;
+    text-align: left;
+}
+
+.reference-row strong,
+.reference-row span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.reference-row strong {
+    font-size: 0.64rem;
+}
+
+.reference-row span,
+.muted-text {
+    color: $text-primary-transparent;
+    font-size: 0.58rem;
+}
+
+.status-bar {
+    flex: 0 0 auto;
+}
+
+.status-text,
+.target-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.status-text {
+    color: $text-primary;
+}
+
+.target-text {
+    text-align: right;
+}
+
+@media (max-width: 980px) {
+    .workspace-body {
+        grid-template-columns: 10rem minmax(17rem, 1fr) 15rem;
+    }
+}

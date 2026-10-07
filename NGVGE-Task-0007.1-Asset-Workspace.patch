@@ -1,0 +1,1819 @@
+--- a/docs/TASK-0007.1-ASSET-WORKSPACE.md
++++ b/docs/TASK-0007.1-ASSET-WORKSPACE.md
+@@ -0,0 +1,22 @@
++# Task-0007.1 — Independent Asset Workspace and Layout Refactor
++
++## Goal
++
++Move the full Asset Manager out of Project Explorer and rebuild it as a dedicated, resizable workspace.
++
++## Result
++
++- Project Explorer keeps a compact Assets provider summary and an `Open Asset Workspace` command.
++- Asset Workspace is a separate draggable, resizable, minimizable window.
++- Window position and size use the existing 02Engine window-state persistence system.
++- The Asset Manager layout is divided into:
++  - left navigation and folders;
++  - center search and asset browser;
++  - right preview, metadata, actions, and references.
++- High-frequency commands remain in a single top toolbar.
++- Asset history remains independent from Inspector property history.
++- No changes were made to the Task-0007 asset database or SB3 metadata format.
++
++## Compatibility
++
++The change is editor-only. Existing Task-0006 and Task-0007 project metadata remains readable without migration.
+--- a/src/components/gui/gui.css
++++ b/src/components/gui/gui.css
+@@ -650,3 +650,45 @@
+     color: $motion-primary;
+     font-size: 0.85rem;
+ }
++
++
++.asset-manager-launcher {
++    position: absolute;
++    top: calc($menu-bar-height + 3rem);
++    left: 0.65rem;
++    z-index: 480;
++    display: inline-flex;
++    align-items: center;
++    gap: 0.42rem;
++    height: 2rem;
++    padding: 0 0.7rem 0 0.45rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.6rem;
++    background: rgba(255, 255, 255, 0.96);
++    color: $text-primary;
++    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.12);
++    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
++    font-size: 0.72rem;
++    font-weight: 700;
++    cursor: pointer;
++}
++
++.asset-manager-launcher:hover,
++.asset-manager-launcher:focus-visible {
++    border-color: rgba(77, 151, 255, 0.45);
++    background: $ui-white;
++    outline: none;
++    box-shadow: 0 6px 20px rgba(77, 151, 255, 0.18);
++}
++
++.asset-manager-launcher-icon {
++    display: inline-flex;
++    align-items: center;
++    justify-content: center;
++    width: 1.25rem;
++    height: 1.25rem;
++    border-radius: 0.35rem;
++    background: rgba(77, 151, 255, 0.12);
++    color: $motion-primary;
++    font-size: 0.85rem;
++}
+--- a/src/components/gui/gui.jsx
++++ b/src/components/gui/gui.jsx
+@@ -28,6 +28,7 @@
+ import Watermark from '../../containers/watermark.jsx';
+ import ProjectExplorer from '../project-explorer/project-explorer.jsx';
+ import ProjectInspector from '../project-inspector/project-inspector.jsx';
++import ProjectAssetManager from '../project-assets/project-asset-manager.jsx';
+ 
+ import Backpack from '../../containers/backpack.jsx';
+ import BrowserModal from '../browser-modal/browser-modal.jsx';
+@@ -57,6 +58,7 @@
+ import {resolveStageSize} from '../../lib/screen-utils';
+ import getCostumeUrl from '../../lib/get-costume-url';
+ import {Theme} from '../../lib/themes';
++import {getGlobalAssetDatabase, installGlobalAssetDatabase} from '../../lib/project-assets/global-asset-database';
+ import {BLOCKS_TAB_INDEX, COSTUMES_TAB_INDEX, SOUNDS_TAB_INDEX} from '../../reducers/editor-tab';
+ import {
+     setProjectExplorerNodeExpanded,
+@@ -380,6 +382,8 @@
+     const [targetPaneWindowMinimized, setTargetPaneWindowMinimized] = React.useState(false);
+     const [projectExplorerWindowMinimized, setProjectExplorerWindowMinimized] = React.useState(false);
+     const [projectInspectorWindowMinimized, setProjectInspectorWindowMinimized] = React.useState(false);
++    const [assetManagerVisible, setAssetManagerVisible] = React.useState(true);
++    const [assetManagerWindowMinimized, setAssetManagerWindowMinimized] = React.useState(false);
+     const [menuBarCollapsed, setMenuBarCollapsed] = React.useState(false);
+     const [debugWindowVisible, setDebugWindowVisible] = React.useState(false);
+     const handleToggleDebugWindow = React.useCallback(() => {
+@@ -401,6 +405,19 @@
+         setProjectInspectorWindowMinimized(false);
+         onSetProjectInspectorVisible(false);
+     }, [onSetProjectInspectorVisible]);
++    const handleOpenAssetManager = React.useCallback(() => {
++        setAssetManagerWindowMinimized(false);
++        setAssetManagerVisible(true);
++    }, []);
++    const handleCloseAssetManager = React.useCallback(() => {
++        setAssetManagerWindowMinimized(false);
++        setAssetManagerVisible(false);
++    }, []);
++    const assetDatabase = React.useMemo(() => (
++        vm && vm.runtime ? (getGlobalAssetDatabase(vm.runtime) || installGlobalAssetDatabase(vm)) : null
++    ), [vm]);
++    const assetManagerTarget = vm && vm.runtime && editingTargetId ?
++        vm.runtime.getTargetById(editingTargetId) : null;
+     const [editorWindowSessions, setEditorWindowSessions] = React.useState([]);
+     const [activeEditorWindowId, setActiveEditorWindowId] = React.useState(null);
+     const editorWindowSessionsRef = React.useRef(editorWindowSessions);
+@@ -1596,6 +1613,18 @@
+                 </svg>
+             ),
+             onRestore: () => setProjectInspectorWindowMinimized(false)
++        });
++    }
++    if (assetManagerVisible && assetManagerWindowMinimized) {
++        minimizedWindows.push({
++            windowId: 'asset-manager',
++            title: 'Asset Workspace',
++            icon: (
++                <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
++                    <path d="M3 4h6l1.5 2H17v10H3z" fill="white"/>
++                </svg>
++            ),
++            onRestore: () => setAssetManagerWindowMinimized(false)
+         });
+     }
+     editorWindowSessions
+@@ -1786,6 +1815,17 @@
+                         <span>Inspector</span>
+                     </button>
+                 ) : null}
++                {!assetManagerVisible && !projectExplorerVisible && !isFullScreen ? (
++                    <button
++                        className={styles.assetManagerLauncher}
++                        title="Open Asset Workspace"
++                        type="button"
++                        onClick={handleOpenAssetManager}
++                    >
++                        <span aria-hidden="true" className={styles.assetManagerLauncherIcon}>▧</span>
++                        <span>Assets</span>
++                    </button>
++                ) : null}
+                 <MenuBar
+                     accountNavOpen={accountNavOpen}
+                     authorId={authorId}
+@@ -1855,6 +1895,7 @@
+                                 vm={vm}
+                                 width={projectExplorerWidth}
+                                 onClose={handleCloseProjectExplorer}
++                                onOpenAssetManager={handleOpenAssetManager}
+                                 onSelectTarget={handleProjectExplorerTargetSelection}
+                                 onToggleNode={onSetProjectExplorerNodeExpanded}
+                             />
+@@ -1870,6 +1911,27 @@
+                                 onSelectTarget={handleProjectExplorerTargetSelection}
+                                 onToggleSection={onSetProjectInspectorSectionExpanded}
+                             />
++                        ) : null}
++                        {!customUI && !hideFloatingWindows && assetManagerVisible && !assetManagerWindowMinimized ? (
++                            <DraggableWindow
++                                windowId="asset-manager"
++                                title="Asset Workspace"
++                                defaultPosition={{x: 190, y: 48}}
++                                defaultSize={{width: 860, height: 560}}
++                                minSize={{width: 800, height: 440}}
++                                maxSize={{width: 1280, height: 940}}
++                                onClose={handleCloseAssetManager}
++                                onMinimizeToggle={(id, minimized) => setAssetManagerWindowMinimized(minimized)}
++                                zIndex={467}
++                                enableStatePersistence={true}
++                            >
++                                <ProjectAssetManager
++                                    assetDatabase={assetDatabase}
++                                    currentTarget={assetManagerTarget}
++                                    vm={vm}
++                                    onSelectTarget={handleProjectExplorerTargetSelection}
++                                />
++                            </DraggableWindow>
+                         ) : null}
+ 
+                         {props.customUI ? (
+@@ -1907,6 +1969,7 @@
+                                         stage={stage}
+                                         stageLabel={intl.formatMessage(messages.stageTargetName)}
+                                         vm={vm}
++                                        onOpenAssetManager={handleOpenAssetManager}
+                                         onSelectTarget={handleProjectExplorerTargetSelection}
+                                         onToggleNode={onSetProjectExplorerNodeExpanded}
+                                     />
+@@ -1934,6 +1997,27 @@
+                                         vm={vm}
+                                         onSelectTarget={handleProjectExplorerTargetSelection}
+                                         onToggleSection={onSetProjectInspectorSectionExpanded}
++                                    />
++                                </DraggableWindow>
++                            )}
++                            {!hideFloatingWindows && assetManagerVisible && !assetManagerWindowMinimized && (
++                                <DraggableWindow
++                                    windowId="asset-manager"
++                                    title="Asset Workspace"
++                                    defaultPosition={{x: 180, y: 90}}
++                                    defaultSize={{width: 900, height: 620}}
++                                    minSize={{width: 800, height: 440}}
++                                    maxSize={{width: 1280, height: 940}}
++                                    onClose={handleCloseAssetManager}
++                                    onMinimizeToggle={(id, minimized) => setAssetManagerWindowMinimized(minimized)}
++                                    zIndex={467}
++                                    enableStatePersistence={true}
++                                >
++                                    <ProjectAssetManager
++                                        assetDatabase={assetDatabase}
++                                        currentTarget={assetManagerTarget}
++                                        vm={vm}
++                                        onSelectTarget={handleProjectExplorerTargetSelection}
+                                     />
+                                 </DraggableWindow>
+                             )}
+--- a/src/components/project-assets/project-asset-manager.css
++++ b/src/components/project-assets/project-asset-manager.css
+@@ -2,28 +2,32 @@
+ @import "../../css/colors.css";
+ 
+ .manager {
+-    width: min(23rem, calc(100vw - 3rem));
+-    margin: 0.35rem 0.55rem 0.75rem 2.15rem;
+-    padding: 0.55rem;
+-    border: 1px solid rgba(77, 151, 255, 0.2);
+-    border-radius: 0.55rem;
+-    background: rgba(77, 151, 255, 0.035);
++    display: flex;
++    width: 100%;
++    height: 100%;
++    min-width: 0;
++    min-height: 0;
++    flex-direction: column;
++    overflow: hidden;
++    background: $ui-primary;
++    color: $text-primary;
++    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+     white-space: normal;
+ }
+ 
+ .manager button,
+ .manager input,
+ .manager select {
+-    min-height: 1.9rem;
++    min-height: 2rem;
+     border: 1px solid $ui-black-transparent;
+-    border-radius: 0.38rem;
++    border-radius: 0.4rem;
+     background: $ui-white;
+     color: $text-primary;
+     font: inherit;
+ }
+ 
+ .manager button {
+-    padding: 0.25rem 0.45rem;
++    padding: 0.3rem 0.6rem;
+     cursor: pointer;
+ }
+ 
+@@ -36,118 +40,267 @@
+ }
+ 
+ .manager button:disabled {
+-    opacity: 0.42;
++    opacity: 0.4;
+     cursor: default;
+ }
+ 
+-.toolbar,
+-.history-bar,
+-.filters,
+-.folder-bar,
+-.rename-row,
+-.action-grid {
+-    display: flex;
+-    gap: 0.35rem;
+-}
+-
+ .toolbar {
+-    flex-wrap: wrap;
+-}
+-
+-.primary-button {
++    display: flex;
++    min-height: 3.25rem;
++    align-items: center;
++    justify-content: space-between;
++    gap: 0.75rem;
++    padding: 0.55rem 0.7rem;
++    border-bottom: 1px solid $ui-black-transparent;
++    background: $ui-white;
++}
++
++.toolbar-group {
++    display: flex;
++    min-width: 0;
++    align-items: center;
++    gap: 0.4rem;
++}
++
++.primary-button,
++.primary-action {
+     border-color: rgba(77, 151, 255, 0.55) !important;
++    background: rgba(77, 151, 255, 0.1) !important;
+     color: $motion-primary !important;
+     font-weight: 700 !important;
+ }
+ 
++.history-button {
++    color: $text-primary-transparent !important;
++}
++
++.asset-count {
++    padding-left: 0.35rem;
++    color: $text-primary-transparent;
++    font-size: 0.7rem;
++    white-space: nowrap;
++}
++
+ .hidden-input {
+     display: none;
+ }
+ 
+-.history-bar {
+-    align-items: center;
++.workspace-body {
++    display: grid;
++    min-width: 0;
++    min-height: 0;
++    flex: 1 1 auto;
++    grid-template-columns: 11.5rem minmax(18rem, 1fr) 18rem;
++    overflow: hidden;
++}
++
++.sidebar,
++.details {
++    min-width: 0;
++    min-height: 0;
++    overflow: auto;
++    background: $ui-white;
++}
++
++.sidebar {
++    display: flex;
++    flex-direction: column;
++    border-right: 1px solid $ui-black-transparent;
++}
++
++.sidebar-section {
++    padding: 0.7rem 0.55rem 0.25rem;
++}
++
++.section-heading,
++.detail-section h3 {
++    margin: 0;
++    color: $text-primary-transparent;
++    font-size: 0.65rem;
++    font-weight: 700;
++    letter-spacing: 0.04em;
++    text-transform: uppercase;
++}
++
++.section-heading-row,
++.detail-section-heading {
++    display: flex;
++    align-items: center;
++    justify-content: space-between;
++    gap: 0.5rem;
++}
++
++.section-heading-row > span,
++.detail-section-heading > span {
++    color: $text-primary-transparent;
++    font-size: 0.62rem;
++}
++
++.nav-list {
++    display: flex;
++    flex-direction: column;
++    gap: 0.12rem;
++    margin-top: 0.35rem;
++}
++
++.nav-button {
++    display: flex;
++    width: 100%;
++    align-items: center;
++    gap: 0.4rem;
++    border-color: transparent !important;
++    background: transparent !important;
++    text-align: left;
++}
++
++.nav-button:hover:not(:disabled) {
++    background: rgba(77, 151, 255, 0.08) !important;
++}
++
++.nav-button-active {
++    background: rgba(77, 151, 255, 0.14) !important;
++    color: $motion-primary !important;
++    font-weight: 700 !important;
++}
++
++.nav-label {
++    min-width: 0;
++    flex: 1 1 auto;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.nav-count {
++    flex: 0 0 auto;
++    color: $text-primary-transparent;
++    font-size: 0.62rem;
++}
++
++.folder-icon {
++    flex: 0 0 auto;
++    color: $motion-primary;
++    font-size: 0.7rem;
++}
++
++.folder-tools {
++    margin-top: auto;
++    padding: 0.65rem 0.55rem;
++    border-top: 1px solid $ui-black-transparent;
++}
++
++.folder-create-form,
++.folder-editor {
++    display: grid;
++    grid-template-columns: minmax(0, 1fr) auto;
++    gap: 0.3rem;
++}
++
++.folder-create-form input,
++.folder-editor input,
++.search-input,
++.rename-row input {
++    min-width: 0;
++    padding: 0 0.5rem;
++}
++
++.folder-editor {
+     margin-top: 0.45rem;
+-}
+-
+-.history-bar span {
+-    margin-left: auto;
+-    color: $text-primary-transparent;
+-    font-size: 0.62rem;
+-}
+-
+-.filters {
+-    display: grid;
+-    grid-template-columns: minmax(0, 1fr) auto auto;
+-    gap: 0.35rem;
+-    margin-top: 0.5rem;
+-}
+-
+-.filters input,
+-.filters select,
+-.folder-bar input,
+-.rename-row input {
+-    min-width: 0;
+-    padding: 0 0.45rem;
++    grid-template-columns: minmax(0, 1fr);
++}
++
++.folder-editor-actions {
++    display: grid;
++    grid-template-columns: 1fr 1fr;
++    gap: 0.3rem;
++}
++
++.danger-button {
++    color: $error-primary !important;
++}
++
++.browser {
++    display: flex;
++    min-width: 0;
++    min-height: 0;
++    flex-direction: column;
++    overflow: hidden;
++    background: $ui-primary;
++}
++
++.browser-toolbar {
++    display: flex;
++    min-height: 3rem;
++    align-items: center;
++    gap: 0.5rem;
++    padding: 0.5rem 0.65rem;
++    border-bottom: 1px solid $ui-black-transparent;
++    background: $ui-white;
++}
++
++.search-input {
++    flex: 1 1 auto;
+ }
+ 
+ .view-toggle {
+     display: flex;
+-    grid-column: 1 / -1;
+-    gap: 0.25rem;
++    flex: 0 0 auto;
++    gap: 0.2rem;
+ }
+ 
+ .view-toggle button {
+-    flex: 1 1 0;
++    width: 2.1rem;
++    padding: 0;
++    font-size: 1rem;
+ }
+ 
+ .active-toggle {
+     border-color: $motion-primary !important;
+-    background: rgba(77, 151, 255, 0.1) !important;
++    background: rgba(77, 151, 255, 0.12) !important;
+     color: $motion-primary !important;
+ }
+ 
+-.folder-bar {
+-    margin-top: 0.45rem;
+-}
+-
+-.folder-bar input {
++.asset-collection {
++    min-width: 0;
++    min-height: 0;
+     flex: 1 1 auto;
+-}
+-
+-.asset-collection {
+-    margin-top: 0.55rem;
++    overflow: auto;
++    padding: 0.7rem;
+ }
+ 
+ .asset-grid {
+     display: grid;
+-    grid-template-columns: repeat(2, minmax(0, 1fr));
+-    gap: 0.4rem;
++    align-content: start;
++    grid-template-columns: repeat(auto-fill, minmax(8.8rem, 1fr));
++    gap: 0.55rem;
+ }
+ 
+ .asset-list {
+     display: flex;
+     flex-direction: column;
+-    gap: 0.3rem;
++    gap: 0.35rem;
+ }
+ 
+ .asset-card {
+     display: flex;
+     min-width: 0;
+-    min-height: 4.35rem !important;
+-    align-items: center;
+-    gap: 0.45rem;
+-    padding: 0.4rem !important;
++    min-height: 4rem !important;
++    align-items: center;
++    gap: 0.5rem;
++    padding: 0.45rem !important;
+     text-align: left;
+ }
+ 
+ .asset-grid .asset-card {
++    min-height: 8.4rem !important;
+     flex-direction: column;
+     align-items: stretch;
+ }
+ 
+ .asset-card-selected {
+     border-color: $motion-primary !important;
+-    box-shadow: 0 0 0 1px rgba(77, 151, 255, 0.18);
++    background: rgba(77, 151, 255, 0.08) !important;
++    box-shadow: 0 0 0 1px rgba(77, 151, 255, 0.16);
+ }
+ 
+ .thumbnail,
+@@ -158,18 +311,18 @@
+     flex: 0 0 auto;
+     overflow: hidden;
+     border: 1px solid $ui-black-transparent;
+-    border-radius: 0.4rem;
++    border-radius: 0.45rem;
+     background: repeating-conic-gradient(#f1f1f1 0 25%, #fff 0 50%) 50% / 0.65rem 0.65rem;
+ }
+ 
+ .thumbnail {
+-    width: 3.3rem;
+-    height: 3.3rem;
++    width: 3.2rem;
++    height: 3.2rem;
+ }
+ 
+ .asset-grid .thumbnail {
+     width: 100%;
+-    height: 5rem;
++    height: 5.4rem;
+ }
+ 
+ .thumbnail img,
+@@ -181,7 +334,7 @@
+ 
+ .asset-type-icon {
+     color: $motion-primary;
+-    font-size: 1.55rem;
++    font-size: 1.65rem;
+     font-weight: 700;
+ }
+ 
+@@ -200,119 +353,204 @@
+ }
+ 
+ .card-text strong {
+-    font-size: 0.7rem;
++    font-size: 0.72rem;
+ }
+ 
+ .card-text span {
+     color: $text-primary-transparent;
+-    font-size: 0.57rem;
++    font-size: 0.6rem;
+ }
+ 
+ .empty-state {
++    display: flex;
++    min-height: 9rem;
++    align-items: center;
++    justify-content: center;
++    flex-direction: column;
+     grid-column: 1 / -1;
+-    padding: 0.8rem;
++    gap: 0.3rem;
++    padding: 1.25rem;
+     border: 1px dashed rgba(77, 151, 255, 0.35);
+-    border-radius: 0.5rem;
+-    color: $text-primary-transparent;
++    border-radius: 0.55rem;
++    color: $text-primary-transparent;
++    text-align: center;
++}
++
++.empty-state strong {
++    color: $text-primary;
++    font-size: 0.78rem;
++}
++
++.empty-state span {
++    max-width: 18rem;
+     font-size: 0.65rem;
+     line-height: 1.4;
+ }
+ 
++.browser-footer,
++.status-bar {
++    display: flex;
++    min-height: 2rem;
++    align-items: center;
++    justify-content: space-between;
++    gap: 0.6rem;
++    padding: 0 0.7rem;
++    border-top: 1px solid $ui-black-transparent;
++    background: $ui-white;
++    color: $text-primary-transparent;
++    font-size: 0.62rem;
++}
++
+ .details {
+-    margin-top: 0.6rem;
++    border-left: 1px solid $ui-black-transparent;
++}
++
++.details-scroll {
++    padding: 0.7rem;
++}
++
++.details-empty {
++    display: flex;
++    height: 100%;
++    align-items: center;
++    justify-content: center;
++    flex-direction: column;
++    padding: 1rem;
++    color: $text-primary-transparent;
++    text-align: center;
++}
++
++.details-empty > span {
++    margin-bottom: 0.5rem;
++    color: $motion-primary;
++    font-size: 2rem;
++}
++
++.details-empty strong {
++    color: $text-primary;
++    font-size: 0.8rem;
++}
++
++.details-empty p {
++    max-width: 13rem;
++    margin: 0.35rem 0 0;
++    font-size: 0.65rem;
++    line-height: 1.45;
++}
++
++.preview-panel {
+     padding: 0.5rem;
+     border: 1px solid $ui-black-transparent;
+-    border-radius: 0.5rem;
+-    background: $ui-white;
+-}
+-
+-.details-header {
+-    display: flex;
+-    align-items: center;
+-    gap: 0.55rem;
++    border-radius: 0.55rem;
++    background: $ui-primary;
+ }
+ 
+ .large-preview {
+-    width: 3.2rem;
+-    height: 3.2rem;
+-}
+-
+-.details-title {
+-    display: flex;
+-    min-width: 0;
+-    flex: 1 1 auto;
+-    flex-direction: column;
+-    gap: 0.1rem;
+-}
+-
+-.details-title strong,
+-.details-title span,
+-.details-title code {
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-    white-space: nowrap;
+-}
+-
+-.details-title strong {
+-    font-size: 0.75rem;
+-}
+-
+-.details-title span,
+-.details-title code {
+-    color: $text-primary-transparent;
+-    font-size: 0.58rem;
++    width: 100%;
++    height: 9rem;
+ }
+ 
+ .audio-preview {
+     width: 100%;
+     height: 2.2rem;
++    margin-top: 0.5rem;
++}
++
++.details-title {
++    display: flex;
++    min-width: 0;
++    flex-direction: column;
++    gap: 0.12rem;
++    padding: 0.7rem 0 0.5rem;
++}
++
++.details-title strong,
++.details-title span {
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.details-title strong {
++    font-size: 0.86rem;
++}
++
++.details-title span {
++    color: $text-primary-transparent;
++    font-size: 0.62rem;
++}
++
++.metadata-grid {
++    display: flex;
++    margin: 0;
++    flex-direction: column;
++    gap: 0.25rem;
++}
++
++.metadata-row {
++    display: grid;
++    grid-template-columns: 4.5rem minmax(0, 1fr);
++    gap: 0.45rem;
++    font-size: 0.62rem;
++}
++
++.metadata-row dt {
++    color: $text-primary-transparent;
++}
++
++.metadata-row dd {
++    min-width: 0;
++    margin: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.detail-section {
++    margin-top: 0.75rem;
++    padding-top: 0.7rem;
++    border-top: 1px solid $ui-black-transparent;
++}
++
++.rename-row {
++    display: grid;
+     margin-top: 0.45rem;
+-}
+-
+-.rename-row {
++    grid-template-columns: minmax(0, 1fr) auto;
++    gap: 0.35rem;
++}
++
++.folder-select {
++    display: grid;
++    align-items: center;
+     margin-top: 0.45rem;
+-}
+-
+-.rename-row input {
+-    flex: 1 1 auto;
+-}
+-
+-.folder-select {
+-    display: grid;
+-    grid-template-columns: auto minmax(0, 1fr);
+-    align-items: center;
+-    gap: 0.45rem;
++    grid-template-columns: 4rem minmax(0, 1fr);
++    gap: 0.4rem;
++    color: $text-primary-transparent;
++    font-size: 0.62rem;
++}
++
++.folder-select select {
++    min-width: 0;
++    padding: 0 0.4rem;
++}
++
++.action-stack {
++    display: flex;
+     margin-top: 0.45rem;
+-    color: $text-primary-transparent;
+-    font-size: 0.62rem;
+-}
+-
+-.folder-select select {
+-    min-width: 0;
+-    padding: 0 0.4rem;
+-}
+-
+-.action-grid {
+-    display: grid;
+-    grid-template-columns: repeat(2, minmax(0, 1fr));
++    flex-direction: column;
++    gap: 0.35rem;
++}
++
++.action-stack button {
++    width: 100%;
++    text-align: left;
++}
++
++.references {
++    display: flex;
+     margin-top: 0.45rem;
+-}
+-
+-.action-grid button {
+-    font-size: 0.62rem;
+-}
+-
+-.references {
+-    display: flex;
+-    flex-direction: column;
+-    gap: 0.3rem;
+-    margin-top: 0.55rem;
+-    color: $text-primary-transparent;
+-    font-size: 0.61rem;
+-}
+-
+-.references strong {
+-    color: $text-primary;
++    flex-direction: column;
++    gap: 0.35rem;
+ }
+ 
+ .reference-row {
+@@ -322,37 +560,54 @@
+ }
+ 
+ .reference-row button:first-child {
++    display: flex;
++    min-width: 0;
++    align-items: flex-start;
++    flex-direction: column;
+     overflow: hidden;
+     text-align: left;
++}
++
++.reference-row strong,
++.reference-row span {
++    max-width: 100%;
++    overflow: hidden;
+     text-overflow: ellipsis;
+     white-space: nowrap;
+ }
+ 
+-.current-status,
+-.status {
+-    margin-top: 0.5rem;
+-    color: $text-primary-transparent;
+-    font-size: 0.59rem;
+-    line-height: 1.35;
+-}
+-
+-.status {
+-    padding: 0.35rem 0.4rem;
+-    border-radius: 0.35rem;
+-    background: rgba(77, 151, 255, 0.08);
++.reference-row strong {
++    font-size: 0.64rem;
++}
++
++.reference-row span,
++.muted-text {
++    color: $text-primary-transparent;
++    font-size: 0.58rem;
++}
++
++.status-bar {
++    flex: 0 0 auto;
++}
++
++.status-text,
++.target-text {
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.status-text {
+     color: $text-primary;
+ }
+ 
+-@media (max-width: 760px) {
+-    .asset-grid {
+-        grid-template-columns: 1fr;
++.target-text {
++    text-align: right;
++}
++
++@media (max-width: 980px) {
++    .workspace-body {
++        grid-template-columns: 10rem minmax(17rem, 1fr) 15rem;
+     }
+-
+-    .filters {
+-        grid-template-columns: 1fr;
+-    }
+-
+-    .view-toggle {
+-        grid-column: auto;
+-    }
+-}
++}
+--- a/src/components/project-assets/project-asset-manager.jsx
++++ b/src/components/project-assets/project-asset-manager.jsx
+@@ -59,6 +59,7 @@
+     const [viewMode, setViewMode] = React.useState('grid');
+     const [nameDraft, setNameDraft] = React.useState('');
+     const [folderNameDraft, setFolderNameDraft] = React.useState('');
++    const [folderEditDraft, setFolderEditDraft] = React.useState('');
+     const [status, setStatus] = React.useState('');
+     const fileInputRef = React.useRef(null);
+ 
+@@ -84,10 +85,19 @@
+         currentCostumes[currentTarget.currentCostume || 0] : null;
+ 
+     const selectedAssetName = selectedAsset ? selectedAsset.name : '';
++    const activeFolder = folders.find(folder => folder.id === folderFilter) || null;
++    const activeFolderName = activeFolder ? activeFolder.name : '';
++    const imageAssetCount = assets.filter(asset => asset.kind === 'costume').length;
++    const soundAssetCount = assets.filter(asset => asset.kind === 'sound').length;
++    const unfiledAssetCount = assets.filter(asset => !asset.folderId).length;
+ 
+     React.useEffect(() => {
+         setNameDraft(selectedAssetName);
+     }, [selectedAssetId, selectedAssetName]);
++
++    React.useEffect(() => {
++        setFolderEditDraft(activeFolderName);
++    }, [folderFilter, activeFolderName]);
+ 
+     React.useEffect(() => {
+         if (selectedAssetId && !selectedAsset) setSelectedAssetId(null);
+@@ -208,10 +218,8 @@
+         'Rename asset folder',
+         () => {
+             if (!activeFolderId) throw new Error('Select a folder first.');
+-            if (!folderNameDraft.trim()) throw new Error('Enter a folder name first.');
+-            const result = assetDatabase.renameFolder(activeFolderId, folderNameDraft);
+-            setFolderNameDraft('');
+-            return result;
++            if (!folderEditDraft.trim()) throw new Error('Enter a folder name first.');
++            return assetDatabase.renameFolder(activeFolderId, folderEditDraft);
+         },
+         'Folder renamed.'
+     );
+@@ -301,226 +309,389 @@
+ 
+     return (
+         <div className={styles.manager}>
+-            <div className={styles.toolbar}>
+-                <button
+-                    className={styles.primaryButton}
+-                    type="button"
+-                    onClick={handleImportClick}
+-                >
+-                    + Import files
+-                </button>
+-                <button
+-                    disabled={!currentCostume}
+-                    type="button"
+-                    onClick={handleCaptureCurrent}
+-                >
+-                    Capture costume
+-                </button>
+-                <input
+-                    multiple
+-                    accept=".svg,.png,.bmp,.jpg,.jpeg,.webp,.gif,.wav,.mp3,.ogg,.m4a,.flac"
+-                    className={styles.hiddenInput}
+-                    ref={fileInputRef}
+-                    type="file"
+-                    onChange={handleImportFiles}
+-                />
+-            </div>
+-
+-            <div className={styles.historyBar}>
+-                <button disabled={!historyState.canUndo} type="button" onClick={handleUndo}>
+-                    ↶ Undo{historyState.undoCount ? ` (${historyState.undoCount})` : ''}
+-                </button>
+-                <button disabled={!historyState.canRedo} type="button" onClick={handleRedo}>
+-                    Redo{historyState.redoCount ? ` (${historyState.redoCount})` : ''} ↷
+-                </button>
+-                <span>{assets.length} assets</span>
+-            </div>
+-
+-            <div className={styles.filters}>
+-                <input
+-                    aria-label="Search assets"
+-                    placeholder="Search assets…"
+-                    type="search"
+-                    value={search}
+-                    onChange={event => setSearch(event.target.value)}
+-                />
+-                <select
+-                    aria-label="Asset type"
+-                    value={kindFilter}
+-                    onChange={event => setKindFilter(event.target.value)}
+-                >
+-                    <option value="all">All types</option>
+-                    <option value="images">Images</option>
+-                    <option value="sounds">Sounds</option>
+-                </select>
+-                <select
+-                    aria-label="Asset folder"
+-                    value={folderFilter}
+-                    onChange={event => setFolderFilter(event.target.value)}
+-                >
+-                    <option value={ALL_FOLDERS}>All folders</option>
+-                    <option value={UNFILED_FOLDER}>Unfiled</option>
+-                    {folders.map(folder => (
+-                        <option key={folder.id} value={folder.id}>{folder.name}</option>
+-                    ))}
+-                </select>
+-                <div className={styles.viewToggle}>
++            <header className={styles.toolbar}>
++                <div className={styles.toolbarGroup}>
+                     <button
+-                        aria-pressed={viewMode === 'grid'}
+-                        className={classNames({[styles.activeToggle]: viewMode === 'grid'})}
++                        className={styles.primaryButton}
+                         type="button"
+-                        onClick={() => setViewMode('grid')}
++                        onClick={handleImportClick}
+                     >
+-                        Grid
++                        + Import files
+                     </button>
+                     <button
+-                        aria-pressed={viewMode === 'list'}
+-                        className={classNames({[styles.activeToggle]: viewMode === 'list'})}
++                        disabled={!currentCostume}
+                         type="button"
+-                        onClick={() => setViewMode('list')}
++                        onClick={handleCaptureCurrent}
+                     >
+-                        List
++                        Capture costume
+                     </button>
++                    <input
++                        multiple
++                        accept=".svg,.png,.bmp,.jpg,.jpeg,.webp,.gif,.wav,.mp3,.ogg,.m4a,.flac"
++                        className={styles.hiddenInput}
++                        ref={fileInputRef}
++                        type="file"
++                        onChange={handleImportFiles}
++                    />
+                 </div>
+-            </div>
+-
+-            <form className={styles.folderBar} onSubmit={handleCreateFolder}>
+-                <input
+-                    aria-label="New folder name"
+-                    placeholder="New folder"
+-                    value={folderNameDraft}
+-                    onChange={event => setFolderNameDraft(event.target.value)}
+-                />
+-                <button type="submit">Create folder</button>
+-                <button disabled={!activeFolderId} type="button" onClick={handleRenameFolder}>
+-                    Rename folder
+-                </button>
+-                <button disabled={!activeFolderId} type="button" onClick={handleDeleteFolder}>
+-                    Delete folder
+-                </button>
+-            </form>
+-
+-            <div className={classNames(styles.assetCollection, {
+-                [styles.assetGrid]: viewMode === 'grid',
+-                [styles.assetList]: viewMode === 'list'
+-            })}>
+-                {filteredAssets.length ? filteredAssets.map(asset => {
+-                    const previewURL = assetDatabase.getPreviewURL(asset.id);
+-                    const folder = folders.find(candidate => candidate.id === asset.folderId);
+-                    return (
+-                        <button
+-                            className={classNames(styles.assetCard, {
+-                                [styles.assetCardSelected]: asset.id === selectedAssetId
++                <div className={styles.toolbarGroup}>
++                    <button
++                        className={styles.historyButton}
++                        disabled={!historyState.canUndo}
++                        type="button"
++                        onClick={handleUndo}
++                    >
++                        ↶ Undo{historyState.undoCount ? ` (${historyState.undoCount})` : ''}
++                    </button>
++                    <button
++                        className={styles.historyButton}
++                        disabled={!historyState.canRedo}
++                        type="button"
++                        onClick={handleRedo}
++                    >
++                        Redo{historyState.redoCount ? ` (${historyState.redoCount})` : ''} ↷
++                    </button>
++                    <span className={styles.assetCount}>{assets.length} assets</span>
++                </div>
++            </header>
++
++            <div className={styles.workspaceBody}>
++                <aside className={styles.sidebar} aria-label="Asset navigation">
++                    <section className={styles.sidebarSection}>
++                        <h3 className={styles.sectionHeading}>Library</h3>
++                        <div className={styles.navList}>
++                            <button
++                                aria-pressed={kindFilter === 'all' && folderFilter === ALL_FOLDERS}
++                                className={classNames(styles.navButton, {
++                                    [styles.navButtonActive]: kindFilter === 'all' && folderFilter === ALL_FOLDERS
++                                })}
++                                type="button"
++                                onClick={() => {
++                                    setKindFilter('all');
++                                    setFolderFilter(ALL_FOLDERS);
++                                }}
++                            >
++                                <span className={styles.navLabel}>All assets</span>
++                                <span className={styles.navCount}>{assets.length}</span>
++                            </button>
++                            <button
++                                aria-pressed={kindFilter === 'images'}
++                                className={classNames(styles.navButton, {
++                                    [styles.navButtonActive]: kindFilter === 'images'
++                                })}
++                                type="button"
++                                onClick={() => setKindFilter('images')}
++                            >
++                                <span className={styles.navLabel}>Images</span>
++                                <span className={styles.navCount}>{imageAssetCount}</span>
++                            </button>
++                            <button
++                                aria-pressed={kindFilter === 'sounds'}
++                                className={classNames(styles.navButton, {
++                                    [styles.navButtonActive]: kindFilter === 'sounds'
++                                })}
++                                type="button"
++                                onClick={() => setKindFilter('sounds')}
++                            >
++                                <span className={styles.navLabel}>Sounds</span>
++                                <span className={styles.navCount}>{soundAssetCount}</span>
++                            </button>
++                        </div>
++                    </section>
++
++                    <section className={styles.sidebarSection}>
++                        <div className={styles.sectionHeadingRow}>
++                            <h3 className={styles.sectionHeading}>Folders</h3>
++                            <span>{folders.length}</span>
++                        </div>
++                        <div className={styles.navList}>
++                            <button
++                                aria-pressed={folderFilter === ALL_FOLDERS}
++                                className={classNames(styles.navButton, {
++                                    [styles.navButtonActive]: folderFilter === ALL_FOLDERS
++                                })}
++                                type="button"
++                                onClick={() => setFolderFilter(ALL_FOLDERS)}
++                            >
++                                <span className={styles.navLabel}>All folders</span>
++                            </button>
++                            <button
++                                aria-pressed={folderFilter === UNFILED_FOLDER}
++                                className={classNames(styles.navButton, {
++                                    [styles.navButtonActive]: folderFilter === UNFILED_FOLDER
++                                })}
++                                type="button"
++                                onClick={() => setFolderFilter(UNFILED_FOLDER)}
++                            >
++                                <span className={styles.navLabel}>Unfiled</span>
++                                <span className={styles.navCount}>{unfiledAssetCount}</span>
++                            </button>
++                            {folders.map(folder => {
++                                const folderCount = assets.filter(asset => asset.folderId === folder.id).length;
++                                return (
++                                    <button
++                                        aria-pressed={folderFilter === folder.id}
++                                        className={classNames(styles.navButton, {
++                                            [styles.navButtonActive]: folderFilter === folder.id
++                                        })}
++                                        key={folder.id}
++                                        type="button"
++                                        onClick={() => setFolderFilter(folder.id)}
++                                    >
++                                        <span aria-hidden="true" className={styles.folderIcon}>▰</span>
++                                        <span className={styles.navLabel}>{folder.name}</span>
++                                        <span className={styles.navCount}>{folderCount}</span>
++                                    </button>
++                                );
+                             })}
+-                            key={asset.id}
+-                            type="button"
+-                            onClick={() => setSelectedAssetId(asset.id)}
+-                        >
+-                            <div className={styles.thumbnail}>
+-                                {previewURL ? (
+-                                    <img alt="" src={previewURL} />
+-                                ) : (
+-                                    <AssetIcon kind={asset.kind} />
+-                                )}
++                        </div>
++                    </section>
++
++                    <section className={styles.folderTools}>
++                        <form className={styles.folderCreateForm} onSubmit={handleCreateFolder}>
++                            <input
++                                aria-label="New folder name"
++                                placeholder="New folder"
++                                value={folderNameDraft}
++                                onChange={event => setFolderNameDraft(event.target.value)}
++                            />
++                            <button disabled={!folderNameDraft.trim()} type="submit">Create</button>
++                        </form>
++                        {activeFolderId ? (
++                            <div className={styles.folderEditor}>
++                                <input
++                                    aria-label="Selected folder name"
++                                    value={folderEditDraft}
++                                    onChange={event => setFolderEditDraft(event.target.value)}
++                                />
++                                <div className={styles.folderEditorActions}>
++                                    <button type="button" onClick={handleRenameFolder}>Rename</button>
++                                    <button
++                                        className={styles.dangerButton}
++                                        type="button"
++                                        onClick={handleDeleteFolder}
++                                    >
++                                        Delete
++                                    </button>
++                                </div>
+                             </div>
+-                            <div className={styles.cardText}>
+-                                <strong>{asset.name}</strong>
+-                                <span>
+-                                    {asset.kind === 'sound' ? 'Sound' : 'Image'} · {asset.referenceCount} refs
+-                                </span>
+-                                <span>{folder ? folder.name : 'Unfiled'}</span>
+-                            </div>
+-                        </button>
+-                    );
+-                }) : (
+-                    <div className={styles.emptyState}>
+-                        No assets match the current filters. Import a file or capture the current costume.
+-                    </div>
+-                )}
+-            </div>
+-
+-            {selectedAsset ? (
+-                <section className={styles.details} aria-label="Selected asset details">
+-                    <div className={styles.detailsHeader}>
+-                        <div className={styles.largePreview}>
+-                            {selectedAsset.kind === 'sound' ? (
+-                                <AssetIcon kind="sound" />
+-                            ) : selectedDataURL ? (
+-                                <img alt="" src={selectedDataURL} />
+-                            ) : (
+-                                <AssetIcon kind="costume" />
+-                            )}
+-                        </div>
+-                        <div className={styles.detailsTitle}>
+-                            <strong>{selectedAsset.name}</strong>
+-                            <span>{selectedAsset.dataFormat.toUpperCase()} · {selectedReferences.length} refs</span>
+-                            <code>{selectedAsset.md5ext}</code>
++                        ) : null}
++                    </section>
++                </aside>
++
++                <main className={styles.browser}>
++                    <div className={styles.browserToolbar}>
++                        <input
++                            aria-label="Search assets"
++                            className={styles.searchInput}
++                            placeholder="Search by name, format, or hash…"
++                            type="search"
++                            value={search}
++                            onChange={event => setSearch(event.target.value)}
++                        />
++                        <div className={styles.viewToggle} aria-label="Asset view mode">
++                            <button
++                                aria-label="Grid view"
++                                aria-pressed={viewMode === 'grid'}
++                                className={classNames({[styles.activeToggle]: viewMode === 'grid'})}
++                                title="Grid view"
++                                type="button"
++                                onClick={() => setViewMode('grid')}
++                            >
++                                ▦
++                            </button>
++                            <button
++                                aria-label="List view"
++                                aria-pressed={viewMode === 'list'}
++                                className={classNames({[styles.activeToggle]: viewMode === 'list'})}
++                                title="List view"
++                                type="button"
++                                onClick={() => setViewMode('list')}
++                            >
++                                ☷
++                            </button>
+                         </div>
+                     </div>
+-                    {selectedAsset.kind === 'sound' && selectedDataURL ? (
+-                        // eslint-disable-next-line jsx-a11y/media-has-caption
+-                        <audio className={styles.audioPreview} controls src={selectedDataURL} />
+-                    ) : null}
+-                    <form className={styles.renameRow} onSubmit={handleRenameSelected}>
+-                        <input
+-                            aria-label="Asset name"
+-                            value={nameDraft}
+-                            onChange={event => setNameDraft(event.target.value)}
+-                        />
+-                        <button type="submit">Rename</button>
+-                    </form>
+-                    <label className={styles.folderSelect}>
+-                        Folder
+-                        <select
+-                            value={selectedAsset.folderId || UNFILED_FOLDER}
+-                            onChange={handleMoveSelected}
+-                        >
+-                            <option value={UNFILED_FOLDER}>Unfiled</option>
+-                            {folders.map(folder => (
+-                                <option key={folder.id} value={folder.id}>{folder.name}</option>
+-                            ))}
+-                        </select>
+-                    </label>
+-                    <div className={styles.actionGrid}>
+-                        <button disabled={!currentTarget} type="button" onClick={handleUseSelected}>
+-                            Use on selected
+-                        </button>
+-                        <button
+-                            disabled={selectedAsset.kind !== 'costume' || !currentCostume}
+-                            type="button"
+-                            onClick={handleReplaceSelected}
+-                        >
+-                            Replace globally
+-                        </button>
+-                        <button
+-                            disabled={selectedReferences.length > 0}
+-                            type="button"
+-                            onClick={handleDeleteSelected}
+-                        >
+-                            Delete unused
+-                        </button>
++
++                    <div className={classNames(styles.assetCollection, {
++                        [styles.assetGrid]: viewMode === 'grid',
++                        [styles.assetList]: viewMode === 'list'
++                    })}>
++                        {filteredAssets.length ? filteredAssets.map(asset => {
++                            const previewURL = assetDatabase.getPreviewURL(asset.id);
++                            const folder = folders.find(candidate => candidate.id === asset.folderId);
++                            return (
++                                <button
++                                    aria-pressed={asset.id === selectedAssetId}
++                                    className={classNames(styles.assetCard, {
++                                        [styles.assetCardSelected]: asset.id === selectedAssetId
++                                    })}
++                                    key={asset.id}
++                                    type="button"
++                                    onClick={() => setSelectedAssetId(asset.id)}
++                                >
++                                    <div className={styles.thumbnail}>
++                                        {previewURL ? (
++                                            <img alt="" src={previewURL} />
++                                        ) : (
++                                            <AssetIcon kind={asset.kind} />
++                                        )}
++                                    </div>
++                                    <div className={styles.cardText}>
++                                        <strong>{asset.name}</strong>
++                                        <span>
++                                            {asset.kind === 'sound' ? 'Sound' : 'Image'} · {asset.referenceCount} refs
++                                        </span>
++                                        <span>{folder ? folder.name : 'Unfiled'}</span>
++                                    </div>
++                                </button>
++                            );
++                        }) : (
++                            <div className={styles.emptyState}>
++                                <strong>No assets found</strong>
++                                <span>Import files, capture a costume, or change the current filters.</span>
++                            </div>
++                        )}
+                     </div>
+-                    <div className={styles.references}>
+-                        <strong>References</strong>
+-                        {selectedReferences.length ? selectedReferences.map(reference => (
+-                            <div className={styles.referenceRow} key={`${reference.targetId}:${reference.kind}:${reference.itemIndex}`}>
+-                                <button type="button" onClick={() => onSelectTarget(reference.targetId)}>
+-                                    {reference.targetName} / {reference.itemName}
+-                                </button>
+-                                <button type="button" onClick={() => handleUnlinkReference(reference)}>
+-                                    Unlink
+-                                </button>
++
++                    <footer className={styles.browserFooter}>
++                        <span>Showing {filteredAssets.length} of {assets.length}</span>
++                        <span>{kindFilter === 'all' ? 'All types' : (kindFilter === 'images' ? 'Images' : 'Sounds')}</span>
++                    </footer>
++                </main>
++
++                <aside className={styles.details} aria-label="Asset details">
++                    {selectedAsset ? (
++                        <div className={styles.detailsScroll}>
++                            <div className={styles.previewPanel}>
++                                <div className={styles.largePreview}>
++                                    {selectedAsset.kind === 'sound' ? (
++                                        <AssetIcon kind="sound" />
++                                    ) : selectedDataURL ? (
++                                        <img alt="" src={selectedDataURL} />
++                                    ) : (
++                                        <AssetIcon kind="costume" />
++                                    )}
++                                </div>
++                                {selectedAsset.kind === 'sound' && selectedDataURL ? (
++                                    // eslint-disable-next-line jsx-a11y/media-has-caption
++                                    <audio className={styles.audioPreview} controls src={selectedDataURL} />
++                                ) : null}
+                             </div>
+-                        )) : <span>Not used by any target.</span>}
+-                    </div>
+-                </section>
+-            ) : null}
+-
+-            <div className={styles.currentStatus}>
+-                Target: {currentTarget && typeof currentTarget.getName === 'function' ? currentTarget.getName() : 'None'}
+-                {currentCostume ? ` · Current costume: ${currentCostume.name}` : ''}
++
++                            <div className={styles.detailsTitle}>
++                                <strong>{selectedAsset.name}</strong>
++                                <span>{selectedAsset.kind === 'sound' ? 'Sound asset' : 'Image asset'}</span>
++                            </div>
++
++                            <dl className={styles.metadataGrid}>
++                                <div className={styles.metadataRow}>
++                                    <dt>Format</dt>
++                                    <dd>{selectedAsset.dataFormat.toUpperCase()}</dd>
++                                </div>
++                                <div className={styles.metadataRow}>
++                                    <dt>References</dt>
++                                    <dd>{selectedReferences.length}</dd>
++                                </div>
++                                <div className={styles.metadataRow}>
++                                    <dt>Hash</dt>
++                                    <dd title={selectedAsset.md5ext}>{selectedAsset.md5ext}</dd>
++                                </div>
++                            </dl>
++
++                            <section className={styles.detailSection}>
++                                <h3>Organization</h3>
++                                <form className={styles.renameRow} onSubmit={handleRenameSelected}>
++                                    <input
++                                        aria-label="Asset name"
++                                        value={nameDraft}
++                                        onChange={event => setNameDraft(event.target.value)}
++                                    />
++                                    <button type="submit">Rename</button>
++                                </form>
++                                <label className={styles.folderSelect}>
++                                    <span>Folder</span>
++                                    <select
++                                        value={selectedAsset.folderId || UNFILED_FOLDER}
++                                        onChange={handleMoveSelected}
++                                    >
++                                        <option value={UNFILED_FOLDER}>Unfiled</option>
++                                        {folders.map(folder => (
++                                            <option key={folder.id} value={folder.id}>{folder.name}</option>
++                                        ))}
++                                    </select>
++                                </label>
++                            </section>
++
++                            <section className={styles.detailSection}>
++                                <h3>Actions</h3>
++                                <div className={styles.actionStack}>
++                                    <button
++                                        className={styles.primaryAction}
++                                        disabled={!currentTarget}
++                                        type="button"
++                                        onClick={handleUseSelected}
++                                    >
++                                        Use on selected target
++                                    </button>
++                                    <button
++                                        disabled={selectedAsset.kind !== 'costume' || !currentCostume}
++                                        type="button"
++                                        onClick={handleReplaceSelected}
++                                    >
++                                        Replace globally
++                                    </button>
++                                    <button
++                                        className={styles.dangerButton}
++                                        disabled={selectedReferences.length > 0}
++                                        type="button"
++                                        onClick={handleDeleteSelected}
++                                    >
++                                        Delete unused asset
++                                    </button>
++                                </div>
++                            </section>
++
++                            <section className={styles.detailSection}>
++                                <div className={styles.detailSectionHeading}>
++                                    <h3>References</h3>
++                                    <span>{selectedReferences.length}</span>
++                                </div>
++                                <div className={styles.references}>
++                                    {selectedReferences.length ? selectedReferences.map(reference => (
++                                        <div
++                                            className={styles.referenceRow}
++                                            key={`${reference.targetId}:${reference.kind}:${reference.itemIndex}`}
++                                        >
++                                            <button type="button" onClick={() => onSelectTarget(reference.targetId)}>
++                                                <strong>{reference.targetName}</strong>
++                                                <span>{reference.itemName}</span>
++                                            </button>
++                                            <button type="button" onClick={() => handleUnlinkReference(reference)}>
++                                                Unlink
++                                            </button>
++                                        </div>
++                                    )) : <span className={styles.mutedText}>Not used by any target.</span>}
++                                </div>
++                            </section>
++                        </div>
++                    ) : (
++                        <div className={styles.detailsEmpty}>
++                            <span aria-hidden="true">▧</span>
++                            <strong>Select an asset</strong>
++                            <p>Asset metadata, references, and actions will appear here.</p>
++                        </div>
++                    )}
++                </aside>
+             </div>
+-            {status ? <div className={styles.status}>{status}</div> : null}
++
++            <footer className={styles.statusBar}>
++                <span className={styles.statusText}>{status || 'Ready'}</span>
++                <span className={styles.targetText}>
++                    Target: {currentTarget && typeof currentTarget.getName === 'function' ? currentTarget.getName() : 'None'}
++                    {currentCostume ? ` · Costume: ${currentCostume.name}` : ''}
++                </span>
++            </footer>
+         </div>
+     );
+ };
+--- a/src/components/project-explorer/project-explorer.css
++++ b/src/components/project-explorer/project-explorer.css
+@@ -378,3 +378,63 @@
+     background: rgba(77, 151, 255, 0.08);
+     color: $text-primary;
+ }
++
++
++.asset-provider-summary {
++    width: calc(100% - 3.1rem);
++    margin: 0.25rem 0.55rem 0.65rem 2.55rem;
++    padding: 0.55rem;
++    border: 1px solid $ui-black-transparent;
++    border-radius: 0.5rem;
++    background: $ui-primary;
++}
++
++.asset-summary-grid {
++    display: grid;
++    grid-template-columns: repeat(3, minmax(0, 1fr));
++    gap: 0.35rem;
++}
++
++.asset-summary-grid > div {
++    display: flex;
++    min-width: 0;
++    flex-direction: column;
++    padding: 0.4rem;
++    border-radius: 0.4rem;
++    background: $ui-white;
++}
++
++.asset-summary-grid span {
++    overflow: hidden;
++    color: $text-primary-transparent;
++    font-size: 0.56rem;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++}
++
++.asset-summary-grid strong {
++    margin-top: 0.12rem;
++    color: $text-primary;
++    font-size: 0.76rem;
++}
++
++.open-asset-manager-button {
++    width: 100%;
++    min-height: 2rem;
++    margin-top: 0.45rem;
++    border: 1px solid rgba(77, 151, 255, 0.45);
++    border-radius: 0.4rem;
++    background: rgba(77, 151, 255, 0.1);
++    color: $motion-primary;
++    font: inherit;
++    font-size: 0.66rem;
++    font-weight: 700;
++    cursor: pointer;
++}
++
++.open-asset-manager-button:hover,
++.open-asset-manager-button:focus-visible {
++    border-color: $motion-primary;
++    background: rgba(77, 151, 255, 0.16);
++    outline: none;
++}
+--- a/src/components/project-explorer/project-explorer.jsx
++++ b/src/components/project-explorer/project-explorer.jsx
+@@ -4,7 +4,6 @@
+ import React from 'react';
+ import {FormattedMessage} from 'react-intl';
+ 
+-import ProjectAssetManager from '../project-assets';
+ import {
+     ENTITIES_ROOT_NODE_ID,
+     createEntityProvider,
+@@ -141,6 +140,7 @@
+         editingTargetId,
+         expandedNodeIds,
+         onClose,
++        onOpenAssetManager,
+         onSelectTarget,
+         onToggleNode,
+         showHeader,
+@@ -173,8 +173,14 @@
+         () => assetDatabase ? assetDatabase.listAssets().length : 0,
+         [assetDatabase, assetRevision]
+     );
+-    const currentTarget = vm && vm.runtime && editingTargetId ?
+-        vm.runtime.getTargetById(editingTargetId) : null;
++    const assetSummary = React.useMemo(() => {
++        const assets = assetDatabase ? assetDatabase.listAssets() : [];
++        return {
++            folders: assetDatabase ? assetDatabase.listFolders().length : 0,
++            images: assets.filter(asset => asset.kind === 'costume').length,
++            sounds: assets.filter(asset => asset.kind === 'sound').length
++        };
++    }, [assetDatabase, assetRevision]);
+ 
+     return (
+         <aside
+@@ -262,15 +268,24 @@
+                             label="Assets"
+                             nodeId={ASSETS_ROOT_NODE_ID}
+                             secondaryLabel={assetCount}
++                            onActivate={onOpenAssetManager}
+                             onToggle={onToggleNode}
+                         >
+                             {assetDatabase ? (
+-                                <ProjectAssetManager
+-                                    assetDatabase={assetDatabase}
+-                                    currentTarget={currentTarget}
+-                                    vm={vm}
+-                                    onSelectTarget={onSelectTarget}
+-                                />
++                                <div className={styles.assetProviderSummary}>
++                                    <div className={styles.assetSummaryGrid}>
++                                        <div><span>Images</span><strong>{assetSummary.images}</strong></div>
++                                        <div><span>Sounds</span><strong>{assetSummary.sounds}</strong></div>
++                                        <div><span>Folders</span><strong>{assetSummary.folders}</strong></div>
++                                    </div>
++                                    <button
++                                        className={styles.openAssetManagerButton}
++                                        type="button"
++                                        onClick={onOpenAssetManager}
++                                    >
++                                        Open Asset Workspace
++                                    </button>
++                                </div>
+                             ) : (
+                                 <div className={styles.emptyState} role="note">
+                                     Global asset services are not available.
+@@ -292,6 +307,7 @@
+     editingTargetId: PropTypes.string,
+     expandedNodeIds: PropTypes.arrayOf(PropTypes.string),
+     onClose: PropTypes.func,
++    onOpenAssetManager: PropTypes.func,
+     onSelectTarget: PropTypes.func,
+     onToggleNode: PropTypes.func.isRequired,
+     showHeader: PropTypes.bool,
+@@ -324,6 +340,7 @@
+     editingTargetId: null,
+     expandedNodeIds: [],
+     onClose: () => {},
++    onOpenAssetManager: () => {},
+     onSelectTarget: () => {},
+     showHeader: true,
+     sprites: {},
+--- a/test/unit/components/project-asset-manager.test.jsx
++++ b/test/unit/components/project-asset-manager.test.jsx
+@@ -87,8 +87,10 @@
+         expect(text).toContain('Import files');
+         expect(text).toContain('Hero');
+         expect(text).toContain('Theme');
+-        expect(text).toContain('All types');
++        expect(text).toContain('All assets');
+         expect(text).toContain('All folders');
++        expect(text).toContain('Images');
++        expect(text).toContain('Sounds');
+         expect(text).toContain('Audio');
+         expect(text).toContain('Undo (1)');
+     });
+--- a/test/unit/components/project-explorer.test.jsx
++++ b/test/unit/components/project-explorer.test.jsx
+@@ -126,6 +126,16 @@
+         })).toHaveLength(0);
+     });
+ 
++    test('opens the independent Asset Workspace from the Assets node', () => {
++        const onOpenAssetManager = jest.fn();
++        const component = renderExplorer({onOpenAssetManager});
++        const assetsNode = component.root.findByProps({'data-node-id': ASSETS_ROOT_NODE_ID});
++
++        assetsNode.props.onClick();
++
++        expect(onOpenAssetManager).toHaveBeenCalledTimes(1);
++    });
++
+     test('renders an empty state before targets are available', () => {
+         const component = renderExplorer({
+             editingTargetId: null,

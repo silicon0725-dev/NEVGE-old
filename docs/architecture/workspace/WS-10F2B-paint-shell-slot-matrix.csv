@@ -1,0 +1,7 @@
+Slot,NGVGE Owner,Vector,Bitmap,Pixel,Authority Rule
+context-toolbar,Native Paint Shell,SVG-Edit controls via adapter,Bitmap controls via future adapter,Pixel controls via future adapter,Presentation only
+tool-rail,Native Paint Shell,Vector tool IDs,Bitmap tool IDs,Pixel tool IDs,Backend private tool IDs never persist
+canvas-chrome,Native Paint Shell,SVG-Edit canvas,miniPaint-derived canvas,Piskel-derived canvas,Workspace geometry never mutates document geometry
+panel-rail,Native Paint Shell,Properties/Layers/Color planned,Properties/Layers/Color planned,Properties/Layers/Palette planned,Panel UI has no Project authority
+status-bar,Native Paint Shell,Working-copy/backend status,Working-copy/backend status,Working-copy/backend status,Session projection only
+OSS App Shell,FORBIDDEN,SVG-Edit App Shell forbidden,miniPaint full App/iframe forbidden,Piskel full App Shell forbidden,Backend is engine only

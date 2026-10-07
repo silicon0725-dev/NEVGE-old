@@ -1,0 +1,16 @@
+Domain,Scope,Durable Record,Legacy Compatibility Input,Authority / Notes
+Window layout,Workspace,ngvge:workspace:layout:v1,scratch-gui-window-states,WindowManager projection; persist:true only
+Dock placement,Workspace,ngvge:workspace:layout:v1,None,DockPlacementModel preference
+Dock presentation,Workspace,ngvge:workspace:preferences:workspace:v1,None,WorkspacePreferences v1
+Dock organization topology,Workspace,ngvge:workspace:layout:v1,None,DockOrganizationModel preference
+Dock organization mode,Workspace,ngvge:workspace:preferences:workspace:v1,None,flat/grouped/custom presentation
+Pinned tools / order,Workspace,ngvge:workspace:layout:v1,None,DockRuntimeModel stable ToolIds
+Tool panel sizes,Workspace,ngvge:workspace:layout:v1,tw:blockFlyoutWidth,Explorer/Inspector/Flyout dimensions
+Window geometry/state,Workspace,ngvge:workspace:layout:v1,scratch-gui-window-states,visible/minimized/maximized + position/size
+Workspace mode,Workspace,ngvge:workspace:preferences:workspace:v1,tw:customUI,custom/classic
+Editor background,User,ngvge:workspace:preferences:user:v1,tw:editorBackground,Blob bytes remain in existing IndexedDB background store
+Theme,User,ngvge:workspace:preferences:user:v1,tw:theme,User appearance scope
+Migration version,Device,ngvge:workspace:preferences:device:v1,None,Compatibility migration bookkeeping
+Project state,Project,NONE,NONE,Owned by Project Lifecycle Host; forbidden from WS-4 local records
+Session UI,Session,NONE,NONE,Memory-only
+Secrets / credentials,Secret,NONE,Legacy secrets handled by LSC migration,Forbidden from Workspace schemas/storage

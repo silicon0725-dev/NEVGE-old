@@ -1,0 +1,102 @@
+{
+  "certificateId": "ngvge-ws3f-minimize-restore-animation-certificate/v1",
+  "stage": "WS-3F",
+  "title": "Minimize / Restore Animation",
+  "status": "COMPLETE / VERIFIED",
+  "date": "2026-08-14",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "identities": {
+    "transitionModel": "ngvge.workspace-dock-transition-model@1",
+    "windowManager": "ngvge.workspace-window-manager@1",
+    "dockRuntimeModel": "ngvge.workspace-dock-runtime-model@1",
+    "transitionSchemaVersion": 1
+  },
+  "invariants": {
+    "semanticAuthority": "WindowManager",
+    "eventOrdering": "semantic commit -> window lifecycle event -> presentation transition",
+    "sourceGeometry": "WindowManager state + Workspace viewport origin",
+    "targetGeometry": "Dock ToolId presentation target",
+    "transitionCompletionMutatesSemanticState": false,
+    "missingGeometryBlocksSemanticState": false,
+    "reducedMotionSupported": true,
+    "backendIdentityInTransition": false,
+    "persistence": "deferred-to-WS-4"
+  },
+  "verification": {
+    "machineGate": {
+      "passed": 26,
+      "total": 26
+    },
+    "ws3DockFoundationDoD": {
+      "passed": 14,
+      "total": 14
+    },
+    "focusedJest": {
+      "suites": 4,
+      "tests": 20,
+      "status": "PASS"
+    },
+    "workspaceCumulative": "PASS",
+    "lscG1": "PASS",
+    "lrcG1": "PASS",
+    "lplG1": "PASS",
+    "lexG1": "PASS",
+    "col0": "PASS",
+    "transform0009E": {
+      "passed": 12,
+      "total": 12
+    },
+    "permanentRegression": {
+      "passed": 19,
+      "total": 19
+    },
+    "unitNode": {
+      "suites": 110,
+      "tests": 601,
+      "status": "PASS"
+    },
+    "unitDom": {
+      "suites": 3,
+      "tests": 26,
+      "status": "PASS"
+    },
+    "unitTotal": {
+      "suites": 113,
+      "tests": 627,
+      "status": "PASS"
+    },
+    "integration": {
+      "suites": 4,
+      "tests": 5,
+      "status": "PASS"
+    },
+    "smoke": {
+      "suites": 1,
+      "tests": 1,
+      "status": "PASS"
+    },
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "targetedFullEslint": "PASS",
+    "transitionWebpack": {
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0,
+      "status": "PASS"
+    },
+    "editorWebpack": {
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0,
+      "status": "PASS"
+    },
+    "aggregateCertification": {
+      "command": "npm run test:workspace-shell:ws3f-certification",
+      "exitCode": 0,
+      "status": "PASS"
+    }
+  },
+  "deferred": [
+    "WS-4 Workspace Persistence / Settings"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "certificateId": "ngvge-ws10f2a-native-paint-host-migration-certificate/v1",
+  "stage": "WS-10F2A",
+  "name": "Native Paint Host Migration",
+  "status": "COMPLETE / VERIFIED",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "paintParent": "WS-10F | IMPLEMENTED / CONDITIONAL VERIFIED",
+  "host": {
+    "hostId": "ngvge.native-paint-host@1",
+    "presentationId": "ngvge.paint-presentation.costume-tab@1",
+    "primaryPresentation": "native Costume / Backdrop editor",
+    "standalonePaintWindow": "compatibility-development-only"
+  },
+  "routing": {
+    "svg": "canonical Resource -> PaintSession -> Working Copy -> SVG-Edit",
+    "raster": "legacy Scratch Paint compatibility until WS-10G"
+  },
+  "authority": {
+    "nativeHostProjectAuthority": false,
+    "nativeHostResourceAuthority": false,
+    "nativeHostTransactionAuthority": false,
+    "svgEditProjectAuthority": false,
+    "svgEditResourceAuthority": false,
+    "legacyRasterIsCompatibility": true
+  },
+  "resourceAdoption": {
+    "canonicalResourceId": true,
+    "idempotent": true,
+    "implicitContentDeduplication": false
+  },
+  "verification": {
+    "ws10fHf4Machine": "8/8 PASS",
+    "ws10fHf4Focused": "1 suite / 13 tests PASS",
+    "machine": "20/20 PASS",
+    "focusedNode": "2 suites / 15 tests PASS",
+    "focusedDom": "1 suite / 2 tests PASS",
+    "nativeWebpack": "0 errors / 0 warnings PASS",
+    "fullUnit": "156 suites / 883 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typeScript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "arcC0011": "7/7 PASS",
+    "lrcG1": "15/15 PASS",
+    "lplG1": "17/17 PASS",
+    "lexG1": "19/19 PASS",
+    "lscG1": "19/19 PASS",
+    "col0": "15/15 PASS",
+    "ws9Aggregate": "20/20 PASS",
+    "ws10eCertification": "24/24 PASS",
+    "fullEditorWebpack": "INCONCLUSIVE - execution window exceeded without compile error"
+  },
+  "next": "WS-10F2B | Unified Paint Shell"
+}

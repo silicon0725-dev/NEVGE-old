@@ -1,0 +1,55 @@
+.layer {
+    position: fixed;
+    inset: 0;
+    z-index: 1199;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.ghost {
+    --ngvge-dock-transition-duration: 220ms;
+
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 10px;
+    background: rgba(39, 43, 50, 0.94);
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.34);
+    opacity: 0.94;
+    transform-origin: center;
+    transition-property: left, top, width, height, border-radius, opacity;
+    transition-duration: var(--ngvge-dock-transition-duration);
+    transition-timing-function: cubic-bezier(0.22, 0.8, 0.24, 1);
+    will-change: left, top, width, height, opacity;
+}
+
+.ghost[data-kind="minimize"] {
+    opacity: 0.22;
+    border-radius: 12px;
+}
+
+.ghost[data-kind="restore"] {
+    opacity: 0.98;
+}
+
+.ghost-header {
+    flex: 0 0 22px;
+    min-height: 5px;
+    background: rgba(255, 255, 255, 0.12);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ghost-body {
+    flex: 1;
+    min-height: 0;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015));
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ghost {
+        transition-duration: 0ms;
+    }
+}

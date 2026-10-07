@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "stage": "WS-10A",
+  "title": "Better Paint Tool Admission & Resource Editing Session Foundation",
+  "status": "COMPLETE / VERIFIED",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "workspaceParent": "WS-9 | COMPLETE / CERTIFIED",
+  "baselineHotfix": "WS9-POST-CERT-HF1 | Stage False Restore Animation",
+  "identities": {
+    "toolId": "ngvge.tool.paint",
+    "windowId": "paint",
+    "sessionId": "ngvge.workspace-paint-tool-session@1",
+    "backendAdapterId": "ngvge.workspace-paint-backend.scratch-paint@1",
+    "backendPackage": "scratch-paint@2.1.61",
+    "ossIntakeAdr": "ADR-WS10A-SCRATCH-PAINT-INTAKE"
+  },
+  "capabilities": [
+    "context-read#query",
+    "resource-read#query",
+    "project-command#propose",
+    "project-command#mutate"
+  ],
+  "rules": {
+    "resourceDirectMutation": false,
+    "reviewedProjectMutation": true,
+    "rawScratchBackendAuthorityExposed": false,
+    "paintContentReplacementActivated": false,
+    "terminalActivated": false,
+    "scratchPaintOwnsSemanticIdentity": false
+  },
+  "verification": {
+    "machine": "18/18 PASS",
+    "focused": "8 suites / 46 tests PASS",
+    "ws10aWebpack": "0 errors / 0 warnings PASS",
+    "fullEditorWebpack": "0 errors / 0 warnings PASS",
+    "fullUnit": "142 suites / 787 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "arcC0011Baseline": "7/7 PASS",
+    "lscG1": "19/19 machine PASS",
+    "lrcG1": "15/15 machine PASS",
+    "lplG1": "17/17 machine PASS",
+    "lexG1": "19/19 machine PASS",
+    "col0": "15/15 machine PASS",
+    "ws9Aggregate": "20/20 PASS"
+  },
+  "next": "WS-10B | Paint Content Read / Working Copy Adapter"
+}

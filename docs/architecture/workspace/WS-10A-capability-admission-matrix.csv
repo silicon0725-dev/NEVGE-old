@@ -1,0 +1,10 @@
+tool_id,surface,access,required,provider_state,mutation_review,ws10a_role
+ngvge.tool.paint,context-read,query,true,ready,n/a,read selected canonical Resource context
+ngvge.tool.paint,resource-read,query,true,ready,n/a,query portable image Resource descriptors
+ngvge.tool.paint,project-command,propose,true,ready,proposal review required,create ResourceId-addressed metadata proposal
+ngvge.tool.paint,project-command,mutate,true,ready,fresh one-shot review evidence required,commit or rollback reviewed Project transaction
+ngvge.tool.paint,resource-command,mutate,false,direct-denied,not admitted,explicitly unavailable to Paint
+ngvge.tool.paint,filesystem,mutate,false,not-declared,not admitted,out of scope
+ngvge.tool.paint,process-execution,mutate,false,not-declared,not admitted,out of scope
+ngvge.tool.paint,network,mutate,false,not-declared,not admitted,out of scope
+ngvge.tool.terminal,all,n/a,n/a,planned,n/a,not activated in WS-10A

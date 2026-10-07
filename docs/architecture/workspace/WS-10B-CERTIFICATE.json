@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "stage": "WS-10B",
+  "title": "Paint Content Read / Working Copy Adapter",
+  "status": "COMPLETE / VERIFIED",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "workspaceParent": "WS-10A | COMPLETE / VERIFIED",
+  "ws9Foundation": "COMPLETE / CERTIFIED",
+  "identities": {
+    "toolId": "ngvge.tool.paint",
+    "resourceContentCapabilityId": "ngvge.workspace-capability.resource-content-read",
+    "resourceContentFacadeId": "ngvge.workspace-resource-content-read-capability@1",
+    "resourceContentProviderId": "ngvge.workspace-capability-provider.resource-content-read",
+    "workingCopyModelId": "ngvge.workspace-paint-working-copy-model@1",
+    "workingCopyAdapterId": "ngvge.workspace-paint-working-copy-adapter.scratch-paint@1",
+    "backendPackage": "scratch-paint@2.1.61"
+  },
+  "contentContract": {
+    "supportedFormats": ["svg", "png", "jpg"],
+    "maxSourceReadBytes": 33554432,
+    "canonicalResourceIdRequired": true,
+    "sourceSnapshotImmutable": true,
+    "workingCopyTransient": true,
+    "dirtySwitchProtection": true,
+    "sourceStaleDetection": true
+  },
+  "rules": {
+    "rawScratchBackendAuthorityExposed": false,
+    "resourceDirectMutation": false,
+    "projectImageContentMutationActivated": false,
+    "scratchPaintEditsWorkingCopyOnly": true,
+    "metadataTransactionRemainsReviewed": true,
+    "terminalActivated": false
+  },
+  "verification": {
+    "machine": "20/20 PASS",
+    "focused": "7 suites / 40 tests PASS",
+    "ws10bWebpack": "0 errors / 0 warnings PASS",
+    "fullEditorWebpack": "0 errors / 0 warnings PASS",
+    "fullUnit": "145 suites / 802 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "arcC0011Baseline": "7/7 PASS",
+    "lscG1": "19/19 machine PASS",
+    "lrcG1": "15/15 machine PASS",
+    "lplG1": "17/17 machine PASS",
+    "lexG1": "19/19 machine PASS",
+    "col0": "15/15 machine PASS",
+    "ws9Aggregate": "20/20 PASS",
+    "ws10aCertification": "23/23 PASS"
+  },
+  "next": "WS-10C | Reviewed Resource Content Replace Transaction"
+}

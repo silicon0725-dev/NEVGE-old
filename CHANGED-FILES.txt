@@ -1,0 +1,6 @@
+package.json
+scripts/validate-ngvge-module-bootstrap-integrity.js
+src/lib/first-party-modules/constants.js
+src/lib/first-party-modules/module-lifecycle-constants.js
+src/lib/first-party-modules/module-manager.js
+test/unit/lib/first-party-modules/module-bootstrap-integrity.test.js

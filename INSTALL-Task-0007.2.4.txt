@@ -1,0 +1,9 @@
+Task-0007.2.4 — Context Menu Click Fix
+
+1. Stop the development server with Ctrl+C.
+2. Extract this archive over the scratch-gui-main project root.
+3. Allow replacement of existing files.
+4. Restart START-EDITOR.bat or bun run start.
+
+Changed runtime source:
+- src/components/project-explorer/project-explorer.jsx

@@ -1,0 +1,123 @@
+{
+  "certificateId": "ngvge-ws3e-launchpad-certificate/v1",
+  "stage": "WS-3E",
+  "title": "Launchpad",
+  "status": "COMPLETE / VERIFIED",
+  "date": "2026-08-13",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "identities": {
+    "launchpadModel": "ngvge.workspace-launchpad-model@1",
+    "toolRegistry": "ngvge.workspace-tool-registry@1",
+    "dockRuntimeModel": "ngvge.workspace-dock-runtime-model@1",
+    "interactionController": "ngvge.workspace-dock-interaction-controller@1",
+    "windowManager": "ngvge.workspace-window-manager@1"
+  },
+  "sections": [
+    "all",
+    "pinned",
+    "recent",
+    "first-party",
+    "extensions",
+    "developer",
+    "compatibility"
+  ],
+  "toolSourceKinds": [
+    "first-party",
+    "extension",
+    "developer",
+    "compatibility"
+  ],
+  "invariants": {
+    "toolInventoryAuthority": "ToolRegistry",
+    "launchpadHasToolId": false,
+    "pinnedAuthority": "DockRuntimeModel",
+    "recentAuthority": "WindowManager.lastFocusedAt",
+    "activationAuthority": "DockInteractionController",
+    "windowAuthority": "WindowManager",
+    "runtimeToolRegistrationObserved": true,
+    "staticLaunchpadToolInventory": false,
+    "persistence": "deferred-to-WS-4",
+    "minimizeRestoreAnimation": "deferred-to-WS-3F",
+    "backendIdentityInLaunchpadEntry": false
+  },
+  "limitations": {
+    "currentExtensionDeveloperProductionTools": "category pipeline is live; categories may be empty until a ToolDefinition is registered",
+    "pluginExecutionAuthority": "automatic discovery does not invent plugin launch/window authority",
+    "recentPersistence": "runtime-only until Workspace persistence policy is defined"
+  },
+  "verification": {
+    "machineGate": {
+      "passed": 41,
+      "total": 41
+    },
+    "focusedJest": {
+      "suites": 4,
+      "tests": 25,
+      "status": "PASS"
+    },
+    "workspaceCumulative": "PASS",
+    "lscG1": "PASS",
+    "lrcG1": "PASS",
+    "lplG1": "PASS",
+    "lexG1": "PASS",
+    "col0": "PASS",
+    "transform0009E": {
+      "passed": 12,
+      "total": 12
+    },
+    "permanentRegression": {
+      "passed": 19,
+      "total": 19
+    },
+    "unitNode": {
+      "suites": 107,
+      "tests": 591,
+      "status": "PASS"
+    },
+    "unitDom": {
+      "suites": 3,
+      "tests": 26,
+      "status": "PASS"
+    },
+    "unitTotal": {
+      "suites": 110,
+      "tests": 617,
+      "status": "PASS"
+    },
+    "integration": {
+      "suites": 4,
+      "tests": 5,
+      "status": "PASS"
+    },
+    "smoke": {
+      "suites": 1,
+      "tests": 1,
+      "status": "PASS"
+    },
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "targetedFullEslint": "PASS",
+    "dockWebpack": {
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0,
+      "status": "PASS"
+    },
+    "editorWebpack": {
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0,
+      "status": "PASS"
+    },
+    "aggregateCertification": {
+      "command": "npm run test:workspace-shell:ws3e-certification",
+      "exitCode": 0,
+      "status": "PASS"
+    }
+  },
+  "deferred": [
+    "WS-3F Minimize/Restore Animation",
+    "WS-4 Workspace Persistence/Settings",
+    "WS-6 Extension Manager / plugin Tool lifecycle integration"
+  ]
+}

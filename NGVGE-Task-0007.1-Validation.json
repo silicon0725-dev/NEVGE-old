@@ -1,0 +1,112 @@
+{
+  "task": "Task-0007.1 — Independent Asset Workspace and layout refactor",
+  "base": "scratch-gui-main-task-0007-with-launcher",
+  "changed_file_count": 9,
+  "checks": [
+    {
+      "name": "Asset Manager JSX parser validation",
+      "status": "PASS"
+    },
+    {
+      "name": "Project Explorer JSX parser validation",
+      "status": "PASS"
+    },
+    {
+      "name": "GUI JSX parser validation",
+      "status": "PASS"
+    },
+    {
+      "name": "Updated unit-test source parser validation",
+      "status": "PASS"
+    },
+    {
+      "name": "CSS Module class coverage",
+      "status": "PASS"
+    },
+    {
+      "name": "Relative import resolution",
+      "status": "PASS"
+    },
+    {
+      "name": "Asset Manager removed from Explorer embedded tree",
+      "status": "PASS"
+    },
+    {
+      "name": "Independent draggable and resizable workspace integration",
+      "status": "PASS"
+    },
+    {
+      "name": "Minimize, close, restore, and reopen paths",
+      "status": "PASS"
+    },
+    {
+      "name": "Existing Asset Database and SB3 format unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "Git patch applies to clean Task-0007 source",
+      "status": "PASS"
+    },
+    {
+      "name": "Patched result byte comparison",
+      "status": "PASS"
+    },
+    {
+      "name": "Jest unit suite",
+      "status": "NOT_RUN",
+      "detail": "The uploaded source archive does not contain node_modules."
+    },
+    {
+      "name": "ESLint and production Webpack build",
+      "status": "NOT_RUN",
+      "detail": "Bun and the project dependency tree are unavailable in this runtime."
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/TASK-0007.1-ASSET-WORKSPACE.md",
+      "bytes": 956,
+      "sha256": "c496ebeae264a9cfdf785b31216df93860e5b022eb016f1106f90afd47f4907a"
+    },
+    {
+      "path": "src/components/gui/gui.css",
+      "bytes": 14782,
+      "sha256": "6c213cce1f94d6461b636d8c7db6c665ee42a2c4830c1c9d00e4382f5d4a958c"
+    },
+    {
+      "path": "src/components/gui/gui.jsx",
+      "bytes": 97901,
+      "sha256": "8fd801edba5403dca12a45310f66691d235fbc44f20584caf0825c15cd550862"
+    },
+    {
+      "path": "src/components/project-assets/project-asset-manager.css",
+      "bytes": 10951,
+      "sha256": "cd7af152f0a43c27089950382d53587aa3c90a6fbf64177814223462bd57cbc5"
+    },
+    {
+      "path": "src/components/project-assets/project-asset-manager.jsx",
+      "bytes": 35134,
+      "sha256": "34b988deb335e8ce85c8b73cdf63870c1cde1f0aeeba01a83e07e499fe1d6948"
+    },
+    {
+      "path": "src/components/project-explorer/project-explorer.css",
+      "bytes": 8833,
+      "sha256": "36aea2b4afd617cc3bc480373a3a324b8f46637de796d84149de6ee019742e41"
+    },
+    {
+      "path": "src/components/project-explorer/project-explorer.jsx",
+      "bytes": 13357,
+      "sha256": "b0c9462350bd2df1bc1df059de6ecb30919473d1d76631e2a0a1386eba01f110"
+    },
+    {
+      "path": "test/unit/components/project-asset-manager.test.jsx",
+      "bytes": 3429,
+      "sha256": "264b60db0385d85afe3a48bd55aff685a101d9a48e87ab3fb1afd989631fd7f1"
+    },
+    {
+      "path": "test/unit/components/project-explorer.test.jsx",
+      "bytes": 4983,
+      "sha256": "c148ed17417a625f3406f46709a7b8733a1b671f0060ac574fb751b6f25f22aa"
+    }
+  ]
+}

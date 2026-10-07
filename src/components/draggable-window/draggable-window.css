@@ -1,0 +1,195 @@
+@import "../../css/units.css";
+
+.draggableWindow {
+    position: absolute;
+    background-color: var(--ngvge-window-surface, var(--ui-secondary));
+    border: 1px solid var(--ngvge-window-border, #ddd);
+    border-radius: var(--ngvge-window-radius, 8px);
+    box-shadow: var(--ngvge-window-shadow, 0 4px 12px rgba(0, 0, 0, 0.15));
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+}
+
+
+.draggableWindow[data-ngvge-presentation-hidden="true"] {
+    visibility: hidden;
+}
+
+.windowHeader {
+    background-color: var(--ngvge-window-chrome, #00BAAD);
+    color: var(--ngvge-window-chrome-text, white);
+    padding: var(--ngvge-window-header-padding, 2px 7px);
+    cursor: move;
+    font-weight: var(--ngvge-window-header-font-weight, bold);
+    font-size: var(--ngvge-window-header-font-size, 12px);
+    border-bottom: 1px solid var(--ngvge-shell-border, #ddd);
+    display: flex;
+    align-items: center;
+    min-height: var(--ngvge-window-header-height, 22px);
+    line-height: 1.1;
+}
+
+.windowHeader:hover {
+    background-color: var(--ngvge-window-chrome-hover, #00998d);
+}
+
+.windowTitle {
+    flex: 1;
+    min-width: 0;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    margin-right: 0.2rem;
+}
+
+.windowContent {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+}
+
+.resizeHandleE,
+.resizeHandleS,
+.resizeHandleSE {
+    position: absolute;
+    background: transparent;
+}
+
+.resizeHandleE {
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    cursor: ew-resize;
+}
+
+.resizeHandleS {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    cursor: ns-resize;
+}
+
+.resizeHandleSE {
+    right: 0;
+    bottom: 0;
+    width: 12px;
+    height: 12px;
+    cursor: nwse-resize;
+}
+
+.resizeHandleE:hover,
+.resizeHandleS:hover,
+.resizeHandleSE:hover {
+    background-color: var(--ngvge-window-resize-hover, rgba(0, 186, 173, 0.3));
+}
+
+.windowControls {
+    display: flex;
+    gap: 3px;
+}
+
+.controlButton {
+    background: none;
+    border: none;
+    color: var(--ngvge-window-chrome-text, white);
+    cursor: pointer;
+    width: var(--ngvge-window-control-size, 16px);
+    height: var(--ngvge-window-control-size, 16px);
+    border-radius: var(--ngvge-window-control-radius, 3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.controlButton:hover {
+    background-color: var(--ngvge-window-control-hover, rgba(255, 255, 255, 0.22));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.controlGlyph {
+    line-height: 1;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.minimizedBar {
+    position: fixed;
+    inset: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    z-index: 479;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.minimizedWindow {
+    position: fixed;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    max-width: 32px;
+    max-height: 32px;
+    background: var(--ngvge-minimized-background, #00BAAD);
+    color: var(--ngvge-minimized-foreground, #fff);
+    border-radius: var(--ngvge-window-radius, 8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    border: var(--ngvge-minimized-border-style, none);
+    box-shadow: var(--ngvge-minimized-shadow, 0 2px 8px rgba(0, 0, 0, 0.10));
+    user-select: none;
+    margin: 0;
+    padding: 0;
+    transition: box-shadow 0.2s, transform 0.2s;
+    pointer-events: auto;
+    touch-action: none;
+    overflow: hidden;
+    gap: 0;
+    flex-shrink: 0;
+}
+
+.minimizedWindow:hover {
+    background: var(--ngvge-minimized-background-hover, #00998d);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    transform: scale(1.08);
+}
+
+.minimizedWindowDragging {
+    cursor: grabbing;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+    transform: scale(1.08);
+}
+
+.minimizedWindowIcon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border-radius: 0;
+    margin: 0;
+    font-size: 16px;
+}
+
+.minimizedWindowTitle {
+    display: none;
+}

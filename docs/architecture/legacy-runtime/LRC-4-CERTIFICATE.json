@@ -1,0 +1,44 @@
+{
+  "stage": "LRC-4",
+  "title": "Compatibility Analyzer & Presentation Capability Diagnostics",
+  "status": "COMPLETE / VERIFIED",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "dependsOn": [
+    "LRC-2 COMPLETE / CERTIFIED / ARCHITECTURE FROZEN",
+    "LRC-3 COMPLETE / VERIFIED"
+  ],
+  "identities": [
+    "ngvge.compatibility-project-scan@1",
+    "ngvge.compatibility-project-snapshot/v1",
+    "ngvge.compatibility-backend-scan@1",
+    "ngvge.compatibility-backend-snapshot/v1",
+    "ngvge.presenter-capability-registry@1",
+    "ngvge.compatibility-analyzer@1",
+    "ngvge.compatibility-report/v1",
+    "ngvge.runtime-compatibility-service@1"
+  ],
+  "verification": {
+    "machineDoD": {"passed": 10, "total": 10},
+    "focusedJest": {"suites": 3, "tests": 32},
+    "runtimePolicyJest": {"suites": 8, "tests": 63},
+    "lrc2Certification": {"passed": 12, "total": 12},
+    "lrc3Certification": {"passed": 10, "total": 10},
+    "arcC0011": {"passed": 7, "total": 7},
+    "transformDoD": {"passed": 12, "total": 12},
+    "permanentRegression": {"passed": 19, "total": 19},
+    "unit": {"suites": 92, "tests": 512},
+    "integration": {"suites": 3, "tests": 4},
+    "smoke": {"suites": 1, "tests": 1},
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "webpackEditorEntry": {"exitCode": 0, "errors": 0, "warnings": 0}
+  },
+  "corpus": {
+    "first": "C01",
+    "last": "C17",
+    "count": 17,
+    "kind": "deterministic semantic compatibility fixtures"
+  },
+  "authorityStatement": "Compatibility Analyzer is query-only and owns no Runtime Policy, VM, Renderer, Project or Backend mutation authority.",
+  "next": "LRC-G1"
+}

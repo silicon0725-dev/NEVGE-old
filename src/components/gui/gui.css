@@ -1,0 +1,716 @@
+@import "../../css/units.css";
+@import "../../css/colors.css";
+@import "../../css/z-index.css";
+
+.page-wrapper {
+    height: 100%;
+    position: relative;
+}
+
+.body-wrapper {
+    height: calc(100% - $menu-bar-height);
+    background-color: $ui-primary;
+}
+
+.body-wrapper-custom-ui.body-wrapper-custom-ui {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: auto;
+}
+
+.body-wrapper-menu-collapsed {
+    height: 100%;
+}
+
+.body-wrapper * {
+    box-sizing: border-box;
+}
+
+.flex-wrapper {
+    display: flex;
+    position: relative;
+
+    /*
+        Make 2 columns:
+        a) for the blocks + workspace panes, and
+        b) for combined stage menu + stage + sprite/stage selectors
+    */
+    flex-direction: row;
+    height: 100%;
+
+    /*
+        Stop scrollbar popping in and out from scratch-blocks border issue
+        https://github.com/LLK/scratch-gui/issues/318
+        TW: and also fix double horizontal scrollbar at some screen sizes in paint editor
+    */
+    overflow: hidden;
+}
+
+.window-background-layer {
+    position: absolute;
+    top: calc(-1 * var(--tw-editor-background-blur, 0px));
+    right: calc(-1 * var(--tw-editor-background-blur, 0px));
+    bottom: calc(-1 * var(--tw-editor-background-blur, 0px));
+    left: calc(-1 * var(--tw-editor-background-blur, 0px));
+    background-image: var(--tw-editor-background-image);
+    background-size: cover;
+    background-position: center;
+    filter: blur(var(--tw-editor-background-blur, 0px));
+    pointer-events: none;
+    z-index: 0;
+}
+
+.editor-desktop {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.editor-desktop-custom-ui.editor-desktop-custom-ui {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.editor-desktop-backpack {
+    position: absolute;
+    left: calc($space * 2);
+    right: auto;
+    bottom: $space;
+    width: 28rem;
+    z-index: 110;
+}
+
+.editor-draggable-window {
+    min-width: 0;
+}
+
+.editor-window-body {
+    height: 100%;
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.editor-window-body > .editor-wrapper {
+    width: 100%;
+    height: 100%;
+    flex-basis: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.editor-window-body .tabs {
+    height: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+}
+
+.editor-window-body .tab-list {
+    width: 100%;
+}
+
+.editor-window-body .tab-panel {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+}
+
+.editor-window-body .blocks-wrapper {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+}
+
+.editor-window-preview {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.editor-window-snapshot {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    overflow: hidden;
+    background: $ui-primary;
+}
+
+.editor-window-snapshot-content {
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    user-select: none;
+    overflow: hidden;
+}
+
+.editor-window-preview-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+    width: 100%;
+}
+
+.editor-window-preview-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: $text-primary;
+    text-align: center;
+}
+
+.editor-window-preview-subtitle {
+    font-size: 0.95rem;
+    color: $text-primary;
+    text-align: center;
+}
+
+.editor-window-preview-hint {
+    font-size: 0.82rem;
+    color: $text-primary-transparent;
+    text-align: center;
+}
+
+.editor-window-preview-image-frame {
+    width: min(100%, 16rem);
+    height: 12rem;
+    border-radius: 0.85rem;
+    border: 1px solid $ui-black-transparent;
+    background: $ui-white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.editor-window-preview-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.editor-window-preview-empty {
+    padding: 0 1rem;
+    text-align: center;
+    color: $text-primary-transparent;
+}
+
+.editor-window-preview-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.editor-window-title-text {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.editor-window-header-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    padding: 0;
+    border: none;
+    border-radius: 0.35rem;
+    background: transparent;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.editor-window-header-button:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.editor-window-header-button-active {
+    background: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+}
+
+.editor-wrapper {
+    /*
+        This is carefully balanced--  the minimum width at which the GUI will be displayed is 1024px.
+        At that size, the stage pane is 408px wide, with $space of padding to each side.
+        However, we must also add the border width to the stage pane. All-in-all, the stage pane's final width is
+        408px + ($space + $stage-standard-border-width * 2) (one border & padding per left/right side).
+
+        @todo This is in place to prevent "doubling up" of horizontal scrollbars in narrow windows, but there are likely
+        much better ways to solve that (e.g. undo #2124, remove this flex-basis entirely). However, they run their own
+        risks of breaking things, so let's just leave this as-is for the time being.
+    */
+    flex-basis: calc(1024px - 408px - (($space + $stage-standard-border-width) * 2));
+    flex-grow: 1;
+    flex-shrink: 0;
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.tab-list {
+    height: $stage-menu-height;
+    width: 250px; /* Match width of the toolbox */
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    font-size: 0.80rem;
+
+    /* Overrides for react-tabs styling */
+    margin: 0 !important;
+    border-bottom: 0 !important;
+
+    color: $text-primary;
+}
+
+.tab {
+    flex-grow: 1;
+    height: 80%;
+    margin-bottom: 0;
+
+    border-radius: 1rem 1rem 0 0;
+    border: 1px solid $ui-black-transparent;
+
+    padding: 0.125rem 1.25rem 0;
+    font-size: 0.75rem;
+
+    background-color: $ui-tertiary;
+    color: $text-primary-transparent;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    user-select: none;
+    white-space: nowrap;
+}
+
+[dir="ltr"] .tab {
+    margin-left: -0.5rem;
+}
+
+[dir="rtl"] .tab {
+    margin-right: -0.5rem;
+}
+
+[dir="ltr"] .tab:nth-of-type(1) {
+    margin-left: 0;
+}
+
+[dir="rtl"] .tab:nth-of-type(1) {
+    margin-right: 0;
+}
+
+/* Use z-indices to force left-on-top for tabs */
+.tab:nth-of-type(1) {
+    z-index: 3;
+}
+.tab:nth-of-type(2) {
+    z-index: 2;
+}
+.tab:nth-of-type(3) {
+    z-index: 1;
+}
+
+.tab:hover {
+  background-color: $ui-primary;
+}
+
+.tab.is-selected {
+    height: 90%;
+    color: $looks-secondary;
+    background-color: $ui-white;
+    z-index: 4; /* Make sure selected is always above */
+}
+
+.tab img {
+    width: 1.375rem;
+    filter: grayscale(100%);
+}
+
+[dir="ltr"] .tab img {
+    margin-right: 0.125rem;
+}
+
+[dir="rtl"] .tab img {
+    margin-left: 0.125rem;
+}
+
+/* mirror blocks and sound tab icons */
+[dir="rtl"] .tab:nth-of-type(1) img {
+    transform: scaleX(-1);
+}
+
+[dir="rtl"] .tab:nth-of-type(3) img {
+    transform: scaleX(-1);
+}
+
+.tab.is-selected img {
+    filter: none;
+}
+
+/* Tab style overrides from react-tabs */
+.tab.is-selected:after {
+    display: none;
+}
+
+.tab.is-selected:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: $ui-black-transparent;
+}
+
+.tab.is-selected:focus:after {
+    display: none;
+}
+
+/* Body of the tabs */
+.tabs {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+}
+
+.tab-panel {
+    position: relative;
+    flex-grow: 1;
+    display: none;
+    min-width: 0;
+    min-height: 0;
+}
+
+.tab-panel.is-selected {
+    display: flex;
+}
+
+.blocks-wrapper {
+    flex-grow: 1;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+}
+
+.stage-and-target-wrapper {
+    /*
+        Makes rows for children:
+          1) stage menu
+          2) stage
+          3) sprite/stage selectors
+        Only reason we need this, is so .targetWrapper, which holds the selectors,
+        goes to full vertical height of the window
+    */
+    display: flex;
+    flex-direction: column;
+    /* pad entire wrapper to the left and right; allow children to fill width */
+    padding-left: $space;
+    padding-right: $space;
+
+    /* this will only ever be as wide as the stage */
+    flex-basis: 0;
+    
+    /* Align stage and target wrapper to fill the width */
+    align-items: stretch;
+    margin-top: -10px;
+}
+
+.target-wrapper {
+    display: flex;
+    flex-grow: 1;
+    flex-basis: 0;
+
+    padding-top: $space;
+    min-height: 0; /* this makes it work in Firefox */
+}
+
+.extension-button-container {
+    width: 3.75rem;
+    height: 3.25rem;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: $z-index-extension-button;
+    background: $looks-secondary;
+
+    border: 1px solid $looks-secondary;
+    box-sizing: content-box; /* To match scratch-block vertical toolbox borders */
+}
+
+$fade-out-distance: 15px;
+
+.extension-button-container:before {
+    content: "";
+    position: absolute;
+    top: calc(calc(-1 * $fade-out-distance) - 1px);
+    left: -1px;
+    background: linear-gradient(rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.15));
+    height: $fade-out-distance;
+    width: calc(100% + 0.5px);
+}
+
+
+.extension-button {
+    background: none;
+    border: none;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    user-select: none;
+}
+
+.extension-button-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+}
+
+[dir="rtl"] .extension-button-icon {
+    transform: scaleX(-1);
+}
+
+.extension-button > div {
+    margin-top: 0;
+}
+
+/* Sprite Selection Watermark */
+.watermark {
+    position: absolute;
+    top: 1.25rem;
+    pointer-events: none;
+}
+
+[dir="ltr"] .watermark {
+    right: 1.25rem;
+}
+
+[dir="rtl"] .watermark {
+    left: 1.25rem;
+}
+
+/* Menu */
+
+.menu-bar-position {
+    position: relative;
+    z-index: $z-index-menu-bar;
+}
+
+.menu-bar-position-custom-ui.menu-bar-position-custom-ui {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+}
+
+/* Alerts */
+
+.alerts-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    z-index: $z-index-alerts;
+    position: absolute;
+    margin-top: 53px;
+    pointer-events: none;
+}
+
+.alerts-container-hidden {
+    display: none;
+}
+
+/*
+    Make the (background) page not scrollable when modals are open
+    This CSS class is automatically added to the body when react-modal is open
+*/
+:global(.ReactModal__Body--open) {
+    overflow: hidden;
+}
+
+/* when in the browser's fullscreen mode, we need to put our own background to avoid just having black */
+.fullscreen-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* overridden by JS; this will be used if the browser can't understand that color */
+    background-color: white;
+}
+
+.project-explorer-launcher {
+    position: absolute;
+    top: calc($menu-bar-height + 0.65rem);
+    left: 0.65rem;
+    z-index: 480;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    height: 2rem;
+    padding: 0 0.7rem 0 0.45rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.6rem;
+    background: rgba(255, 255, 255, 0.96);
+    color: $text-primary;
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.12);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.project-explorer-launcher:hover,
+.project-explorer-launcher:focus-visible {
+    border-color: rgba(77, 151, 255, 0.45);
+    background: $ui-white;
+    outline: none;
+    box-shadow: 0 6px 20px rgba(77, 151, 255, 0.18);
+}
+
+.project-explorer-launcher-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.35rem;
+    background: rgba(77, 151, 255, 0.12);
+    color: $motion-primary;
+    font-size: 0.85rem;
+}
+
+
+
+.project-inspector-launcher {
+    position: absolute;
+    top: calc($menu-bar-height + 0.65rem);
+    right: 0.65rem;
+    z-index: 480;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    height: 2rem;
+    padding: 0 0.7rem 0 0.45rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.6rem;
+    background: rgba(255, 255, 255, 0.96);
+    color: $text-primary;
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.12);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.project-inspector-launcher:hover,
+.project-inspector-launcher:focus-visible {
+    border-color: rgba(77, 151, 255, 0.45);
+    background: $ui-white;
+    outline: none;
+    box-shadow: 0 6px 20px rgba(77, 151, 255, 0.18);
+}
+
+.project-inspector-launcher-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.35rem;
+    background: rgba(77, 151, 255, 0.12);
+    color: $motion-primary;
+    font-size: 0.85rem;
+}
+
+
+.asset-manager-launcher {
+    position: absolute;
+    top: calc($menu-bar-height + 3rem);
+    left: 0.65rem;
+    z-index: 480;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    height: 2rem;
+    padding: 0 0.7rem 0 0.45rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.6rem;
+    background: rgba(255, 255, 255, 0.96);
+    color: $text-primary;
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.12);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.asset-manager-launcher:hover,
+.asset-manager-launcher:focus-visible {
+    border-color: rgba(77, 151, 255, 0.45);
+    background: $ui-white;
+    outline: none;
+    box-shadow: 0 6px 20px rgba(77, 151, 255, 0.18);
+}
+
+.asset-manager-launcher-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.35rem;
+    background: rgba(77, 151, 255, 0.12);
+    color: $motion-primary;
+    font-size: 0.85rem;
+}
+
+.project-explorer-launcher-icon svg,
+.project-inspector-launcher-icon svg,
+.asset-manager-launcher-icon svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.legacy-compatibility-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 1.25rem;
+    padding: 0 0.4rem;
+    border: 1px solid rgba(128, 128, 128, 0.35);
+    border-radius: 999px;
+    background: rgba(128, 128, 128, 0.08);
+    color: rgba(230, 230, 230, 0.82);
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}

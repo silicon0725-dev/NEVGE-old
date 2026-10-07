@@ -1,0 +1,63 @@
+@import "../../css/units.css";
+@import "../../css/colors.css";
+
+.target-pane {
+    /* Makes columns for the sprite library selector + and the stage selector */
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.stage-selector-wrapper {
+    display: flex;
+    flex-basis: 72px;
+    flex-shrink: 0;
+}
+
+[dir="ltr"] .stage-selector-wrapper {
+    margin-left: calc($space / 2);
+}
+
+[dir="rtl"] .stage-selector-wrapper {
+    margin-right: calc($space / 2);
+}
+
+.compatibility-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0.45rem 0.45rem 0;
+    padding: 0.5rem 0.55rem;
+    border: 1px solid rgba(120, 120, 120, 0.28);
+    border-radius: 0.4rem;
+    background: rgba(120, 120, 120, 0.08);
+    color: $text-primary;
+    font-size: 0.64rem;
+    line-height: 1.35;
+}
+
+.compatibility-notice > div {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.compatibility-notice strong {
+    font-size: 0.68rem;
+}
+
+.compatibility-notice span {
+    color: $text-primary-transparent;
+}
+
+.compatibility-notice-icon {
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.05rem;
+    color: $text-primary-transparent;
+}

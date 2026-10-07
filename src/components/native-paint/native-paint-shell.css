@@ -1,0 +1,409 @@
+.root,
+.compatibilityRoot {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    color: #d9dde5;
+    background: #24272b;
+}
+
+.root {
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.compatibilityRoot {
+    position: relative;
+}
+
+.compatibilityCanvas {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+}
+
+.compatibilityCanvas > * {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+}
+
+.contextBar {
+    display: flex;
+    flex: 0 0 38px;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+    padding: 0 8px 0 10px;
+    border-bottom: 1px solid #121417;
+    background: #303338;
+    box-shadow: inset 0 -1px rgba(255, 255, 255, 0.035);
+    gap: 10px;
+}
+
+.contextIdentity,
+.contextActions,
+.statusLeft,
+.statusRight {
+    display: flex;
+    align-items: center;
+}
+
+.contextIdentity {
+    min-width: 0;
+    gap: 8px;
+}
+
+.contextActions {
+    flex: 0 0 auto;
+    gap: 5px;
+}
+
+.modeBadge {
+    padding: 3px 7px;
+    border: 1px solid #4b4f56;
+    border-radius: 3px;
+    color: #dfe4ec;
+    background: #3a3d43;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.contextTool {
+    color: #f0f2f5;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.documentLabel {
+    overflow: hidden;
+    max-width: 260px;
+    color: #9da3ad;
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.contextDivider,
+.actionDivider,
+.statusDivider {
+    display: block;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.contextDivider {
+    height: 16px;
+}
+
+.actionDivider {
+    height: 20px;
+    margin: 0 2px;
+}
+
+.statusDivider {
+    height: 12px;
+}
+
+.iconButton,
+.toolButton,
+.panelButton,
+.secondaryButton,
+.primaryButton,
+.panelHeader button {
+    border: 1px solid transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.iconButton {
+    display: grid;
+    width: 28px;
+    height: 27px;
+    border-radius: 3px;
+    padding: 4px;
+    background: transparent;
+    place-items: center;
+}
+
+.iconButton svg,
+.toolButton svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.iconButton:hover:not(:disabled),
+.toolButton:hover:not(:disabled),
+.panelButton:hover,
+.secondaryButton:hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.11);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.iconButton:disabled,
+.secondaryButton:disabled,
+.primaryButton:disabled,
+.toolButton:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.secondaryButton,
+.primaryButton {
+    height: 27px;
+    border-radius: 3px;
+    padding: 0 9px;
+    font-size: 10px;
+}
+
+.secondaryButton {
+    border-color: #50545b;
+    background: #383b40;
+}
+
+.primaryButton {
+    border-color: #2e7eea;
+    color: #fff;
+    background: #2e7eea;
+}
+
+.primaryButton:hover:not(:disabled) {
+    background: #3b88ef;
+}
+
+.notice {
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    border-bottom: 1px solid rgba(225, 170, 90, 0.25);
+    color: #e6b873;
+    background: #3b3020;
+    font-size: 10px;
+}
+
+.workarea {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    background: #1d2023;
+}
+
+.toolRail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 7px 5px;
+    border-right: 1px solid #121417;
+    background: #2b2e32;
+    gap: 3px;
+}
+
+.toolButton {
+    display: grid;
+    width: 31px;
+    height: 31px;
+    border-radius: 4px;
+    padding: 5px;
+    color: #c8ccd3;
+    background: transparent;
+    place-items: center;
+}
+
+.toolButtonActive {
+    border-color: #2788f7 !important;
+    color: #fff;
+    background: #287edb !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.canvasColumn {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.canvasChrome {
+    position: relative;
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: #222529;
+}
+
+.canvasChrome > * {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+}
+
+.statusBar {
+    display: flex;
+    flex: 0 0 25px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    border-top: 1px solid #121417;
+    color: #9298a1;
+    background: #2b2e32;
+    font-size: 9px;
+}
+
+.statusLeft,
+.statusRight {
+    gap: 7px;
+}
+
+.stateDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #5cb778;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.stateDotDirty {
+    background: #e5a847;
+}
+
+.stateDotStale {
+    background: #df6868;
+}
+
+.panelDock {
+    display: flex;
+    min-height: 0;
+    border-left: 1px solid #121417;
+    background: #2b2e32;
+}
+
+.panelRail {
+    display: flex;
+    flex-direction: column;
+    width: 34px;
+    align-items: center;
+    padding: 6px 4px;
+    gap: 4px;
+}
+
+.panelButton {
+    display: grid;
+    width: 26px;
+    height: 26px;
+    border-radius: 3px;
+    color: #aeb4bd;
+    background: transparent;
+    font-size: 10px;
+    font-weight: 700;
+    place-items: center;
+}
+
+.panelButtonActive {
+    border-color: #555a61;
+    color: #fff;
+    background: #3b3f44;
+}
+
+.panelDrawer {
+    width: 190px;
+    min-height: 0;
+    border-left: 1px solid #16181b;
+    background: #303338;
+}
+
+.panelHeader {
+    display: flex;
+    height: 33px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px 0 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.35);
+    font-size: 10px;
+}
+
+.panelHeader button {
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    color: #aab0b9;
+    background: transparent;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.panelEmpty {
+    padding: 12px 10px;
+    color: #8f959e;
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+    .documentLabel,
+    .contextDivider,
+    .panelDock {
+        display: none;
+    }
+
+    .workarea {
+        grid-template-columns: 40px minmax(0, 1fr);
+    }
+}
+
+.selectionActions {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+    gap: 3px;
+}
+
+.compactActionButton {
+    flex: 0 0 auto;
+    height: 25px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 0 6px;
+    color: #c5cad2;
+    background: transparent;
+    font: inherit;
+    font-size: 9px;
+    cursor: pointer;
+}
+
+.compactActionButton:hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.11);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.compactActionButton:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.zoomSelect {
+    height: 20px;
+    border: 1px solid #454a51;
+    border-radius: 3px;
+    padding: 0 4px;
+    color: #b9bfc8;
+    background: #25282c;
+    font: inherit;
+    font-size: 9px;
+}

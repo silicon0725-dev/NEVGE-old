@@ -1,0 +1,96 @@
+{
+  "stage": "WS-9F",
+  "title": "Project / Resource Capability Provider Foundation",
+  "status": "COMPLETE / VERIFIED",
+  "authority": "ARC-0001",
+  "baseline": "WS-9E COMPLETE / VERIFIED",
+  "identities": {
+    "providerRegistry": "ngvge.workspace-capability-provider-registry@1",
+    "projectReadCapability": "ngvge.workspace-project-read-capability@1",
+    "projectCommandCapability": "ngvge.workspace-project-command-capability@1",
+    "resourceReadCapability": "ngvge.workspace-resource-read-capability@1",
+    "resourceCommandCapability": "ngvge.workspace-resource-command-capability@1",
+    "projectSnapshotSchemaVersion": 1,
+    "resourceDescriptorSchemaVersion": 1,
+    "resourceCommandSchemaVersion": 1,
+    "canonicalResourceIdentity": "ngvge:resource:*",
+    "globalAssetDatabaseVersion": 3
+  },
+  "productionProviders": {
+    "projectReadQuery": "ready when ProjectLifecycleHost is available",
+    "projectCommandPropose": "provider-unavailable: NGVGE_WORKSPACE_PROJECT_COMMAND_AUTHORITY_NOT_READY",
+    "projectCommandMutate": "provider-unavailable: NGVGE_WORKSPACE_PROJECT_COMMAND_AUTHORITY_NOT_READY",
+    "resourceReadQuery": "ready when canonical Resource authority is available",
+    "resourceCommandPropose": "ready when canonical Resource command authority is available",
+    "resourceCommandMutate": "ready when canonical Resource command authority is available"
+  },
+  "resourceIdentityRules": {
+    "internalGlobalAssetIdRemainsCompatibilityOnly": true,
+    "canonicalResourceIdPersisted": true,
+    "legacyRecordsWithoutResourceIdMigrated": true,
+    "backingAssetReplacementPreservesResourceId": true,
+    "workspaceContextRequiresCanonicalResourceId": true,
+    "assetManagerProjectsCanonicalResourceId": true,
+    "legacyV2ReadableAndMigratedToV3": true
+  },
+  "projectRules": {
+    "projectReadIsPortable": true,
+    "sessionProjectContextIdNotClaimedAsPersistentProjectId": true,
+    "scratchProjectJsonNotExposed": true,
+    "vmLoadProjectNotExposed": true,
+    "nativeProjectCommandAuthorityFabricated": false,
+    "projectCommandFailsClosedUntilNativeHostExists": true
+  },
+  "resourceRules": {
+    "portableDescriptorsOnly": true,
+    "scratchAssetIdentityNotToolVisible": true,
+    "rawAssetObjectsNotToolVisible": true,
+    "commandKinds": [
+      "rename",
+      "move",
+      "delete"
+    ],
+    "commandAddressingUsesResourceId": true,
+    "internalDatabaseIdResolvedInsideProvider": true,
+    "historySeamUsedForMutation": true,
+    "invalidFolderFailsBeforeMutation": true,
+    "binaryReplacementExposed": false
+  },
+  "capabilityRules": {
+    "descriptorUniquenessKey": "capabilityId#access",
+    "proposeAndMutateCanBeIndependentlyRequested": true,
+    "duplicateExactSurfaceFailsClosed": true,
+    "dynamicProviderAvailabilityRechecked": true,
+    "providerRegistryIsNotProjectAuthority": true,
+    "providerRegistryIsNotResourceAuthority": true
+  },
+  "verification": {
+    "machineChecks": "15/15 PASS",
+    "focusedNodeJest": "6 suites / 51 tests PASS",
+    "focusedDomJest": "1 suite / 3 tests PASS",
+    "focusedCombined": "7 suites / 54 tests PASS",
+    "projectResourceWebpack": "0 errors / 0 warnings",
+    "unitNode": "133 suites / 717 tests PASS",
+    "unitDom": "3 suites / 27 tests PASS",
+    "unitTotal": "136 suites / 744 tests PASS",
+    "integration": "4 suites / 5 tests PASS",
+    "smoke": "1 suite / 1 test PASS",
+    "typescript": "PASS",
+    "eslintCorrectness": "PASS",
+    "permanentRegression": "19/19 PASS",
+    "arcC0011Baseline": "7/7 PASS",
+    "lscG1": "19/19 machine PASS + 7/7 certification tests PASS",
+    "lrcG1": "15/15 machine PASS",
+    "lplG1": "17/17 machine PASS + 9/9 certification tests PASS",
+    "lexG1": "19/19 machine PASS + 9/9 certification tests PASS",
+    "col0": "15/15 machine PASS + 4 suites / 12 tests PASS",
+    "ws8Focused": "27/27 machine PASS; 6 suites / 22 tests PASS",
+    "ws9aFocused": "12/12 machine PASS; 2 suites / 15 tests PASS",
+    "ws9bFocused": "12/12 machine PASS; 3 suites / 24 tests PASS",
+    "ws9cFocused": "12/12 machine PASS; runtime 3 suites / 21 tests PASS; DOM 2 suites / 24 tests PASS",
+    "ws9dFocused": "13/13 machine PASS; 7 suites / 35 tests PASS",
+    "ws9eFocused": "14/14 machine PASS; 6 suites / 36 tests PASS",
+    "fullEditorWebpack": "INCONCLUSIVE: execution environment 120s timeout; no compile error emitted before timeout; no Webpack process remained; not counted as PASS"
+  },
+  "nextRecommendedStage": "WS-9G | Project Command Host & Transaction Foundation"
+}

@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['24', '22']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Verify toolchain authority
+        run: |
+          node --version
+          bun --version
+          node scripts/validate-package-manager-authority.js
+
+      - name: Install dependencies from bun.lock
+        run: bun install --frozen-lockfile
+
+      - name: Verify test gate integrity
+        run: node scripts/validate-smoke-integration-gates.js
+
+      - name: Regression tests
+        run: bun run test:regression
+
+      - name: Smoke tests
+        run: bun run test:smoke
+
+      - name: Unit tests
+        run: bun run test:unit
+
+      - name: Integration tests
+        run: bun run test:integration
+
+      - name: ESLint correctness gate
+        run: bun run test:lint
+
+      - name: TypeScript 02agent gate
+        run: bun run test:typecheck
+
+      - name: Production build
+        run: bun run build

@@ -1,0 +1,681 @@
+diff -ruN work_872/scratch-gui-main/docs/TASK-0008.7.2.1-SPRITE-TREE-OWNERSHIP-HOTFIX.md work_872_hotfix/docs/TASK-0008.7.2.1-SPRITE-TREE-OWNERSHIP-HOTFIX.md
+--- work_872/scratch-gui-main/docs/TASK-0008.7.2.1-SPRITE-TREE-OWNERSHIP-HOTFIX.md	1970-01-01 00:00:00.000000000 +0000
++++ work_872_hotfix/docs/TASK-0008.7.2.1-SPRITE-TREE-OWNERSHIP-HOTFIX.md	2026-08-04 12:41:31.559517032 +0000
+@@ -0,0 +1,28 @@
++# Task 0008.7.2.1 — Sprite Tree Ownership Hotfix
++
++## Problem
++
++0008.7.2 exposed two parallel editor representations for the same Scratch Sprite:
++
++- the Runtime `ngvge.scratch-sprite-node` adapter node;
++- the legacy `project-nodes` Scratch target node.
++
++The legacy node database also retained its previous state when a scene snapshot omitted the node-tree project section. This allowed compatibility children from one scene to be rebound to a target in another scene. When a Scratch target was deleted, its compatibility children were promoted to the root instead of being deleted with the target-owned subtree.
++
++## Fix
++
++- Project Explorer uses the adapter node as the single visible Sprite row when a stable binding is active.
++- Legacy compatibility children are rendered beneath that adapter node instead of beneath a second `Sprite` row.
++- Selecting the unified row selects both the Runtime Node and the bound Scratch target.
++- Scene-local project sections can opt into `clearOnMissing`; the compatibility node tree uses this contract.
++- Loading a snapshot without node-tree data resets the compatibility tree for the newly loaded scene.
++- Removing a Scratch target recursively removes its target-backed compatibility subtree.
++- The adapter listens to both Runtime `TARGETS_UPDATE` and public VM `targetsUpdate` events; duplicate event turns are coalesced.
++
++## Version
++
++Scene System: `0.7.2.1`
++
++## Existing orphan note
++
++Compatibility nodes already promoted to the scene root by an older build have lost their original target ownership. The hotfix does not automatically delete those ambiguous nodes. They can be removed manually once; subsequent Sprite deletions use recursive target ownership cleanup.
+diff -ruN work_872/scratch-gui-main/src/components/project-explorer/project-explorer.jsx work_872_hotfix/src/components/project-explorer/project-explorer.jsx
+--- work_872/scratch-gui-main/src/components/project-explorer/project-explorer.jsx	2026-08-04 11:05:09.000000000 +0000
++++ work_872_hotfix/src/components/project-explorer/project-explorer.jsx	2026-08-04 12:32:34.815530462 +0000
+@@ -35,6 +35,8 @@
+ const SCENE_DATA_MODEL_CAPABILITY_ID = 'ngvge.scene-data-model';
+ const SCENE_RUNTIME_CAPABILITY_ID = 'ngvge.scene-runtime';
+ const RUNTIME_NODE_MODEL_CAPABILITY_ID = 'ngvge.runtime-node-model';
++const SCRATCH_SPRITE_ADAPTER_CAPABILITY_ID = 'ngvge.scratch-sprite-node-adapter';
++const SCRATCH_SPRITE_NODE_TYPE_ID = 'ngvge.scratch-sprite-node';
+ 
+ const DisclosureIcon = ({expanded}) => (
+     <svg
+@@ -759,6 +761,7 @@
+     const [nodeRevision, setNodeRevision] = React.useState(0);
+     const [sceneRevision, setSceneRevision] = React.useState(0);
+     const [runtimeNodeRevision, setRuntimeNodeRevision] = React.useState(0);
++    const [scratchBindingRevision, setScratchBindingRevision] = React.useState(0);
+     const [runtimeEditorNotice, setRuntimeEditorNotice] = React.useState(null);
+     const previousEditingTargetIdRef = React.useRef(editingTargetId);
+     const previousActiveSceneIdRef = React.useRef(null);
+@@ -795,6 +798,8 @@
+     const sceneRuntime = sceneSystemEnabled ? moduleManager.getCapability(SCENE_RUNTIME_CAPABILITY_ID) : null;
+     const runtimeNodeModel = sceneSystemEnabled ?
+         moduleManager.getCapability(RUNTIME_NODE_MODEL_CAPABILITY_ID) : null;
++    const scratchSpriteAdapter = sceneSystemEnabled ?
++        moduleManager.getCapability(SCRATCH_SPRITE_ADAPTER_CAPABILITY_ID) : null;
+     const reportRuntimeNodeError = React.useCallback((error, context = {}) => {
+         const presented = presentRuntimeNodeError(error, context);
+         setRuntimeEditorNotice(Object.assign({kind: 'error'}, presented));
+@@ -869,6 +874,14 @@
+     }, [reportRuntimeNodeError, runtimeNodeModel]);
+ 
+     React.useEffect(() => {
++        if (!scratchSpriteAdapter || typeof scratchSpriteAdapter.subscribe !== 'function') return () => {};
++        setScratchBindingRevision(revision => revision + 1);
++        return scratchSpriteAdapter.subscribe(() => {
++            setScratchBindingRevision(revision => revision + 1);
++        });
++    }, [scratchSpriteAdapter]);
++
++    React.useEffect(() => {
+         if (!sceneSystemEnabled || !activeScene) return;
+         const sceneTreeNodeId = getSceneTreeNodeId(activeScene.id);
+         if (expandedNodeIds.indexOf(sceneTreeNodeId) === -1) onToggleNode(sceneTreeNodeId, true);
+@@ -932,6 +945,28 @@
+         runtimeNodes.forEach(node => map.set(node.id, node));
+         return map;
+     }, [runtimeNodes]);
++    const scratchBindings = React.useMemo(() => {
++        void scratchBindingRevision;
++        if (!scratchSpriteAdapter || typeof scratchSpriteAdapter.listBindings !== 'function') return [];
++        try {
++            return scratchSpriteAdapter.listBindings();
++        } catch {
++            return [];
++        }
++    }, [scratchBindingRevision, scratchSpriteAdapter]);
++    const scratchBindingByNodeId = React.useMemo(() => {
++        const map = new Map();
++        scratchBindings.forEach(binding => map.set(binding.nodeId, binding));
++        return map;
++    }, [scratchBindings]);
++    const scratchBindingByTargetRuntimeId = React.useMemo(() => {
++        const map = new Map();
++        scratchBindings.forEach(binding => {
++            if (binding.targetRuntimeId) map.set(binding.targetRuntimeId, binding);
++        });
++        return map;
++    }, [scratchBindings]);
++
+     const selectableNodeById = React.useMemo(() => {
+         const map = new Map(nodeById);
+         runtimeNodeById.forEach((node, nodeId) => map.set(nodeId, node));
+@@ -975,7 +1010,12 @@
+         getRuntimeRoot('scene', activeScene.id) : null;
+     const customNodeCount = allNodes.filter(node => !node.targetId).length;
+     const nativeRuntimeNodeCount = runtimeNodes.length;
+-    const nonStageEntityCount = entityNodes.filter(node => node.kind !== 'stage').length;
++    const visibleEntityNodeCount = entityNodes.filter(node => (
++        node.kind === 'stage' || !scratchBindingByTargetRuntimeId.has(node.targetId)
++    )).length;
++    const nonStageEntityCount = entityNodes.filter(node => (
++        node.kind !== 'stage' && !scratchBindingByTargetRuntimeId.has(node.targetId)
++    )).length;
+     const activeRuntimeNodeCount = runtimeNodes.filter(node => node.sceneId === activeSceneId).length;
+     const sceneNodeTreeEmpty = customNodeCount === 0 && nonStageEntityCount === 0 && activeRuntimeNodeCount === 0;
+ 
+@@ -1008,6 +1048,11 @@
+         const editingTargetChanged = previousEditingTargetIdRef.current !== editingTargetId;
+         previousEditingTargetIdRef.current = editingTargetId;
+         const selectedRuntimeNode = selectedNodeId ? runtimeNodeById.get(selectedNodeId) : null;
++        const adapterBinding = scratchBindingByTargetRuntimeId.get(editingTargetId);
++        if (adapterBinding) {
++            if (selectedNodeId !== adapterBinding.nodeId) onSelectNode(adapterBinding.nodeId);
++            return;
++        }
+         if (selectedRuntimeNode && !editingTargetChanged) return;
+         const selectedNode = selectedNodeId ? nodeDatabase.getNode(selectedNodeId) : null;
+         if (selectedNode && !editingTargetChanged) return;
+@@ -1015,7 +1060,15 @@
+         if (selectedTargetNode && selectedTargetNode.targetId === editingTargetId) return;
+         const targetNode = nodeDatabase.getNodeForTarget(editingTargetId);
+         if (targetNode && targetNode.id !== selectedNodeId) onSelectNode(targetNode.id);
+-    }, [editingTargetId, nodeDatabase, nodeRevision, onSelectNode, runtimeNodeById, selectedNodeId]);
++    }, [
++        editingTargetId,
++        nodeDatabase,
++        nodeRevision,
++        onSelectNode,
++        runtimeNodeById,
++        scratchBindingByTargetRuntimeId,
++        selectedNodeId
++    ]);
+ 
+     React.useEffect(() => () => {
+         if (dragExpandTimerRef.current) window.clearTimeout(dragExpandTimerRef.current);
+@@ -1026,7 +1079,9 @@
+         if (!normalizedSearchQuery) return null;
+         const matchIds = new Set();
+         const visibleIds = new Set();
+-        const searchNodes = allNodes.concat(runtimeNodes);
++        const searchNodes = allNodes.filter(node => (
++            !node.targetId || !scratchBindingByTargetRuntimeId.has(node.targetId)
++        )).concat(runtimeNodes);
+         searchNodes.forEach(node => {
+             const runtimeNode = runtimeNodeById.has(node.id);
+             const nodeType = runtimeNode ?
+@@ -1048,6 +1103,18 @@
+             while (current && !visited.has(current.id)) {
+                 visited.add(current.id);
+                 visibleIds.add(current.id);
++                if (current.targetId) {
++                    const binding = scratchBindingByTargetRuntimeId.get(current.targetId);
++                    if (binding) {
++                        let runtimeCurrent = selectableNodeById.get(binding.nodeId);
++                        while (runtimeCurrent && !visited.has(runtimeCurrent.id)) {
++                            visited.add(runtimeCurrent.id);
++                            visibleIds.add(runtimeCurrent.id);
++                            runtimeCurrent = runtimeCurrent.parentId ?
++                                selectableNodeById.get(runtimeCurrent.parentId) : null;
++                        }
++                    }
++                }
+                 current = current.parentId ? selectableNodeById.get(current.parentId) : null;
+             }
+         });
+@@ -1059,6 +1126,7 @@
+         runtimeNodeById,
+         runtimeNodeModel,
+         runtimeNodes,
++        scratchBindingByTargetRuntimeId,
+         selectableNodeById
+     ]);
+     const searchActive = Boolean(searchResult);
+@@ -1068,11 +1136,13 @@
+     const activatePrimaryNode = React.useCallback(node => {
+         if (!node) return;
+         onSelectNode(node.id);
++        const scratchBinding = scratchBindingByNodeId.get(node.id);
++        if (scratchBinding && scratchBinding.targetRuntimeId) onSelectTarget(scratchBinding.targetRuntimeId);
+         if (runtimeNodeById.has(node.id) || (node.protected && node.scope)) return;
+         if (!nodeDatabase) return;
+         const targetNode = node.targetId ? node : nodeDatabase.getNearestTargetNode(node.id);
+         if (targetNode && targetNode.targetId) onSelectTarget(targetNode.targetId);
+-    }, [nodeDatabase, onSelectNode, onSelectTarget, runtimeNodeById]);
++    }, [nodeDatabase, onSelectNode, onSelectTarget, runtimeNodeById, scratchBindingByNodeId]);
+ 
+     const setSelectionAndActivate = React.useCallback((nodeIds, primaryNodeId) => {
+         const validIds = Array.from(new Set(nodeIds)).filter(nodeId => selectableNodeById.has(nodeId));
+@@ -1134,6 +1204,7 @@
+             nodeDatabase.getChildren(node.id).forEach(visitVisibleNode);
+         };
+         entityNodes.forEach(entityNode => {
++            if (entityNode.kind === 'sprite' && scratchBindingByTargetRuntimeId.has(entityNode.targetId)) return;
+             const targetNode = nodeDatabase.getNodeForTarget(entityNode.targetId);
+             if (targetNode) visitVisibleNode(targetNode);
+         });
+@@ -1147,6 +1218,10 @@
+             visibleNodeOrder.push(node.id);
+             if (!isExpandedForRender(node.id)) return;
+             getRuntimeChildren(node.id).forEach(visitRuntimeVisibleNode);
++            const binding = scratchBindingByNodeId.get(node.id);
++            const targetNode = binding && binding.targetRuntimeId && nodeDatabase ?
++                nodeDatabase.getNodeForTarget(binding.targetRuntimeId) : null;
++            if (targetNode) nodeDatabase.getChildren(targetNode.id).forEach(visitVisibleNode);
+         };
+         if (globalRuntimeRoot && (searchActive || expandedNodeIds.indexOf(GLOBAL_SCOPE_NODE_ID) !== -1)) {
+             getRuntimeChildren(globalRuntimeRoot.id).forEach(visitRuntimeVisibleNode);
+@@ -1722,7 +1797,16 @@
+         const nodeType = runtimeNodeModel && typeof runtimeNodeModel.getNodeType === 'function' ?
+             runtimeNodeModel.getNodeType(node.typeId) : null;
+         const children = getRuntimeChildren(node.id).filter(child => isVisibleForSearch(child.id));
++        const scratchBinding = node.typeId === SCRATCH_SPRITE_NODE_TYPE_ID ?
++            scratchBindingByNodeId.get(node.id) : null;
++        const compatibilityTargetNode = scratchBinding && scratchBinding.targetRuntimeId && nodeDatabase ?
++            nodeDatabase.getNodeForTarget(scratchBinding.targetRuntimeId) : null;
++        const compatibilityChildren = compatibilityTargetNode && nodeDatabase ?
++            nodeDatabase.getChildren(compatibilityTargetNode.id)
++                .filter(child => isVisibleForSearch(child.id)) : [];
+         const acceptsChildren = !nodeType || nodeType.allowChildren !== false;
++        const scratchStatusLabel = scratchBinding ?
++            `Scratch Sprite · ${scratchBinding.status === 'bound' ? 'Bound' : scratchBinding.status}` : null;
+         return (
+             <TreeNode
+                 depth={depth}
+@@ -1735,10 +1819,20 @@
+                 label={node.name}
+                 nodeId={node.id}
+                 secondaryLabel={node.originalTypeId ? `Missing · ${node.originalTypeId}` : (
+-                    nodeType ? `${nodeType.label} · Native` : 'Native node'
++                    scratchStatusLabel || (nodeType ? `${nodeType.label} · Native` : 'Native node')
+                 )}
+-                selected={selectedNodeIds.indexOf(node.id) !== -1}
+-                onActivate={event => handleNodeSelection(node, event)}
++                selected={
++                    selectedNodeIds.indexOf(node.id) !== -1 ||
++                    (!selectedNodeIds.length && !selectedNodeId && scratchBinding &&
++                        scratchBinding.targetRuntimeId === editingTargetId)
++                }
++                targetId={scratchBinding ? scratchBinding.targetRuntimeId : null}
++                onActivate={event => {
++                    handleNodeSelection(node, event);
++                    if (scratchBinding && scratchBinding.targetRuntimeId) {
++                        onSelectTarget(scratchBinding.targetRuntimeId);
++                    }
++                }}
+                 onContextMenu={event => openRuntimeNodeContextMenu(event, node)}
+                 onDragEnd={clearDragState}
+                 onDragEnter={acceptsChildren ? event => handleRuntimeDragEnter(event, node.id, node.id) : null}
+@@ -1753,6 +1847,8 @@
+                 onToggle={handleToggleNode}
+             >
+                 {children.length ? children.map(child => renderRuntimeNode(child, depth + 1)) : null}
++                {compatibilityChildren.length ?
++                    compatibilityChildren.map(child => renderCustomNode(child, depth + 1)) : null}
+             </TreeNode>
+         );
+     };
+@@ -1760,6 +1856,7 @@
+     const rootCustomNodes = nodeDatabase ?
+         nodeDatabase.getChildren(null).filter(node => !node.targetId && isVisibleForSearch(node.id)) : [];
+     const visibleEntityNodes = entityNodes.filter(entityNode => {
++        if (entityNode.kind === 'sprite' && scratchBindingByTargetRuntimeId.has(entityNode.targetId)) return false;
+         if (!searchActive || !nodeDatabase) return true;
+         const targetNode = nodeDatabase.getNodeForTarget(entityNode.targetId);
+         return targetNode && isVisibleForSearch(targetNode.id);
+@@ -1949,7 +2046,7 @@
+                             secondaryLabel={
+                                 sceneSystemEnabled ? (
+                                     searchActive ? `${nodeSearchMatchCount} matches` :
+-                                        `${(nodeDatabase ? allNodes.length : entityNodes.length) + activeRuntimeNodeCount} nodes · Active`
++                                        `${visibleEntityNodeCount + customNodeCount + activeRuntimeNodeCount} nodes · Active`
+                                 ) : (
+                                     searchActive ? `${nodeSearchMatchCount} matches` :
+                                         (nodeDatabase ? allNodes.length : entityNodes.length)
+diff -ruN work_872/scratch-gui-main/src/lib/project-inspector/project-persistence.js work_872_hotfix/src/lib/project-inspector/project-persistence.js
+--- work_872/scratch-gui-main/src/lib/project-inspector/project-persistence.js	2026-08-03 02:27:10.000000000 +0000
++++ work_872_hotfix/src/lib/project-inspector/project-persistence.js	2026-08-04 12:29:39.335534852 +0000
+@@ -160,20 +160,42 @@
+         let appliedAny = false;
+ 
+         const projectSections = pendingSnapshot.projectData && pendingSnapshot.projectData.projectSections;
+-        if (projectSections && typeof projectSections === 'object') {
+-            Object.keys(projectSections).forEach(sectionId => {
+-                if (pendingSnapshot.appliedProjectSections.has(sectionId)) return;
+-                const section = availableSections.get(sectionId);
+-                if (!section || typeof section.deserializeProject !== 'function') return;
+-                try {
+-                    section.deserializeProject(cloneSerializable(projectSections[sectionId]), context);
+-                    pendingSnapshot.appliedProjectSections.add(sectionId);
+-                    appliedAny = true;
+-                } catch {
+-                    pendingSnapshot.appliedProjectSections.add(sectionId);
++        const normalizedProjectSections = projectSections && typeof projectSections === 'object' ?
++            projectSections : {};
++        Object.keys(normalizedProjectSections).forEach(sectionId => {
++            if (pendingSnapshot.appliedProjectSections.has(sectionId)) return;
++            const section = availableSections.get(sectionId);
++            if (!section || typeof section.deserializeProject !== 'function') return;
++            try {
++                section.deserializeProject(cloneSerializable(normalizedProjectSections[sectionId]), context);
++                pendingSnapshot.appliedProjectSections.add(sectionId);
++                appliedAny = true;
++            } catch {
++                pendingSnapshot.appliedProjectSections.add(sectionId);
++            }
++        });
++
++        // Some editor-owned sections represent scene-local state. If an imported
++        // project intentionally omits such a section, retaining the previous
++        // in-memory value would leak data from the previously loaded scene.
++        availableSections.forEach((section, sectionId) => {
++            if (!section || section.clearOnMissing !== true ||
++                pendingSnapshot.appliedProjectSections.has(sectionId) ||
++                Object.prototype.hasOwnProperty.call(normalizedProjectSections, sectionId)) return;
++            try {
++                if (typeof section.resetProject === 'function') {
++                    section.resetProject(context);
++                } else if (typeof section.deserializeProject === 'function') {
++                    section.deserializeProject(null, context);
++                } else {
++                    return;
+                 }
+-            });
+-        }
++                pendingSnapshot.appliedProjectSections.add(sectionId);
++                appliedAny = true;
++            } catch {
++                pendingSnapshot.appliedProjectSections.add(sectionId);
++            }
++        });
+ 
+         const originalTargets = getOriginalTargets(vm.runtime);
+         pendingSnapshot.targetData.forEach((targetSnapshot, targetIndex) => {
+@@ -234,7 +256,11 @@
+ 
+     const originalDeserializeProject = vm.deserializeProject.bind(vm);
+     vm.deserializeProject = function (projectJSON, zip) {
+-        const snapshot = extractProjectData(projectJSON);
++        const snapshot = extractProjectData(projectJSON) || {
++            projectData: null,
++            targetData: Array.isArray(projectJSON && projectJSON.targets) ?
++                projectJSON.targets.map(() => null) : []
++        };
+         return Promise.resolve(originalDeserializeProject(projectJSON, zip)).then(result => {
+             queueSnapshot(snapshot, !isLoadingProject, zip || null);
+             return result;
+diff -ruN work_872/scratch-gui-main/src/lib/project-nodes/node-database.js work_872_hotfix/src/lib/project-nodes/node-database.js
+--- work_872/scratch-gui-main/src/lib/project-nodes/node-database.js	2026-08-03 05:22:22.000000000 +0000
++++ work_872_hotfix/src/lib/project-nodes/node-database.js	2026-08-04 12:29:56.639534419 +0000
+@@ -4,7 +4,7 @@
+ 
+ const DATABASE_PROPERTY = 'ngvgeNodeDatabase';
+ const DATABASE_SECTION_ID = 'ngvge-node-tree';
+-const DATABASE_VERSION = 2;
++const DATABASE_VERSION = 3;
+ const TARGET_NODE_PREFIX = 'target-node:';
+ const LOAD_RESET_PROPERTY = 'ngvgeNodeDatabaseLoadResetVersion';
+ 
+@@ -209,20 +209,21 @@
+             }
+         });
+ 
+-        Array.from(nodes.values()).forEach(node => {
+-            if (!node.targetId || targetIds.has(node.targetId)) return;
+-            const parentId = node.parentId;
+-            const parent = parentId ? nodes.get(parentId) : null;
+-            const children = node.childIds.slice();
+-            children.forEach(childId => {
+-                const child = nodes.get(childId);
+-                if (!child) return;
+-                child.parentId = parentId || null;
+-                if (parent && parent.childIds.indexOf(childId) === -1) parent.childIds.push(childId);
+-            });
+-            if (parent) parent.childIds = parent.childIds.filter(childId => childId !== node.id);
+-            nodes.delete(node.id);
+-        });
++        const removedTargetNodeIds = Array.from(nodes.values())
++            .filter(node => node.targetId && !targetIds.has(node.targetId))
++            .map(node => node.id);
++        const removeSubtree = nodeId => {
++            const node = nodes.get(nodeId);
++            if (!node) return;
++            node.childIds.slice().forEach(removeSubtree);
++            if (node.parentId) {
++                const parent = nodes.get(node.parentId);
++                if (parent) parent.childIds = parent.childIds.filter(childId => childId !== nodeId);
++            }
++            nodes.delete(nodeId);
++            expandedNodeIds.delete(nodeId);
++        };
++        removedTargetNodeIds.forEach(removeSubtree);
+ 
+         normalizeHierarchy();
+         Array.from(expandedNodeIds).forEach(nodeId => {
+@@ -667,6 +668,7 @@
+ 
+     const inspectorRegistry = getInspectorRegistry(runtime);
+     inspectorRegistry.register({
++        clearOnMissing: true,
+         hidden: true,
+         id: DATABASE_SECTION_ID,
+         label: 'Node Tree',
+diff -ruN work_872/scratch-gui-main/src/lib/scene-system/module-definition.js work_872_hotfix/src/lib/scene-system/module-definition.js
+--- work_872/scratch-gui-main/src/lib/scene-system/module-definition.js	2026-08-04 11:54:48.951587153 +0000
++++ work_872_hotfix/src/lib/scene-system/module-definition.js	2026-08-04 12:35:22.287526271 +0000
+@@ -79,7 +79,7 @@
+                 MODULE_PERMISSIONS.RUNTIME,
+                 MODULE_PERMISSIONS.SERIALIZATION
+             ],
+-            version: '0.7.2'
++            version: '0.7.2.1'
+         },
+         hooks: {
+             disable: disposeServices,
+diff -ruN work_872/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js work_872_hotfix/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js
+--- work_872/scratch-gui-main/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js	2026-08-04 11:56:04.875585253 +0000
++++ work_872_hotfix/src/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-service.js	2026-08-04 12:30:17.335533901 +0000
+@@ -631,8 +631,14 @@
+         assertAvailable();
+         if (tracking) return false;
+         tracking = true;
+-        const runtime = context && context.vm && context.vm.runtime;
+-        addRuntimeListener(runtime, 'TARGETS_UPDATE', () => scheduleReconcile('targets-update', {delay: 0}));
++        const vm = context && context.vm;
++        const runtime = vm && vm.runtime;
++        const scheduleTargetsUpdate = () => scheduleReconcile('targets-update', {delay: 0});
++        addRuntimeListener(runtime, 'TARGETS_UPDATE', scheduleTargetsUpdate);
++        // Scratch GUI exposes the public VM event as `targetsUpdate`, while some
++        // VM builds also emit the runtime-level `TARGETS_UPDATE`. Listening to
++        // both is safe because scheduleReconcile coalesces the same event turn.
++        addRuntimeListener(vm, 'targetsUpdate', scheduleTargetsUpdate);
+         addRuntimeListener(runtime, 'PROJECT_LOADED', () => scheduleReconcile('project-loaded', {
+             delay: 0,
+             preserveMissing: true
+diff -ruN work_872/scratch-gui-main/test/unit/components/project-explorer.test.jsx work_872_hotfix/test/unit/components/project-explorer.test.jsx
+--- work_872/scratch-gui-main/test/unit/components/project-explorer.test.jsx	2026-08-04 10:53:55.000000000 +0000
++++ work_872_hotfix/test/unit/components/project-explorer.test.jsx	2026-08-04 12:39:01.231520794 +0000
+@@ -234,6 +234,119 @@
+         expect(loadScene).toHaveBeenCalledWith('scene-b');
+     });
+ 
++
++    test('renders an adapter-bound Scratch sprite as one unified tree row', () => {
++        const sceneRoot = {
++            activeInHierarchy: true,
++            childIds: ['runtime-node:sprite:player'],
++            enabledSelf: true,
++            id: 'runtime-node:scene-root:scene-a',
++            name: 'Scene A',
++            parentId: null,
++            protected: true,
++            sceneId: 'scene-a',
++            scope: 'scene',
++            typeId: 'ngvge.scene-root'
++        };
++        const globalRoot = {
++            activeInHierarchy: true,
++            childIds: [],
++            enabledSelf: true,
++            id: 'runtime-node:global-root',
++            name: 'Global',
++            parentId: null,
++            protected: true,
++            sceneId: null,
++            scope: 'global',
++            typeId: 'ngvge.global-root'
++        };
++        const spriteNode = {
++            activeInHierarchy: true,
++            childIds: [],
++            enabledSelf: true,
++            id: 'runtime-node:sprite:player',
++            name: 'Player',
++            parentId: sceneRoot.id,
++            protected: false,
++            sceneId: 'scene-a',
++            scope: 'scene',
++            typeId: 'ngvge.scratch-sprite-node'
++        };
++        const runtimeNodeModel = {
++            getChildren: nodeId => nodeId === sceneRoot.id ? [spriteNode] : [],
++            getGlobalRoot: () => globalRoot,
++            getImportStatus: () => ({lastResult: null}),
++            getNode: nodeId => [globalRoot, sceneRoot, spriteNode].find(node => node.id === nodeId) || null,
++            getNodeType: typeId => typeId === 'ngvge.scratch-sprite-node' ? {
++                allowChildren: true,
++                family: '2d',
++                id: typeId,
++                label: 'Scratch Sprite'
++            } : null,
++            getParent: nodeId => nodeId === spriteNode.id ? sceneRoot : null,
++            getSceneRoot: () => sceneRoot,
++            listNodes: () => [spriteNode],
++            subscribe: () => () => {},
++            traverse: (nodeId, visitor) => visitor(nodeId === spriteNode.id ? spriteNode : sceneRoot)
++        };
++        const scratchSpriteAdapter = {
++            listBindings: () => [{
++                bindingId: 'binding-player',
++                nodeId: spriteNode.id,
++                sceneId: 'scene-a',
++                status: 'bound',
++                targetRuntimeId: 'player'
++            }],
++            subscribe: () => () => {}
++        };
++        const sceneDataModel = {
++            readProject: () => ({
++                activeSceneId: 'scene-a',
++                scenes: [{id: 'scene-a', name: 'Scene A', snapshot: null}]
++            })
++        };
++        const moduleManager = {
++            getCapability: capabilityId => {
++                if (capabilityId === 'ngvge.scene-data-model') return sceneDataModel;
++                if (capabilityId === 'ngvge.scene-runtime') return {loadScene: jest.fn(() => Promise.resolve())};
++                if (capabilityId === 'ngvge.runtime-node-model') return runtimeNodeModel;
++                if (capabilityId === 'ngvge.scratch-sprite-node-adapter') return scratchSpriteAdapter;
++                return null;
++            },
++            getModuleState: () => ({enabled: true, state: 'enabled'}),
++            subscribe: () => () => {}
++        };
++        const targets = [{
++            getName: () => 'Stage',
++            id: 'stage-id',
++            isOriginal: true,
++            isStage: true
++        }, {
++            getName: () => 'Player',
++            id: 'player',
++            isOriginal: true,
++            isStage: false
++        }];
++        const vm = {
++            on: jest.fn(),
++            runtime: {
++                emitProjectChanged: jest.fn(),
++                getTargetById: id => targets.find(target => target.id === id) || null,
++                ngvgeFirstPartyModules: moduleManager,
++                targets
++            },
++            serializeAssets: jest.fn(() => [])
++        };
++        const component = renderExplorer({
++            expandedNodeIds: [PROJECT_ROOT_NODE_ID, 'scene:scene-a', spriteNode.id, ASSETS_ROOT_NODE_ID],
++            vm
++        });
++        const playerRows = component.root.findAll(node => node.props['data-target-id'] === 'player');
++
++        expect(playerRows).toHaveLength(1);
++        expect(playerRows[0].props['data-node-id']).toBe(spriteNode.id);
++    });
++
+     test('renders scene tree search and multi-select semantics', () => {
+         const component = renderExplorer();
+         const searchInput = component.root.findByProps({'aria-label': 'Search scene nodes'});
+diff -ruN work_872/scratch-gui-main/test/unit/lib/project-inspector-persistence.test.js work_872_hotfix/test/unit/lib/project-inspector-persistence.test.js
+--- work_872/scratch-gui-main/test/unit/lib/project-inspector-persistence.test.js	2026-08-03 02:27:10.000000000 +0000
++++ work_872_hotfix/test/unit/lib/project-inspector-persistence.test.js	2026-08-04 12:34:35.611527439 +0000
+@@ -86,6 +86,28 @@
+         expect(target.value).toBe(150);
+     });
+ 
++
++    test('clears opt-in project sections when imported scene data omits them', async () => {
++        const {registry, vm} = createFixture();
++        const deserializeProject = jest.fn();
++        registry.register({
++            clearOnMissing: true,
++            id: 'scene-local-node-tree',
++            label: 'Scene local node tree',
++            getFields: () => [],
++            setValue: () => {},
++            deserializeProject
++        });
++        createProjectPersistence(vm, registry);
++
++        await vm.deserializeProject({targets: [{isStage: false, name: 'Sprite1'}]}, null);
++
++        expect(deserializeProject).toHaveBeenCalledWith(
++            null,
++            expect.objectContaining({phase: 'deserialize'})
++        );
++    });
++
+     test('passes the original SB3 archive to project deserializers', async () => {
+         const {registry, vm} = createFixture();
+         const archive = {file: jest.fn()};
+diff -ruN work_872/scratch-gui-main/test/unit/lib/project-nodes-node-database.test.js work_872_hotfix/test/unit/lib/project-nodes-node-database.test.js
+--- work_872/scratch-gui-main/test/unit/lib/project-nodes-node-database.test.js	2026-08-03 05:21:14.000000000 +0000
++++ work_872_hotfix/test/unit/lib/project-nodes-node-database.test.js	2026-08-04 12:34:22.387527770 +0000
+@@ -98,6 +98,27 @@
+         expect(database.getNode(collider.id).properties.radius).toBe(32);
+     });
+ 
++
++    test('removes a target-backed compatibility subtree when the Scratch target is deleted', () => {
++        const {player, runtime, vm} = createVM();
++        const database = installNodeDatabase(vm);
++        const playerNode = database.getNodeForTarget(player.id);
++        const body = database.createNode('ngvge.physics-body2d', playerNode.id, {
++            name: 'Player Body'
++        });
++        const collider = database.createNode('ngvge.collider2d', body.id, {
++            name: 'Hitbox'
++        });
++
++        runtime.targets = runtime.targets.filter(target => target.id !== player.id);
++        database.syncTargets();
++
++        expect(database.getNode(playerNode.id)).toBeNull();
++        expect(database.getNode(body.id)).toBeNull();
++        expect(database.getNode(collider.id)).toBeNull();
++        expect(database.getChildren(null).map(node => node.id)).not.toContain(body.id);
++    });
++
+     test('serializes hierarchy and rebinds target nodes by target order', () => {
+         const first = createVM(['stage-old', 'player-old']);
+         const database = createNodeDatabase(first.vm);
+diff -ruN work_872/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js work_872_hotfix/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js
+--- work_872/scratch-gui-main/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js	2026-08-04 11:56:05.007585250 +0000
++++ work_872_hotfix/test/unit/lib/scratch-sprite-adapter/scratch-sprite-node-adapter-lifecycle.test.js	2026-08-04 12:34:54.655526963 +0000
+@@ -36,10 +36,12 @@
+         createTarget('stage', 'Stage', {isStage: true}),
+         createTarget('target-a', 'Player')
+     ];
++    const vm = new EventEmitter();
++    vm.runtime = runtime;
+     const runtimeNodeModel = createRuntimeNodeModelService(sceneDataModel);
+     let sequence = 0;
+     const adapter = createScratchSpriteNodeAdapterService(
+-        {vm: {runtime}},
++        {vm},
+         sceneDataModel,
+         runtimeNodeModel,
+         {
+@@ -53,6 +55,7 @@
+         getProject: () => clone(project),
+         runtime,
+         runtimeNodeModel,
++        vm,
+         setActiveScene: sceneId => {
+             project.activeSceneId = sceneId;
+             sceneDataModel.writeProject(project);
+@@ -77,6 +80,22 @@
+         harness.adapter.dispose();
+         harness.runtimeNodeModel.dispose();
+     });
++
++
++    test('reconciles deletion from the public VM targetsUpdate event', async () => {
++        const harness = createHarness();
++        await flush();
++        const binding = harness.adapter.listBindings('scene-a')[0];
++
++        harness.runtime.targets = harness.runtime.targets.filter(target => target.id !== 'target-a');
++        harness.vm.emit('targetsUpdate');
++        await flush();
++
++        expect(harness.adapter.listBindings('scene-a')).toHaveLength(0);
++        expect(harness.runtimeNodeModel.getNode(binding.nodeId)).toBeNull();
++        harness.adapter.dispose();
++        harness.runtimeNodeModel.dispose();
++    });
+ 
+     test('rebinds recreated targets without changing stable identity', async () => {
+         const harness = createHarness();

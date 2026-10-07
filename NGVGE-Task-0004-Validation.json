@@ -1,0 +1,167 @@
+{
+  "task": "Task-0004 — Inspector, Layer Manager, Camera and Stretch bridges",
+  "baseline": "scratch-gui-main-task-0003-with-launcher.zip",
+  "changed_files": [
+    {
+      "path": ".eslintignore",
+      "bytes": 281,
+      "sha256": "dd73e68e0a1710f69581ce2c5919ca35b7bae5f4407f80f4b0b3596bdb419918"
+    },
+    {
+      "path": "QUICK-START.zh-CN.md",
+      "bytes": 2020,
+      "sha256": "92e89ecb49d1d1072f7fab7cf29b7c1cd677212d09428e810ba79baa35fb86fe"
+    },
+    {
+      "path": "docs/NGVGE-INSPECTOR-EXTENSION-API.md",
+      "bytes": 1061,
+      "sha256": "d359939be878ead7f44f197e7dbe14c9d53a9c65a7a5e7fba68482a03525bf44"
+    },
+    {
+      "path": "docs/THIRD-PARTY-NGVGE-INSPECTOR-BRIDGES.md",
+      "bytes": 794,
+      "sha256": "67ce3dcc0836185d2fd2324fd4280a6e3ddbd0acde9973543ca49ea31a0d05bb"
+    },
+    {
+      "path": "src/components/gui/gui.css",
+      "bytes": 13716,
+      "sha256": "a0da3f637a86a30f6166c86096b04a40114737de25795fe0141edb072ca8d363"
+    },
+    {
+      "path": "src/components/gui/gui.jsx",
+      "bytes": 92983,
+      "sha256": "890f87710ce4fe6ba02300bd57e0b318f0dd6feeedf03d98e3fe3896da91918a"
+    },
+    {
+      "path": "src/components/project-inspector/index.js",
+      "bytes": 49,
+      "sha256": "9764eee7223050be08d069d46cac3f27b020033cec51dd9b7fc3d14f8fed3974"
+    },
+    {
+      "path": "src/components/project-inspector/project-inspector.css",
+      "bytes": 6815,
+      "sha256": "8b1c79cffbc22dd07e8cca145b86e95d212117d3ee4a970f9ea7872d6951b06e"
+    },
+    {
+      "path": "src/components/project-inspector/project-inspector.jsx",
+      "bytes": 22782,
+      "sha256": "0fd8bd6928c6d7332418c79a94711bb8bd1caa95559d9b52b41959022c2ac5e5"
+    },
+    {
+      "path": "src/lib/libraries/extensions/index.jsx",
+      "bytes": 18541,
+      "sha256": "62a1d3d27b8eef29996a7e6119f3d4ca714be2ac823370584a03031c41881020"
+    },
+    {
+      "path": "src/lib/project-inspector/index.js",
+      "bytes": 38,
+      "sha256": "ec9295108cf3513d0ac1e8932166c4d018eeeeb020011fc289d678d51cf76d10"
+    },
+    {
+      "path": "src/lib/project-inspector/inspector-registry.js",
+      "bytes": 3196,
+      "sha256": "c9f85451fed38fc97bb11f8e6e12429974d7d1b0e72ef4b90f972cd1ae6a7afe"
+    },
+    {
+      "path": "src/reducers/gui.js",
+      "bytes": 7279,
+      "sha256": "3f6cc4b5e6cd61f1893fbd9a7283d40e48373f7e0a290e07a7bc69620c76cd5c"
+    },
+    {
+      "path": "src/reducers/project-inspector.js",
+      "bytes": 2669,
+      "sha256": "3737d4b6c77df275340516cfa2d713fadd8ad56d872b1c3d7e6313087e95c7f8"
+    },
+    {
+      "path": "static/extensions/NGVGE-Camera-V2.js",
+      "bytes": 50584,
+      "sha256": "646a3388bb94a954de36f5e64d2d736ecfb73cf04b95aa32077ed412b8d053c5"
+    },
+    {
+      "path": "static/extensions/NGVGE-Camera-V2.svg",
+      "bytes": 229,
+      "sha256": "972c9f222cfc61cab34484b60c90cbc279e7c436835c0af139d15ff9048c3170"
+    },
+    {
+      "path": "static/extensions/NGVGE-Stretch.js",
+      "bytes": 12014,
+      "sha256": "1501b27c15eb2d41cb96b78fd8ceaede54eb32d0706f6169b79f52b1ed0d6713"
+    },
+    {
+      "path": "static/extensions/NGVGE-Stretch.svg",
+      "bytes": 318,
+      "sha256": "5fc12f3586aa55d4da383130bcca088b1bddf6a0ff34e08e5a1306a7fe02d33b"
+    },
+    {
+      "path": "test/unit/components/project-inspector.test.jsx",
+      "bytes": 3957,
+      "sha256": "fe67a33b7eff25d6ded1a5970324eaf26808e930c758956efebf858e8776b069"
+    },
+    {
+      "path": "test/unit/lib/project-inspector-registry.test.js",
+      "bytes": 1612,
+      "sha256": "9ec797cc2659b7e877f7f132953dfff5350f0a59ab930625ff2f051f7ee55120"
+    },
+    {
+      "path": "test/unit/reducers/project-inspector-reducer.test.js",
+      "bytes": 2379,
+      "sha256": "cd751594d887d4ae47cc22c8eb0fdf743db994e0a7664774faac5688bc83021f"
+    }
+  ],
+  "checks": [
+    {
+      "name": "TypeScript JavaScript/JSX parser",
+      "status": "PASS"
+    },
+    {
+      "name": "Node syntax for reducer, registry and bundled extensions",
+      "status": "PASS"
+    },
+    {
+      "name": "Project Inspector reducer behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "Inspector extension registry behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "GUI and Redux integration markers",
+      "status": "PASS"
+    },
+    {
+      "name": "Inspector CSS module class coverage",
+      "status": "PASS"
+    },
+    {
+      "name": "Camera and Stretch extension library entries",
+      "status": "PASS"
+    },
+    {
+      "name": "Git patch apply check",
+      "status": "PASS"
+    },
+    {
+      "name": "Patched files exactly match working source",
+      "status": "PASS"
+    },
+    {
+      "name": "Complete source ZIP integrity",
+      "status": "PASS"
+    },
+    {
+      "name": "Update ZIP integrity",
+      "status": "PASS"
+    },
+    {
+      "name": "Jest, ESLint and Webpack production build",
+      "status": "NOT_RUN",
+      "detail": "The uploaded source archive does not include node_modules. Run the provided Bun commands locally."
+    }
+  ],
+  "notes": [
+    "The uploaded Stretch source ended after getY without its final class/registration/IIFE closures. The NGVGE adaptation completes those structural endings.",
+    "Camera and Stretch Inspector sections appear after loading the bundled NGVGE extension variants from the extension library.",
+    "Layer management is native and does not require an extension."
+  ]
+}

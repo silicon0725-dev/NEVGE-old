@@ -1,0 +1,369 @@
+{
+  "schema": "ngvge-arc-status-matrix/v1",
+  "updatedAt": "2026-08-12",
+  "baselinePhase": "0009-E",
+  "highestAuthority": "ARC-0001",
+  "records": [
+    {
+      "id": "ARC-0001",
+      "kind": "architecture-record",
+      "title": "Kernel Independence Contract",
+      "parent": null,
+      "status": "architecture-frozen",
+      "execution": "formal-freeze-complete",
+      "enforcement": "highest-architecture-constraint",
+      "evidence": "docs/freeze-repair/0008.9.7-R10-FINAL-FREEZE-CERTIFICATION.md"
+    },
+    {
+      "id": "ARC-C001",
+      "kind": "conformance-specification",
+      "title": "ARC-0001 Conformance Suite",
+      "parent": "ARC-0001",
+      "status": "approved-active",
+      "execution": "c001.1-minimum-baseline-certified-0009-unlocked",
+      "enforcement": "seven-minimum-gates-active-manual-c001.1-certified-blocking-merge-not-yet-active",
+      "evidence": "docs/architecture/ARC-C001.1-H-MINIMUM-BASELINE-CERTIFICATION.md"
+    },
+    {
+      "id": "0008",
+      "kind": "runtime-milestone",
+      "title": "Runtime Scene Graph",
+      "parent": "ARC-0001",
+      "status": "architecture-frozen",
+      "execution": "complete",
+      "enforcement": "freeze-baseline",
+      "evidence": "docs/freeze-repair/0008.9.7-R10-FINAL-FREEZE-CERTIFICATION.md"
+    },
+    {
+      "id": "Scene-System-V2.1",
+      "kind": "subsystem-baseline",
+      "title": "Scene System V2.1",
+      "parent": "0008",
+      "status": "browser-validated-freeze-baseline",
+      "execution": "complete",
+      "enforcement": "permanent-regression-protected",
+      "evidence": "docs/freeze-repair/0008.9.7-R10-FINAL-FREEZE-CERTIFICATION.md"
+    },
+    {
+      "id": "ARC-C001.0-A",
+      "kind": "execution-phase",
+      "title": "Architecture Repository Baseline",
+      "parent": "ARC-C001",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "repository-baseline-frozen",
+      "evidence": "docs/architecture/ARC-C001.0-A-ARCHITECTURE-REPOSITORY-BASELINE.md"
+    },
+    {
+      "id": "ARC-C001.0-B",
+      "kind": "execution-phase",
+      "title": "Existing Gate Inventory",
+      "parent": "ARC-C001",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "existing-gate-inventory-frozen",
+      "evidence": "docs/architecture/conformance/EXISTING-GATE-INVENTORY.md"
+    },
+    {
+      "id": "ARC-C001.0-C",
+      "kind": "execution-phase",
+      "title": "Legacy Waiver / Debt Baseline",
+      "parent": "ARC-C001",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "waiver-debt-baseline-frozen",
+      "evidence": "docs/architecture/ARC-C001.0-C-LEGACY-WAIVER-DEBT-BASELINE.md"
+    },
+    {
+      "id": "ARC-C001.0-D",
+      "kind": "execution-phase",
+      "title": "Conformance Status Matrix Completion",
+      "parent": "ARC-C001",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "conformance-status-matrix-frozen",
+      "evidence": "docs/architecture/ARC-C001.0-D-CONFORMANCE-STATUS-MATRIX.md"
+    },
+    {
+      "id": "ARC-C001.1",
+      "kind": "execution-phase",
+      "title": "Core Boundary Foundation",
+      "parent": "ARC-C001",
+      "status": "complete",
+      "execution": "minimum-baseline-certified",
+      "enforcement": "certified-entry-baseline-for-0009",
+      "evidence": "docs/architecture/ARC-C001.1-H-MINIMUM-BASELINE-CERTIFICATION.md"
+    },
+    {
+      "id": "ARC-C001.1-A",
+      "kind": "execution-subphase",
+      "title": "Semantic Ownership Zone / Import Boundary",
+      "parent": "ARC-C001.1",
+      "status": "browser-validated-complete",
+      "execution": "complete",
+      "enforcement": "active-manual-import-boundary-gate",
+      "evidence": "docs/architecture/ARC-C001.1-A.1-CAPABILITY-TEARDOWN-LEASE-HOTFIX.md"
+    },
+    {
+      "id": "ARC-C001.1-B",
+      "kind": "execution-subphase",
+      "title": "Stable Identity Foundation",
+      "parent": "ARC-C001.1",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "active-manual-stable-identity-gate",
+      "evidence": "docs/architecture/ARC-C001.1-B-STABLE-IDENTITY-FOUNDATION.md"
+    },
+    {
+      "id": "ARC-C001.1-C",
+      "kind": "execution-subphase",
+      "title": "Persistent DTO Foundation",
+      "parent": "ARC-C001.1",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "active-manual-persistent-dto-gate",
+      "evidence": "docs/architecture/ARC-C001.1-C-PERSISTENT-DTO-FOUNDATION.md"
+    },
+    {
+      "id": "ARC-C001.1-D",
+      "kind": "execution-subphase",
+      "title": "Schema Registry Foundation",
+      "parent": "ARC-C001.1",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "active-manual-schema-registry-gate",
+      "evidence": "docs/architecture/ARC-C001.1-D-SCHEMA-REGISTRY-FOUNDATION.md"
+    },
+    {
+      "id": "ARC-C001.1-E",
+      "kind": "execution-subphase",
+      "title": "Authority Registry Foundation",
+      "parent": "ARC-C001.1",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "active-manual-authority-registry-gate",
+      "evidence": "docs/architecture/ARC-C001.1-E-AUTHORITY-REGISTRY-FOUNDATION.md"
+    },
+    {
+      "id": "ARC-C001.1-F",
+      "kind": "execution-subphase",
+      "title": "Protocol DTO Foundation",
+      "parent": "ARC-C001.1",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "active-manual-protocol-dto-gate",
+      "evidence": "docs/architecture/ARC-C001.1-F-PROTOCOL-DTO-FOUNDATION.md"
+    },
+    {
+      "id": "ARC-C001.1-G",
+      "kind": "execution-subphase",
+      "title": "Scratch Adapter Boundary Gate",
+      "parent": "ARC-C001.1",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "active-manual-scratch-adapter-boundary-gate",
+      "evidence": "docs/architecture/ARC-C001.1-G-SCRATCH-ADAPTER-BOUNDARY-GATE.md"
+    },
+    {
+      "id": "ARC-C001.1-H",
+      "kind": "execution-subphase",
+      "title": "Minimum Baseline Certification",
+      "parent": "ARC-C001.1",
+      "status": "complete",
+      "execution": "certified",
+      "enforcement": "0009-entry-unlocked",
+      "evidence": "docs/architecture/ARC-C001.1-H-MINIMUM-BASELINE-CERTIFICATION.md"
+    },
+    {
+      "id": "0009",
+      "kind": "runtime-milestone",
+      "title": "Transform System",
+      "parent": "ARC-0001",
+      "status": "complete",
+      "execution": "complete-browser-verified",
+      "enforcement": "0009-a-through-0009-e-gates-active; browser-verification-pass; arc-0001-and-certified-c001.1-baseline-remain-authoritative",
+      "evidence": "docs/architecture/0009-E-BROWSER-VERIFICATION-PASS.json",
+      "entryBaseline": "arc-c001.1-h-certified"
+    },
+    {
+      "id": "0009-A",
+      "kind": "execution-subphase",
+      "title": "Transform2D Semantic Contract Foundation",
+      "parent": "0009",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "active-manual-transform2d-semantic-contract-gate",
+      "evidence": "docs/architecture/0009-A-TRANSFORM2D-SEMANTIC-CONTRACT-FOUNDATION.md"
+    },
+    {
+      "id": "0009-B",
+      "kind": "execution-subphase",
+      "title": "Runtime / Persistent Component Wiring",
+      "parent": "0009",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "active-manual-transform2d-runtime-persistent-wiring-gate",
+      "evidence": "docs/architecture/0009-B-TRANSFORM2D-RUNTIME-PERSISTENT-COMPONENT-WIRING.md"
+    },
+    {
+      "id": "0009-C",
+      "kind": "execution-subphase",
+      "title": "Scratch Compatibility Transform Projection",
+      "parent": "0009",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "active-manual-scratch-transform-projection-gate",
+      "evidence": "docs/architecture/0009-C-SCRATCH-COMPATIBILITY-TRANSFORM-PROJECTION.md"
+    },
+    {
+      "id": "0009-D",
+      "kind": "execution-subphase",
+      "title": "Editor PatchComponent Compatibility Bridge",
+      "parent": "0009",
+      "status": "complete",
+      "execution": "complete",
+      "enforcement": "active-manual-transform2d-editor-command-bridge-gate",
+      "evidence": "docs/architecture/0009-D-EDITOR-PATCHCOMPONENT-COMPATIBILITY-BRIDGE.md"
+    },
+    {
+      "id": "0009-E",
+      "kind": "execution-subphase",
+      "title": "Transform DoD Certification / Browser Verify",
+      "parent": "0009",
+      "status": "complete",
+      "execution": "machine-dod-certified-12-of-12-browser-pass",
+      "enforcement": "active-manual-transform2d-dod-certificate; browser-verification-pass",
+      "evidence": "docs/architecture/0009-E-BROWSER-VERIFICATION-PASS.json"
+    }
+  ],
+  "releaseEvidenceHold": {
+    "status": "pending-external-ci-evidence",
+    "architectureFreezeImpact": "none",
+    "source": "docs/freeze-repair/0008.9.7-R10-KNOWN-DEBT-REGISTER.md"
+  },
+  "conformanceInventory": {
+    "schema": "ngvge-arc-c001-existing-gate-inventory/v1",
+    "evidence": "docs/architecture/conformance/EXISTING-GATE-INVENTORY.json",
+    "architectureEntrypoints": 12,
+    "uniqueActiveArchitectureValidators": 27,
+    "historicalStandaloneValidators": 3,
+    "permanentRegressionContracts": 6,
+    "directArcPermanentRegressionContracts": 5,
+    "architectureEntrypointsInAggregateTest": 0,
+    "architectureEntrypointsInCI": 0,
+    "domainStatus": {
+      "identity": "partial",
+      "schema": "partial",
+      "authority": "partial",
+      "protocol": "partial",
+      "lifecycle": "partial",
+      "serialization": "partial",
+      "compatibility": "partial"
+    }
+  },
+  "waiverDebtBaseline": {
+    "schema": "ngvge-arc-waiver-registry/v1",
+    "waiverEvidence": "docs/architecture/LEGACY-WAIVERS.json",
+    "debtEvidence": "docs/architecture/TECHNICAL-DEBT-BASELINE.json",
+    "activeArchitectureWaivers": 0,
+    "nonWaivableConformanceFindings": 0,
+    "acceptedTechnicalDebt": 5,
+    "conformanceGovernanceDebt": 1,
+    "externalEvidenceHolds": 2,
+    "blockingFindingIds": [],
+    "resolvedNonWaivableConformanceFindings": 1,
+    "resolvedConformanceGovernanceFindings": 1
+  },
+  "conformanceStatusMatrix": {
+    "schema": "ngvge-arc-c001-conformance-status-matrix/v1",
+    "evidence": "docs/architecture/conformance/CONFORMANCE-STATUS-MATRIX.json",
+    "domainStatus": {
+      "identity": "partial",
+      "schema": "partial",
+      "authority": "partial",
+      "protocol": "partial",
+      "lifecycle": "partial",
+      "serialization": "partial",
+      "compatibility": "partial"
+    },
+    "domainsBlocking0009": [],
+    "c0011Status": "certified-complete",
+    "c0011MinimumRequirements": 7,
+    "c0011RequirementsSatisfied": 7,
+    "transform0009Status": "active-0009-e-machine-dod-certified-browser-evidence-hold",
+    "blockingFindingIds": []
+  },
+  "conformanceImportBoundary": {
+    "status": "active-manual",
+    "entrypoint": "test:conformance:import-boundary",
+    "selfTest": "test:conformance:import-boundary:self-test",
+    "blockingCI": false,
+    "policy": "tools/conformance/import-boundary-policy.json"
+  },
+  "conformanceStableIdentity": {
+    "status": "active-manual",
+    "entrypoint": "test:conformance:stable-identity",
+    "phaseEntrypoint": "test:conformance:c001.1-b",
+    "projectNodePersistenceVersion": 4,
+    "legacyTargetDerivedIdentity": "migration-only",
+    "arcDebt0001": "resolved"
+  },
+  "conformancePersistentDTO": {
+    "status": "active-manual",
+    "schema": "ngvge-persistent-dto/v1",
+    "entrypoint": "test:conformance:persistent-dto",
+    "selfTest": "test:conformance:persistent-dto:self-test",
+    "phaseEntrypoint": "test:conformance:c001.1-c",
+    "projectPersistenceAuthority": "src/core/persistent",
+    "blockingCI": false
+  },
+  "conformanceSchemaRegistry": {
+    "status": "active-manual",
+    "schema": "ngvge-schema-descriptor/v1",
+    "entrypoint": "test:conformance:schema-registry",
+    "selfTest": "test:conformance:schema-registry:self-test",
+    "phaseEntrypoint": "test:conformance:c001.1-d",
+    "authority": "src/core/schema",
+    "blockingCI": false
+  },
+  "currentPermanentRegressionContracts": 17,
+  "conformanceAuthorityRegistry": {
+    "status": "active-manual",
+    "schema": "ngvge-authority-registration/v1",
+    "entrypoint": "test:conformance:authority-registry",
+    "selfTest": "test:conformance:authority-registry:self-test",
+    "phaseEntrypoint": "test:conformance:c001.1-e",
+    "authority": "src/core/authority",
+    "singleWriterPerStateDomain": true,
+    "blockingCI": false
+  },
+  "conformanceProtocolDTO": {
+    "status": "active-manual",
+    "schema": "ngvge-engine-protocol-dto/v1",
+    "protocol": "ngvge.engine-protocol",
+    "protocolVersion": 1,
+    "entrypoint": "test:conformance:protocol-dto",
+    "selfTest": "test:conformance:protocol-dto:self-test",
+    "phaseEntrypoint": "test:conformance:c001.1-f",
+    "authority": "src/core/protocol",
+    "blockingCI": false
+  },
+  "conformanceScratchAdapterBoundary": {
+    "status": "active-manual",
+    "schema": "ngvge-arc-c001-scratch-adapter-boundary-result/v1",
+    "entrypoint": "test:conformance:scratch-adapter-boundary",
+    "selfTest": "test:conformance:scratch-adapter-boundary:self-test",
+    "phaseEntrypoint": "test:conformance:c001.1-g",
+    "historicalCorpus": "scripts/validate-ngvge-task-0008.7.3.js",
+    "permanentRegression": "scratch-adapter-boundary",
+    "blockingCI": false
+  },
+  "transform0009EvidenceHold": {
+    "status": "resolved",
+    "id": "EVIDENCE-HOLD-0009-E-BROWSER-POLICY",
+    "architectureFreezeImpact": "none",
+    "blocksFinal0009Closure": false,
+    "source": "docs/architecture/0009-E-BROWSER-EVIDENCE-HOLD.json",
+    "resolutionEvidence": "docs/architecture/0009-E-BROWSER-VERIFICATION-PASS.json"
+  }
+}

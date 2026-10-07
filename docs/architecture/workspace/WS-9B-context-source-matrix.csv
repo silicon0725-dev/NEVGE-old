@@ -1,0 +1,6 @@
+domain,projected_fields,semantic_authority,ws9b_source,status,notes
+project,projectId,Project Lifecycle Authority,unbound,foundation-only,"Production binding deferred; Context never loads/saves projects"
+scene,sceneId,Scene Runtime/Project Scene Authority,unbound,foundation-only,"Production binding deferred; Context never switches scenes"
+node-selection,selectedNodeIds|primaryNodeId,Workspace/Editor selection authority,unbound,foundation-only,"Production binding deferred; current selectionWriter paths unchanged"
+resource,resourceId,Resource/Asset selection authority,unbound,foundation-only,"Production binding deferred; no backend resource handle allowed"
+window,activeToolId|activeWindowId,WindowManager,ngvge.workspace-context-source.window-manager,adapter-implemented,"Projection adapter implemented and tested; production bootstrap wiring deferred"

@@ -1,0 +1,3 @@
+[BABEL] Note: The code generator has deoptimised the styling of /mnt/data/ngvge_r10_stage/node_modules/scratch-render/src/spine_runtime/spine-webgl.js as it exceeds the max of 500KB.
+(node:3557) DeprecationWarning: Tapable.apply is deprecated. Call apply on the plugin directly instead
+(Use `node --trace-deprecation ...` to show where the warning was created)

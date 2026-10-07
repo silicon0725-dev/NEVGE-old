@@ -1,0 +1,129 @@
+{
+  "task": "Task-0007 — Asset Manager",
+  "base": "scratch-gui-main-task-0006-with-launcher",
+  "changed_file_count": 9,
+  "checks": [
+    {
+      "name": "Global Asset Database JavaScript syntax",
+      "status": "PASS"
+    },
+    {
+      "name": "React JSX parser validation",
+      "status": "PASS"
+    },
+    {
+      "name": "Test source parser validation",
+      "status": "PASS"
+    },
+    {
+      "name": "Relative import resolution",
+      "status": "PASS"
+    },
+    {
+      "name": "CSS Module class reference coverage",
+      "status": "PASS"
+    },
+    {
+      "name": "Image asset capture and sharing behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "Sound asset import and sharing behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "Asset folders and movement behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "Asset operation transaction queue",
+      "status": "PASS"
+    },
+    {
+      "name": "Asset Undo/Redo behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "Zero-reference image and sound SB3 serialization",
+      "status": "PASS"
+    },
+    {
+      "name": "Version 1 image metadata compatibility",
+      "status": "PASS"
+    },
+    {
+      "name": "Version 2 folder and sound metadata serialization",
+      "status": "PASS"
+    },
+    {
+      "name": "Git patch applies to clean Task-0006 source",
+      "status": "PASS"
+    },
+    {
+      "name": "Patched result byte comparison",
+      "status": "PASS"
+    },
+    {
+      "name": "Jest unit suite",
+      "status": "NOT_RUN",
+      "detail": "The uploaded source archive does not include node_modules."
+    },
+    {
+      "name": "ESLint and production Webpack build",
+      "status": "NOT_RUN",
+      "detail": "Bun and the project dependency tree are unavailable in this runtime."
+    },
+    {
+      "name": "02Engine compiled-project export",
+      "status": "NOT_COVERED",
+      "detail": "Task-0007 targets normal SB3 save/load."
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/TASK-0007-ASSET-MANAGER.md",
+      "bytes": 2677,
+      "sha256": "7146199670e371eafbce22d4ff70d4c4e87aa19fe12c1b93a11c8f104f3c45e8"
+    },
+    {
+      "path": "src/components/project-assets/index.js",
+      "bytes": 53,
+      "sha256": "29590fbd6ddfdb1e441539b945438e387fa2e27a100f9cc27324fb6fa30a0034"
+    },
+    {
+      "path": "src/components/project-assets/project-asset-manager.css",
+      "bytes": 6121,
+      "sha256": "2421ea2912bb41820c3ceb068dfee6af64235c9448b174ab6aaa3b5c5eb9a80b"
+    },
+    {
+      "path": "src/components/project-assets/project-asset-manager.jsx",
+      "bytes": 23924,
+      "sha256": "45fddfa0f65357e968f97d89a200c82be002274a46d24ac3b41bf53fe4a2cb46"
+    },
+    {
+      "path": "src/components/project-explorer/project-explorer.jsx",
+      "bytes": 12326,
+      "sha256": "78c6b7711f1f4ce2d8b1996d1b54fe2d2d685c06c7b4cac01a0e749a4bbb8bdb"
+    },
+    {
+      "path": "src/lib/project-assets/global-asset-database.js",
+      "bytes": 34737,
+      "sha256": "d996bd03a987c8df258698677ea32a82ddb430f4527b8e918ab74e30943ccfe1"
+    },
+    {
+      "path": "test/unit/components/project-asset-manager.test.jsx",
+      "bytes": 3344,
+      "sha256": "1ae577c9ffaa9d10a035125a80fee0f97f2c89f1b49a547af88f2f610a7bc8a7"
+    },
+    {
+      "path": "test/unit/components/project-explorer.test.jsx",
+      "bytes": 4592,
+      "sha256": "389def1f8b52b64c2f8ca6c26cce99ce069dd2df630554920109309a1e4dd65e"
+    },
+    {
+      "path": "test/unit/lib/project-assets-global-database.test.js",
+      "bytes": 9582,
+      "sha256": "bf70de783f2a47c977d6a92e15fe36951eb4f0aacceb32fbeb13bad6e79b1e65"
+    }
+  ]
+}

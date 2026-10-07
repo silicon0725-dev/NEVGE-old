@@ -1,0 +1,6 @@
+domain,projected_fields,semantic_authority,source_id,lifecycle_clear,notes
+project,projectId,Project Lifecycle Authority,ngvge.workspace-context-source.project-lifecycle,"root load start|binding dispose","Session-scoped ngvge.project-context.gN; not Redux/server/Scratch project ID"
+scene,sceneId,Scene System authority,ngvge.workspace-context-source.scene-system,"project load start|scene module disable/reset|binding dispose","Reads first-party scene module data; never switches scenes"
+node-selection,selectedNodeIds|primaryNodeId,Editor/Workspace selection authority,ngvge.workspace-context-source.node-selection,"project load start|explicit selection clear|binding dispose","Project Explorer multi-selection plus compatibility primary-selection fallback"
+resource,resourceId,Asset/Resource selection authority,ngvge.workspace-context-source.resource-selection,"project load start|asset selection teardown|binding dispose","ResourceId only; no Scratch asset/backend handle"
+window,activeToolId|activeWindowId,WindowManager,ngvge.workspace-context-source.window-manager,"WindowManager changes|binding dispose","WS-9B adapter now installed in production"

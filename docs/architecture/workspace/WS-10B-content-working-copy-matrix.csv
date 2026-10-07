@@ -1,0 +1,14 @@
+domain,surface_or_state,owner,ws10b_behavior,project_mutation
+image_metadata,resource-read#query,Resource Authority,portable descriptor read,no
+image_content_source,resource-content-read#query,Resource Authority via scoped Provider,portable bounded immutable snapshot,no
+image_content_working_copy,workingCopyId,Paint Tool Session,transient editable SVG/data-URI copy,no
+vector_backend_edit,scratch-paint adapter,Paint Working Copy,SVG text becomes local svg-text edit,no
+bitmap_backend_edit,scratch-paint adapter,Paint Working Copy,ImageData encoded to local PNG data URI,no
+working_copy_dirty,dirty,Paint Working Copy,true after local content edit,no
+working_copy_stale,stale,Paint Working Copy,true after relevant source-content authority event,no
+resource_switch,dirty guard,Paint Tool Session,blocked/deferred while dirty,no
+reload_source,reload,Paint Working Copy,allowed only when local copy is clean,no
+discard_local,discard,Paint Working Copy,explicitly replaces local copy from authoritative source,no
+metadata_commit,project-command#mutate,Project Command Host,WS-10A reviewed metadata transaction,yes metadata only
+content_commit,not available,none,deferred to WS-10C,no
+raw_vm_renderer,not exposed,Compatibility Backend only,forbidden in Better Paint path,no

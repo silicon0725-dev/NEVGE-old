@@ -1,0 +1,65 @@
+const fs = require('fs');
+const path = require('path');
+const webpack = require('webpack');
+
+const ROOT = path.resolve(__dirname, '..');
+const OUT = path.join(ROOT, 'build', '.ws9i-webpack-policy-entry');
+const baseConfig = require('../webpack.config.js')[0];
+const keepPlugin = plugin => plugin && plugin.constructor && plugin.constructor.name === 'DefinePlugin';
+const config = Object.assign({}, baseConfig, {
+    devtool: false,
+    entry: {
+        'privileged-mutation-review-policy': './src/lib/editor-shell/privileged-mutation-review-policy.js',
+        'project-transaction-review': './src/lib/editor-shell/project-transaction-review.js',
+        'project-resource-capabilities': './src/lib/editor-shell/workspace-project-resource-capabilities.js',
+        'core-capability-providers': './src/lib/editor-shell/workspace-capability-providers.js'
+    },
+    optimization: Object.assign({}, baseConfig.optimization, {splitChunks: false}),
+    output: Object.assign({}, baseConfig.output, {
+        chunkFilename: '[name].[id].js', filename: '[name].js', path: OUT
+    }),
+    plugins: baseConfig.plugins.filter(keepPlugin)
+});
+fs.rmSync(OUT, {force: true, recursive: true});
+const compiler = webpack(config);
+const finish = exitCode => {
+    process.exitCode = exitCode;
+    if (typeof compiler.close === 'function') {
+        compiler.close(closeError => {
+            if (closeError) {
+                console.error(closeError.stack || closeError);
+                process.exitCode = 1;
+            }
+        });
+        return;
+    }
+    setImmediate(() => process.exit(exitCode));
+};
+compiler.run((error, stats) => {
+    if (error) {
+        console.error(error.stack || error);
+        if (error.details) console.error(error.details);
+        finish(1);
+        return;
+    }
+    const info = stats.toJson({all: false, errors: true, warnings: true});
+    if (stats.hasErrors()) {
+        console.error(stats.toString({all: false, colors: false, errors: true, errorDetails: true}));
+        finish(1);
+        return;
+    }
+    console.log('WS-9I real Webpack Privileged Mutation Review Policy production entries smoke: PASS');
+    console.log(JSON.stringify({
+        entries: [
+            'src/lib/editor-shell/privileged-mutation-review-policy.js',
+            'src/lib/editor-shell/project-transaction-review.js',
+            'src/lib/editor-shell/workspace-project-resource-capabilities.js',
+            'src/lib/editor-shell/workspace-capability-providers.js'
+        ],
+        errors: info.errors.length,
+        output: path.relative(ROOT, OUT),
+        warnings: info.warnings.length,
+        webpackConfig: 'webpack.config.js[0]'
+    }, null, 2));
+    finish(0);
+});

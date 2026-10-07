@@ -1,0 +1,80 @@
+{
+  "schema": "ngvge-arc-c001.1-minimum-baseline-certificate/v1",
+  "record": "ARC-C001.1-H",
+  "title": "Minimum Baseline Certification",
+  "parent": "ARC-C001",
+  "authority": "ARC-0001",
+  "status": "certified",
+  "certifiedAt": "2026-08-11",
+  "c0011MinimumSatisfied": 7,
+  "c0011MinimumTotal": 7,
+  "activeArchitectureWaivers": 0,
+  "blockingFindings": 0,
+  "blockingMergePolicyActive": false,
+  "transform0009Decision": "unlocked-for-entry",
+  "requirements": [
+    {
+      "id": "import-boundary",
+      "phase": "ARC-C001.1-A",
+      "status": "covered",
+      "entrypoint": "test:conformance:import-boundary"
+    },
+    {
+      "id": "stable-identity",
+      "phase": "ARC-C001.1-B",
+      "status": "covered",
+      "entrypoint": "test:conformance:stable-identity"
+    },
+    {
+      "id": "persistent-dto",
+      "phase": "ARC-C001.1-C",
+      "status": "covered",
+      "entrypoint": "test:conformance:persistent-dto"
+    },
+    {
+      "id": "schema-registry",
+      "phase": "ARC-C001.1-D",
+      "status": "covered",
+      "entrypoint": "test:conformance:schema-registry"
+    },
+    {
+      "id": "authority-registry",
+      "phase": "ARC-C001.1-E",
+      "status": "covered",
+      "entrypoint": "test:conformance:authority-registry"
+    },
+    {
+      "id": "protocol-dto",
+      "phase": "ARC-C001.1-F",
+      "status": "covered",
+      "entrypoint": "test:conformance:protocol-dto"
+    },
+    {
+      "id": "scratch-adapter-boundary",
+      "phase": "ARC-C001.1-G",
+      "status": "covered",
+      "entrypoint": "test:conformance:scratch-adapter-boundary"
+    }
+  ],
+  "certificationEntrypoint": "test:conformance:c001.1-h",
+  "governance": {
+    "wholeDomainCoverageClaimed": false,
+    "blockingCIActivated": false,
+    "nextConformanceWork": "ARC-C001.2 / ARC-C001.3 / ARC-C001.4 as scheduled; ARC-C001.6 activates Blocking CI",
+    "remainingGovernanceDebt": [
+      "GOV-DEBT-0001"
+    ],
+    "nonBlockingExternalEvidenceHolds": [
+      "EVIDENCE-HOLD-0001",
+      "EVIDENCE-HOLD-0002"
+    ]
+  },
+  "decisionBasis": [
+    "All seven C001.1 minimum conformance entrypoints exist and are executable.",
+    "The cumulative C001.1-G gate passes before certification.",
+    "Active Architecture Waivers are zero.",
+    "No unresolved debt item blocks C001.1 or 0009.",
+    "ARC status and Conformance status matrices agree on the certification result.",
+    "Blocking Merge Policy remains deferred to ARC-C001.6."
+  ]
+}

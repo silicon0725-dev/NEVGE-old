@@ -1,0 +1,24 @@
+{
+  "certificateId": "ngvge-ws3-dock-foundation-certificate/v1",
+  "stage": "WS-3",
+  "title": "Dock Foundation",
+  "status": "COMPLETE / VERIFIED",
+  "date": "2026-08-14",
+  "architectureParent": "ARC-0001 | Kernel Independence Contract",
+  "stages": [
+    "WS-3A",
+    "WS-3B",
+    "WS-3C",
+    "WS-3D",
+    "WS-3E",
+    "WS-3F"
+  ],
+  "dod": {
+    "passed": 14,
+    "total": 14,
+    "status": "PASS"
+  },
+  "semanticWindowAuthority": "ngvge.workspace-window-manager@1",
+  "toolIdentityAuthority": "ngvge.workspace-tool-registry@1",
+  "persistence": "deferred-to-WS-4"
+}
